@@ -106,12 +106,22 @@ STRICT RULES:
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY
 
-const stream = client.messages.stream({
-  model: MODEL,
-  max_tokens: 6000,
-  messages: [{ role: "user", content: `${dataBlock}\n\n${instruction}` }],
-});
-const message = await stream.finalMessage();
+let message;
+try {
+  const stream = client.messages.stream({
+    model: MODEL,
+    max_tokens: 6000,
+    messages: [{ role: "user", content: `${dataBlock}\n\n${instruction}` }],
+  });
+  message = await stream.finalMessage();
+} catch (err) {
+  // API failure (billing, outage, rate limit): keep the prior analysis
+  // section completely untouched — no timestamp bump, so the pool honestly
+  // reports when the analysis last actually refreshed. Exit non-zero so the
+  // Actions run is visibly red.
+  console.error("analysis call failed; prior analysis left untouched:", err.message ?? err);
+  process.exit(1);
+}
 
 const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
 if (!text) {
