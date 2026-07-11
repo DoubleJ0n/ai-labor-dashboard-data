@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "fred": {
+    "lastRefreshed": null,
+    "series": {}
+  },
+  "capability": {
+    "lastRefreshed": null,
+    "points": [
+      { "metricId": "metr", "seriesKey": "p50", "pointDate": "2023-03-14", "label": "GPT-4", "value": 5.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p80", "pointDate": "2023-03-14", "label": "GPT-4", "value": 1.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p50", "pointDate": "2025-02-24", "label": "Claude 3.7 Sonnet", "value": 59.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p80", "pointDate": "2025-02-24", "label": "Claude 3.7 Sonnet", "value": 15.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p50", "pointDate": "2025-04-16", "label": "o3", "value": 92.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p80", "pointDate": "2025-04-16", "label": "o3", "value": 20.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p50", "pointDate": "2025-05-22", "label": "Claude Opus 4", "value": 80.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p80", "pointDate": "2025-05-22", "label": "Claude Opus 4", "value": 18.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p50", "pointDate": "2025-07-09", "label": "Grok 4", "value": 110.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p80", "pointDate": "2025-07-09", "label": "Grok 4", "value": 15.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p50", "pointDate": "2025-08-07", "label": "GPT-5", "value": 137.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "metr", "seriesKey": "p80", "pointDate": "2025-08-07", "label": "GPT-5", "value": 26.0, "sourceUrl": "https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "reasoning", "pointDate": "2024-11-08", "label": "frontier best (FrontierMath)", "value": 2.0, "sourceUrl": "https://epoch.ai/frontiermath", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "reasoning", "pointDate": "2024-12-20", "label": "o3 (FrontierMath)", "value": 25.0, "sourceUrl": "https://epoch.ai/frontiermath", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "reasoning", "pointDate": "2025-08-07", "label": "frontier best (FrontierMath)", "value": 37.0, "sourceUrl": "https://epoch.ai/frontiermath", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "coding", "pointDate": "2024-08-13", "label": "GPT-4o (SWE-bench Verified)", "value": 33.0, "sourceUrl": "https://www.swebench.com/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "coding", "pointDate": "2025-02-24", "label": "Claude 3.7 Sonnet (SWE-bench Verified)", "value": 62.0, "sourceUrl": "https://www.swebench.com/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "coding", "pointDate": "2025-09-29", "label": "Claude Sonnet 4.5 (SWE-bench Verified)", "value": 77.0, "sourceUrl": "https://www.swebench.com/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "biology", "pointDate": "2023-11-20", "label": "GPT-4 (GPQA-Bio)", "value": 39.0, "sourceUrl": "https://arxiv.org/abs/2311.12022", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "biology", "pointDate": "2024-06-20", "label": "Claude 3.5 Sonnet (GPQA-Bio)", "value": 64.0, "sourceUrl": "https://arxiv.org/abs/2311.12022", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" },
+      { "metricId": "normalized", "seriesKey": "biology", "pointDate": "2025-05-22", "label": "frontier best (GPQA-Bio)", "value": 92.0, "sourceUrl": "https://arxiv.org/abs/2311.12022", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)" }
+    ],
+    "slots": [
+      { "slot": "reasoning", "benchmarkName": "FrontierMath", "sourceUrl": "https://epoch.ai/frontiermath", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)", "saturated": false, "note": "research-level mathematics problems written to be unpublished (contamination-resistant), scored by Epoch AI" },
+      { "slot": "coding", "benchmarkName": "SWE-bench Verified", "sourceUrl": "https://www.swebench.com/", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)", "saturated": false, "note": "real software bug-fixing tasks from public code repositories, human-verified subset" },
+      { "slot": "biology", "benchmarkName": "GPQA-Bio", "sourceUrl": "https://arxiv.org/abs/2311.12022", "fetchDate": "2026-07-10 (seeded — pending enrichment verification)", "saturated": true, "note": "graduate-level biology questions; GPT-4 scored 39% at its late-2023 release vs a 70% expert baseline, frontier models now ~92% — nearing saturation, research-task successor (LAB-Bench-style) preferred when the weekly check finds adequate published coverage" }
+    ],
+    "log": []
+  },
+  "analysis": {
+    "lastRefreshed": null,
+    "text": "",
+    "signal": "UNKNOWN",
+    "model": "claude-sonnet-5",
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "estimatedCostUsd": 0.0,
+    "inputsFingerprint": null
+  }
+}

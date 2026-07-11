@@ -1,0 +1,39 @@
+name: fred-refresh
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC — first in the weekly chain
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# All three refresh jobs share one group so pool commits never race.
+concurrency:
+  group: pool-write
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pull FRED series
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: node scripts/fred-refresh.mjs
+      - name: Commit updated pool
+        run: |
+          git config user.name "pool-refresh-bot"
+          git config user.email "actions@github.com"
+          git add dashboard-data.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "fred-refresh: weekly FRED series update"
+            git pull --rebase origin main
+            git push
+          fi
