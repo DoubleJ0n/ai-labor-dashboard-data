@@ -3526,7 +3526,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": null,
+    "lastRefreshed": "2026-07-11T21:51:47Z",
     "points": [
       {
         "metricId": "metr",
@@ -3744,7 +3744,13 @@
         "note": "graduate-level biology questions; GPT-4 scored 39% at its late-2023 release vs a 70% expert baseline, frontier models now ~92% — nearing saturation, research-task successor (LAB-Bench-style) preferred when the weekly check finds adequate published coverage"
       }
     ],
-    "log": []
+    "log": [
+      {
+        "runDate": "2026-07-11",
+        "foundNew": false,
+        "summary": "failed: 400 {\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.\"},\"reque"
+      }
+    ]
   },
   "analysis": {
     "lastRefreshed": null,
