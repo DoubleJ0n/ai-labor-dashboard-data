@@ -4,10 +4,26 @@
 // Free API; runs weekly via GitHub Actions. Key from FRED_API_KEY.
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 
-// Mirrors the app's domain/Models.kt SeriesIds.ALL — do not rename.
-const SERIES_IDS = [
+// Core series the original panels depend on (mirrors SeriesIds.ALL) — a
+// missing one FAILS the run loudly.
+const REQUIRED_IDS = [
   "GDPC1", "PAYEMS", "USINFO", "TEMPHELPS",
   "CES6054150001", "CGBD2024", "LNS14000036", "UNRATE",
+];
+
+// v9.2 additions for the recession-robust indicator. OPTIONAL: a bad/renamed
+// id is skipped with a warning and never breaks the core pool.
+const OPTIONAL_IDS = [
+  // exposed-vs-control industry employment (CES, SA, thousands)
+  "USPBS", "USFIRE",              // exposed: professional & business svcs, finance
+  "USCONS", "USLAH", "USEHS",     // control: construction, leisure/hosp, edu/health
+  // distributional
+  "PRS85006173",                  // nonfarm business labor share (quarterly)
+  // JOLTS rates (total nonfarm + professional & business services)
+  "JTSJOR", "JTSHIR", "JTSLDR",
+  "JTS6000JOR", "JTS6000HIR", "JTS6000LDR",
+  // macro-regime gate (daily)
+  "DFII10", "T10Y2Y", "T10Y3M", "T10YIE",
 ];
 
 const apiKey = process.env.FRED_API_KEY;
@@ -37,10 +53,23 @@ async function fetchSeries(seriesId) {
 }
 
 const series = {};
-for (const id of SERIES_IDS) {
+for (const id of REQUIRED_IDS) {
   series[id] = await fetchSeries(id);
   console.log(`${id}: ${series[id].length} observations`);
   if (series[id].length === 0) throw new Error(`FRED returned no data for ${id}`);
+}
+for (const id of OPTIONAL_IDS) {
+  try {
+    const obs = await fetchSeries(id);
+    if (obs.length > 0) {
+      series[id] = obs;
+      console.log(`${id}: ${obs.length} observations (optional)`);
+    } else {
+      console.warn(`${id}: no data (optional) — skipped`);
+    }
+  } catch (e) {
+    console.warn(`${id}: fetch failed (optional) — skipped: ${e.message ?? e}`);
+  }
 }
 
 const prior = loadPool().fred;
