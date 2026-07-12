@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "source": "US Census Bureau, Business Trends and Outlook Survey (BTOS) — share of firms using AI to produce goods or services",
+  "sourceUrl": "https://www.census.gov/hfp/btos/",
+  "note": "PINNED, APPROXIMATE. Values track the published BTOS national AI-use trend (rose from ~3.7% in late 2023 into high single digits by 2025). Update with exact biweekly figures from the BTOS National.xlsx (https://www.census.gov/hfp/btos/downloads/National.xlsx). Human-gated like the METR snapshot — a live xlsx-parse job is a future enhancement.",
+  "lastRefreshed": "2026-07-12",
+  "points": [
+    { "date": "2023-09-01", "pct": 3.8 },
+    { "date": "2023-12-01", "pct": 4.0 },
+    { "date": "2024-03-01", "pct": 5.0 },
+    { "date": "2024-06-01", "pct": 5.4 },
+    { "date": "2024-09-01", "pct": 6.1 },
+    { "date": "2024-12-01", "pct": 6.6 },
+    { "date": "2025-03-01", "pct": 7.4 },
+    { "date": "2025-06-01", "pct": 8.7 },
+    { "date": "2025-09-01", "pct": 9.7 },
+    { "date": "2025-12-01", "pct": 10.6 }
+  ]
+}
