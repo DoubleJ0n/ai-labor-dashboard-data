@@ -1,0 +1,52 @@
+name: metr-fetch
+
+# Weekly METR Time Horizon check. FREE (METR's YAML feed, no API key) so it
+# runs even when the Anthropic account has no credits. It PROPOSES changes as
+# a pull request for human review — it never commits to the pinned snapshot
+# directly. A methodology shift (new TH version) opens an issue and fails.
+on:
+  schedule:
+    - cron: "40 6 * * 1" # Mondays 06:40 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - id: metr
+        name: Fetch + diff METR feed
+        run: node scripts/metr-fetch.mjs
+
+      - name: Open PR for new models / revisions
+        if: steps.metr.outputs.status == 'changes'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: metr-update
+          base: main
+          title: ${{ steps.metr.outputs.title }}
+          body-path: metr-fetch-report.md
+          labels: needs-review
+          add-paths: data/metr/time_horizons.json
+          delete-branch: true
+
+      - name: Open issue on methodology shift, then fail
+        if: steps.metr.outputs.status == 'methodology'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "${{ steps.metr.outputs.title }}" \
+            --body-file metr-fetch-report.md \
+            --label needs-review
+          echo "Methodology shift — stopping loudly." >&2
+          exit 1

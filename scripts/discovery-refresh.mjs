@@ -1,8 +1,13 @@
 // Designed with Claude (Anthropic)
-// discovery-refresh: Claude WITH WEB SEARCH checks (1) newly published METR
-// task-length-horizon results and (2) whether any tracked capability
-// benchmark (reasoning/coding/biology) has saturated and needs a successor,
-// per the M-V6 selection rules. Rewrites ONLY the "capability" section.
+// discovery-refresh: Claude WITH WEB SEARCH checks whether any tracked
+// normalized-capability benchmark (reasoning/coding/biology) has saturated and
+// needs a successor, per the M-V6 selection rules. Rewrites ONLY the
+// "capability" slots + normalized points.
+//
+// NOTE: METR time horizons are NO LONGER handled here. That data is
+// human-gated through data/metr/time_horizons.json + the metr-fetch workflow
+// (a revision to a published horizon is an event that needs review, not an
+// auto-commit). This job only owns the normalized benchmark slots.
 //
 // MODEL: Haiku 4.5 (claude-haiku-4-5-20251001) — this is data extraction;
 // deliberately not a bigger model. Haiku 4.5 uses the basic
@@ -17,19 +22,12 @@ const client = new Anthropic(); // reads ANTHROPIC_API_KEY
 
 function buildPrompt(currentSlots) {
   return `
-You maintain the capability data for a small AI-labor-market dashboard app.
-Use web search to check two things, then reply with ONLY a fenced JSON block.
+You maintain the normalized-capability data for a small AI-labor-market
+dashboard app. Use web search to check ONE thing, then reply with ONLY a
+fenced JSON block.
 
-TASK 1 — METR time horizons. Find METR's (metr.org) most recent published
-"task-completion time horizon" results. List EVERY model METR has actually
-published BOTH or either of: 50% horizon and 80% horizon (in minutes), with
-the model's public release date and the URL of the METR page/paper you got
-the number from. Do NOT estimate or extrapolate a horizon for any model METR
-has not measured. If METR has published nothing new since your data would
-suggest, set changed=false.
-
-TASK 2 — benchmark slots. The app shows one normalized 0-100 chart with three
-slots: reasoning, coding, biology. Current slots: ${currentSlots}.
+Benchmark slots. The app shows one normalized 0-100 chart with three slots:
+reasoning, coding, biology. Current slots: ${currentSlots}.
 For each slot, verify the benchmark still meets these rules, or pick a better
 one that does: (1) standardized, widely reported, peer-reviewed or equivalent;
 (2) NOT yet saturated — meaningful headroom remains (if saturated, flag it and
@@ -42,15 +40,12 @@ time, each from a source you actually found, with the source URL.
 Reply with exactly one fenced block in this schema (no other prose after it):
 \`\`\`json
 {"changed": true,
- "metr": {"models": [{"name": "...", "release_date": "YYYY-MM-DD",
-   "p50_minutes": 0, "p80_minutes": 0, "source_url": "..."}]},
  "slots": [{"slot": "reasoning", "benchmark": "...", "source_url": "...",
    "saturated": false, "note": "one plain-language sentence describing the benchmark",
    "points": [{"label": "model name (benchmark)", "date": "YYYY-MM-DD", "score": 0}]}],
  "summary": "one line describing what changed"}
 \`\`\`
-If nothing new was found for either task, reply with {"changed": false} in the
-fenced block.
+If nothing new was found, reply with {"changed": false} in the fenced block.
 `.trim();
 }
 
@@ -106,26 +101,6 @@ if (!parsed) {
   pushLog(capability, false, "nothing new found");
 } else {
   const summaryParts = [];
-
-  // METR models — full replacement of the "metr" points when provided.
-  const models = parsed.metr?.models ?? [];
-  if (models.length > 0) {
-    const pts = [];
-    for (const m of models) {
-      if (!m.name || !m.release_date) continue;
-      const src = m.source_url || "metr.org";
-      if (typeof m.p50_minutes === "number") {
-        pts.push({ metricId: "metr", seriesKey: "p50", pointDate: m.release_date, label: m.name, value: m.p50_minutes, sourceUrl: src, fetchDate: today });
-      }
-      if (typeof m.p80_minutes === "number") {
-        pts.push({ metricId: "metr", seriesKey: "p80", pointDate: m.release_date, label: m.name, value: m.p80_minutes, sourceUrl: src, fetchDate: today });
-      }
-    }
-    if (pts.length > 0) {
-      capability.points = capability.points.filter((p) => p.metricId !== "metr").concat(pts);
-      summaryParts.push(`METR: ${pts.length} points`);
-    }
-  }
 
   // Benchmark slots + normalized points — full replacement when provided.
   const slots = parsed.slots ?? [];

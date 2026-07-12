@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Central data pool + weekly refresh scripts for the AILaborDashboard app",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.111.0"
+    "@anthropic-ai/sdk": "^0.111.0",
+    "yaml": "^2.6.0"
   }
 }

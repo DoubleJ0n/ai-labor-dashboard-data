@@ -12,11 +12,12 @@ https://raw.githubusercontent.com/DoubleJ0n/ai-labor-dashboard-data/main/dashboa
 
 ## Refresh pipeline
 
-| Job | Script | Model / API | Schedule (UTC) | Writes section |
+| Job | Script | Model / API | Schedule (UTC) | Writes |
 |---|---|---|---|---|
-| fred-refresh | `scripts/fred-refresh.mjs` | FRED API (free) | Mon 06:00 | `fred` |
-| discovery-refresh | `scripts/discovery-refresh.mjs` | Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) + web search | Mon 06:20 | `capability` |
-| analysis-refresh | `scripts/analysis-refresh.mjs` | Claude Sonnet 5 (`claude-sonnet-5`) | Mon 06:50 (after the other two) | `analysis` |
+| fred-refresh | `scripts/fred-refresh.mjs` | FRED API (free) | Mon 06:00 | `dashboard-data.json` → `fred` |
+| discovery-refresh | `scripts/discovery-refresh.mjs` | Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) + web search | Mon 06:20 | `dashboard-data.json` → `capability` (normalized benchmark slots only) |
+| metr-fetch | `scripts/metr-fetch.mjs` | METR YAML feed (free) | Mon 06:40 | **PR** proposing `data/metr/time_horizons.json` |
+| analysis-refresh | `scripts/analysis-refresh.mjs` | Claude Sonnet 5 (`claude-sonnet-5`) | Mon 06:50 (after the others) | `dashboard-data.json` → `analysis` |
 
 Rules all three follow:
 
@@ -108,10 +109,42 @@ are ISO-8601 UTC. Each top-level section carries its own `lastRefreshed`.
 }
 ```
 
+## METR time horizons — pinned, human-gated
+
+The METR capability chart is fed by **`data/metr/time_horizons.json`**, a
+pinned snapshot — NOT a live fetch. METR revises published horizons
+retroactively (e.g. the 2026-03-03 regularization correction pulled every
+long-horizon estimate down), so a render-time fetch would silently rewrite the
+chart's own history. Instead:
+
+1. **Snapshot** (`data/metr/time_horizons.json`) — committed, versioned, the
+   only METR data the app reads. The chart is a pure function of it.
+2. **Fetcher** (`metr-fetch` workflow, weekly, free) — pulls METR's feed,
+   normalizes it through an explicit field map, and diffs against the
+   snapshot. It classifies every change and **opens a pull request** — it
+   never commits to the snapshot directly:
+   - **NEW MODEL** → append (routine PR).
+   - **REVISION** (a published p50/p80 changed) → PR labeled `needs-review`
+     with old→new + delta. This is the case the pipeline exists for.
+   - **METHODOLOGY SHIFT** (feed exposes a new TH version) → opens an issue and
+     fails; a different task suite is a different ruler and must not be merged
+     into the TH1.1 series.
+   - **NO CHANGE** → exit 0, no PR.
+3. **Human** — reviews the PR, merges or not.
+
+A 404 / unparseable feed / missing field fails the job loudly rather than
+writing partial or stale data. The pre-registered threshold (AMBER at 80% ≥
+40h) is recorded in the snapshot's `threshold` block and must not be moved.
+
+Note: the discovery-refresh job no longer touches METR (it owns only the
+normalized benchmark slots); any leftover `metricId:"metr"` points in
+`dashboard-data.json` are vestigial and unread by the app.
+
 ## Manual refresh
 
 ```
 gh workflow run fred-refresh.yml
 gh workflow run discovery-refresh.yml
+gh workflow run metr-fetch.yml
 gh workflow run analysis-refresh.yml
 ```
