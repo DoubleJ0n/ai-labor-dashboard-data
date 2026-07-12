@@ -105,44 +105,81 @@ function computeInversion(grad, unrate) {
   return { gapPct: idx >= 0 ? joined[idx].gap : null, anomalous, runMonths: run };
 }
 
-/** Summary of the whole dashboard, computed from pool.fred.series + pool.capability. */
-export function computeDashboardSummary(pool) {
+// v9.2/v9.3 panels (simplified latest-value reads for the analysis prompt).
+const EXPOSED_IND = ["USINFO", "USPBS", "USFIRE"];
+const CONTROL_IND = ["USCONS", "USLAH", "USEHS"];
+
+function yoyLatestAvg(ids, series) {
+  const vals = ids.map((id) => {
+    const s = sorted(series[id]);
+    if (s.length < 13) return null;
+    const last = s[s.length - 1].value;
+    const prior = s[s.length - 13].value;
+    return prior ? (last / prior - 1) * 100 : null;
+  }).filter((v) => v != null);
+  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+}
+
+function lastVal(series, id) { const s = sorted(series[id]); return s.length ? s[s.length - 1].value : null; }
+
+/** Summary of the whole dashboard. `extras` carries the METR + adoption
+ *  snapshots (separate files) so the analysis reasons over EVERYTHING. */
+export function computeDashboardSummary(pool, extras = {}) {
   const series = pool.fred.series ?? {};
   const gdp = sorted(series.GDPC1);
   const payems = sorted(series.PAYEMS);
 
   const sectors = ["USINFO", "TEMPHELPS", "CES6054150001"].map((id) => ({
-    id,
-    name: SECTOR_NAMES[id],
-    ...computeSector(sorted(series[id])),
+    id, name: SECTOR_NAMES[id], ...computeSector(sorted(series[id])),
   }));
 
-  const p50 = pool.capability.points.filter((p) => p.metricId === "metr" && p.seriesKey === "p50");
-  const p80ByLabel = Object.fromEntries(
-    pool.capability.points.filter((p) => p.metricId === "metr" && p.seriesKey === "p80").map((p) => [p.label, p.value]),
-  );
-  const metrTop5 = [...p50].sort((a, b) => b.value - a.value).slice(0, 5)
-    .map((p) => ({ label: p.label, date: p.pointDate, p50Minutes: p.value, p80Minutes: p80ByLabel[p.label] ?? null }));
+  // Type D: exposed-minus-control (the confounder-robust signal).
+  const exYoY = yoyLatestAvg(EXPOSED_IND, series);
+  const coYoY = yoyLatestAvg(CONTROL_IND, series);
+  const exposedControl = { exposedYoY: exYoY, controlYoY: coYoY, differential: (exYoY != null && coYoY != null) ? exYoY - coYoY : null };
+
+  // Type D: labor share.
+  const ls = sorted(series.PRS85006173);
+  const laborShare = { latest: ls.length ? ls[ls.length - 1].value : null, changeVs4qAgo: ls.length > 4 ? ls[ls.length - 1].value - ls[ls.length - 5].value : null };
+
+  // Type C: hiring flows (prof & business preferred).
+  const hiresS = sorted(series.JTS6000HIR).length ? sorted(series.JTS6000HIR) : sorted(series.JTSHIR);
+  const hiringFlows = {
+    openingsRate: lastVal(series, "JTS6000JOR") ?? lastVal(series, "JTSJOR"),
+    hiresRate: hiresS.length ? hiresS[hiresS.length - 1].value : null,
+    hiresChangeYoY: hiresS.length > 12 ? hiresS[hiresS.length - 1].value - hiresS[hiresS.length - 13].value : null,
+    layoffsRate: lastVal(series, "JTSLDR"),
+  };
+
+  // Type E: macro-regime gate.
+  const ts2 = lastVal(series, "T10Y2Y");
+  const ts3 = lastVal(series, "T10Y3M");
+  const macro = { realYield10y: lastVal(series, "DFII10"), termSpread10y2y: ts2, termSpread10y3m: ts3, breakeven10y: lastVal(series, "T10YIE"), recessionSignal: (ts3 != null && ts3 < 0) || (ts2 != null && ts2 < 0) };
+
+  // METR from the current snapshot (extras), not the vestigial pool points.
+  const metrTop5 = (extras.metrRecords ?? [])
+    .filter((r) => r.thVersion === "1.1" && r.p80Min != null)
+    .sort((a, b) => b.p80Min - a.p80Min).slice(0, 5)
+    .map((r) => ({ model: r.model, lab: r.lab, p80Min: r.p80Min, p50Min: r.p50Min }));
 
   const slotLatest = pool.capability.slots.map((s) => {
     const pts = pool.capability.points
       .filter((p) => p.metricId === "normalized" && p.seriesKey === s.slot)
       .sort((a, b) => a.pointDate.localeCompare(b.pointDate));
     const last = pts[pts.length - 1];
-    return {
-      slot: s.slot,
-      benchmarkName: s.benchmarkName,
-      saturated: s.saturated,
-      latestScore: last?.value ?? null,
-      latestDate: last?.pointDate ?? null,
-    };
+    return { slot: s.slot, benchmarkName: s.benchmarkName, saturated: s.saturated, latestScore: last?.value ?? null, latestDate: last?.pointDate ?? null };
   });
+
+  // Type B: adoption (extras).
+  const ap = extras.adoptionPoints ?? [];
+  const adoption = ap.length ? { latestPct: ap[ap.length - 1].pct, rising: ap.length >= 2 && ap[ap.length - 1].pct > ap[Math.max(0, ap.length - 4)].pct } : null;
 
   return {
     productivity: computeProductivity(gdp, payems),
     sectors,
     inversion: computeInversion(sorted(series.CGBD2024), sorted(series.UNRATE)),
     gdpEmployment: computeGdpEmployment(gdp, payems),
+    exposedControl, laborShare, hiringFlows, macro, adoption,
     metrTop5,
     slots: slotLatest,
   };

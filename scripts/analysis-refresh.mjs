@@ -11,9 +11,17 @@
 //    something meaningful since the last analysis (inputsFingerprint gate);
 //    otherwise keeps the prior text and updates the timestamp only.
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import { computeDashboardSummary } from "./metrics.mjs";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+function readJson(rel) {
+  try { return JSON.parse(readFileSync(path.join(repoRoot, rel), "utf8")); } catch { return null; }
+}
 
 const MODEL = "claude-sonnet-5";
 // Sticker pricing $3 / $15 per MTok (matches the estimate style the app used).
@@ -34,7 +42,13 @@ if (!pool.fred.lastRefreshed || Object.keys(pool.fred.series ?? {}).length === 0
   process.exit(0);
 }
 
-const summary = computeDashboardSummary(pool);
+// Read the separate METR + adoption snapshots so the analysis reviews EVERYTHING.
+const metrSnap = readJson("data/metr/time_horizons.json");
+const adoptionSnap = readJson("data/adoption/ai_adoption.json");
+const summary = computeDashboardSummary(pool, {
+  metrRecords: metrSnap?.records ?? [],
+  adoptionPoints: adoptionSnap?.points ?? [],
+});
 
 // Meaningful-change gate: fingerprint the rounded inputs so float jitter or a
 // mere re-download of identical data never triggers a paid model call.
@@ -68,8 +82,25 @@ GDP-EMPLOYMENT GROWTH GAP (real GDP growth minus payroll growth, year over year)
 - current gap: ${fmt(summary.gdpEmployment.gapPct)} percentage points
 - 10-year average gap: ${fmt(summary.gdpEmployment.avgGapPct)} percentage points
 
-AI CAPABILITY — task-length horizons (METR; how long a task, in human working minutes, AI completes at 50% / 80% reliability):
-${summary.metrTop5.map((m) => `- ${m.label} (released ${m.date}): 50% horizon ${fmt(m.p50Minutes, 0)} min, 80% horizon ${m.p80Minutes == null ? "not measured" : fmt(m.p80Minutes, 0) + " min"}`).join("\n")}
+EXPOSED-vs-CONTROL JOBS (the confounder-robust test — a recession moves both together, so only an AI-shaped shock moves the difference):
+- AI-exposed industries growing ${fmt(summary.exposedControl.exposedYoY)}%/yr vs control industries ${fmt(summary.exposedControl.controlYoY)}%/yr
+- differential (exposed minus control): ${fmt(summary.exposedControl.differential)} percentage points (negative = exposed weakening relative to control)
+
+LABOR SHARE OF INCOME (displacement theory predicts this FALLS; augmentation does not):
+- latest index: ${fmt(summary.laborShare.latest)}, change over the last year: ${fmt(summary.laborShare.changeVs4qAgo)} index points
+
+HIRING FLOWS in exposed sectors (the "quiet non-replacement" tell = openings/hires falling while layoffs stay flat):
+- job openings rate ${fmt(summary.hiringFlows.openingsRate)}%, hires rate ${fmt(summary.hiringFlows.hiresRate)}% (year-over-year change ${fmt(summary.hiringFlows.hiresChangeYoY)} pts), layoffs rate ${fmt(summary.hiringFlows.layoffsRate)}%
+
+AI ADOPTION (Census survey — the deciding evidence that AI is actually being deployed):
+- ${summary.adoption ? `${fmt(summary.adoption.latestPct, 1)}% of firms use AI in some business function, ${summary.adoption.rising ? "rising" : "flat"}` : "no data"}
+
+MACRO REGIME (context to separate an AI story from an ordinary business cycle):
+- 10-year real interest rate ${fmt(summary.macro.realYield10y)}%, yield curve (10y minus 2y) ${fmt(summary.macro.termSpread10y2y)}%, expected inflation ${fmt(summary.macro.breakeven10y)}%
+- yield curve inverted (a conventional recession signal): ${summary.macro.recessionSignal}
+
+AI CAPABILITY — task-length horizons (METR; how long a task, in human working minutes, AI completes at 50% / 80% reliability), top models by 80% horizon:
+${summary.metrTop5.map((m) => `- ${m.model} (${m.lab}): 80% horizon ${fmt(m.p80Min, 0)} min, 50% horizon ${fmt(m.p50Min, 0)} min`).join("\n")}
 
 AI CAPABILITY — normalized benchmark tracks (0-100):
 ${summary.slots.map((s) => `- ${s.slot} (${s.benchmarkName}${s.saturated ? ", flagged as nearing saturation" : ""}): latest score ${fmt(s.latestScore, 0)} on ${s.latestDate ?? "n/a"}`).join("\n")}
@@ -83,16 +114,24 @@ enough to displace large categories of work discontinuously; (2) Augmented
 Work — AI mostly helps people work better, and the big aggregate statistics
 move slowly.
 
-Weigh the labor-market panels against the AI-capability curve: capability
-climbing steeply while labor indicators stay calm favors the augmentation
-reading (or means displacement hasn't arrived yet); labor indicators firing
-together WITH steep capability gains is the displacement pattern.
+Weigh ALL the panels together, not just a few. Capability climbing while labor
+indicators stay calm favors augmentation (or means displacement hasn't arrived
+yet); labor indicators firing together WITH real AI adoption is the displacement
+pattern. Give special weight to the EXPOSED-vs-CONTROL differential and to
+ADOPTION: broad labor weakness alone is usually just the business cycle, but
+exposed work weakening RELATIVE to control, while firms are actually deploying
+AI, is the AI-specific fingerprint. Use the MACRO REGIME to check yourself — if
+the yield curve is inverted, an ordinary recession is the more likely story.
 
 Always account for the confounder: the post-2021 tech-hiring correction plus
 ordinary economic cooling mimics early AI displacement in the exposed sectors.
-Only the full cluster of indicators firing together signals a genuine break.
 State plainly which indicators look elevated, which don't, and the most likely
 non-AI explanation for anything elevated.
+
+This is your INDEPENDENT read. The app also shows a separate mechanical
+indicator computed by a fixed rule; your job is to look at the whole picture
+like an analyst and say where you think the evidence points — you may agree or
+disagree with a mechanical reading.
 
 STRICT RULES:
 - Use ONLY the numbers supplied above. Do not bring in any statistic, event,
@@ -102,6 +141,7 @@ STRICT RULES:
   reader with no economics or AI background: no acronyms without spelling them
   out, no data-series codes, no researcher names, no jargon.
 - End with exactly one line: REGIME SIGNAL: NONE / AMBIGUOUS / PARTIAL / FIRING
+  (this is your independent lean toward augmentation (NONE) vs displacement (FIRING)).
 `.trim();
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY
