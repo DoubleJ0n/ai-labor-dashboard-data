@@ -48704,13 +48704,13 @@
     ]
   },
   "analysis": {
-    "lastRefreshed": null,
-    "text": "",
-    "signal": "UNKNOWN",
+    "lastRefreshed": "2026-07-12T23:41:46Z",
+    "text": "**What the numbers show, panel by panel**\n\nOverall output growth is unremarkable: worker productivity is growing 2.51% a year, below even the internet-boom-era pace and far below the 3.4% threshold that would signal a productivity surge. If AI were replacing large swaths of work right now, we'd expect a visible output jump — we don't see one.\n\nThe sector-level story is mixed. The information sector (which includes much AI-exposed work) keeps sliding, and internet publishing/web search is drifting down too, but temporary-help employment is actually inching up — not the pattern you'd expect if firms across the board were quietly cutting workers.\n\nThe recent-graduate unemployment gap (4.70 points, above its 10-year average) is a real yellow flag, but it's only been elevated for three months — too short to call a trend rather than normal noise from a cooling job market for young workers.\n\nThe most important test here is the exposed-versus-control comparison, and it's meaningfully elevated: AI-exposed industries are shrinking (-1.27%/yr) while comparable non-exposed industries are still growing (+1.27%/yr), a 2.54-point gap. That's the one measure designed to strip out generic economic cooling, and it's not calm.\n\nLabor's share of total income is falling (-2.88 points over the year) — consistent with the displacement story, since augmentation alone wouldn't necessarily squeeze labor's share this much.\n\nHiring flows show the \"quiet non-replacement\" pattern: openings still healthy, hires rate slipping, layoffs flat — firms aren't firing people, they're just not backfilling. That's a subtler signal than mass layoffs, but it's present.\n\nCrucially, AI adoption is real and rising (20.6% of firms), and the yield curve is not inverted — so an ordinary recession is less likely to be the whole explanation for the exposed-sector weakness. Capability continues climbing fast on task-length benchmarks.\n\n**Non-AI explanation to keep in mind:** the post-2021 tech-hiring correction is a real, ordinary confounder for information-sector and internet-publishing softness, and it likely explains some of this even after adjusting for the control group.\n\n**Bottom line:** several indicators (exposed-vs-control gap, labor share, hiring flows, real adoption) are moving together in a way that's more than noise, but the core productivity and layoff data haven't broken from normal patterns — this looks like an early, partial signal, not full displacement.\n\nREGIME SIGNAL: PARTIAL",
+    "signal": "PARTIAL",
     "model": "claude-sonnet-5",
-    "inputTokens": 0,
-    "outputTokens": 0,
-    "estimatedCostUsd": 0,
-    "inputsFingerprint": null
+    "inputTokens": 2004,
+    "outputTokens": 2199,
+    "estimatedCostUsd": 0.038997000000000004,
+    "inputsFingerprint": "317b5d5ae4235b402b94beeb417254826086df6adbd082e823ca3cd29754788b"
   }
 }
