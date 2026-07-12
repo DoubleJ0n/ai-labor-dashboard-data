@@ -5,6 +5,7 @@
   "description": "Central data pool + weekly refresh scripts for the AILaborDashboard app",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
     "yaml": "^2.6.0"
   }
 }

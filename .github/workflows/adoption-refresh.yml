@@ -1,0 +1,39 @@
+name: adoption-refresh
+
+# Weekly Census BTOS AI-adoption check. FREE (keyless xlsx download) so it runs
+# regardless of API credits. Proposes updates to the pinned snapshot as a PR;
+# fails loud if the spreadsheet's structure changes (deterministic invariants),
+# never silently mis-extracting.
+on:
+  schedule:
+    - cron: "10 6 * * 1" # Mondays 06:10 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-audit --no-fund
+      - id: adoption
+        name: Parse BTOS AI-use series
+        run: node scripts/adoption-refresh.mjs
+
+      - name: Open PR on change
+        if: steps.adoption.outputs.status == 'changes'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: adoption-update
+          base: main
+          title: ${{ steps.adoption.outputs.title }}
+          body-path: adoption-refresh-report.md
+          labels: needs-review
+          add-paths: data/adoption/ai_adoption.json
+          delete-branch: true
