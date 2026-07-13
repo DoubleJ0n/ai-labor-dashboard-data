@@ -174,12 +174,23 @@ export function computeDashboardSummary(pool, extras = {}) {
   const ap = extras.adoptionPoints ?? [];
   const adoption = ap.length ? { latestPct: ap[ap.length - 1].pct, rising: ap.length >= 2 && ap[ap.length - 1].pct > ap[Math.max(0, ap.length - 4)].pct } : null;
 
+  // AEI: how AI is used — automation (task offload) vs augmentation (collaboration).
+  // Soft Type-B modifier: a rising automation share means the AI that IS being
+  // adopted is doing more offloading, not just assisting.
+  const aei = extras.aeiPoints ?? [];
+  const aeiUse = aei.length ? {
+    latestAutomatePct: aei[aei.length - 1].automatePct,
+    latestAugmentPct: aei[aei.length - 1].augmentPct,
+    automateChange: aei.length >= 2 ? aei[aei.length - 1].automatePct - aei[0].automatePct : null,
+    latestDate: aei[aei.length - 1].date,
+  } : null;
+
   return {
     productivity: computeProductivity(gdp, payems),
     sectors,
     inversion: computeInversion(sorted(series.CGBD2024), sorted(series.UNRATE)),
     gdpEmployment: computeGdpEmployment(gdp, payems),
-    exposedControl, laborShare, hiringFlows, macro, adoption,
+    exposedControl, laborShare, hiringFlows, macro, adoption, aeiUse,
     metrTop5,
     slots: slotLatest,
   };

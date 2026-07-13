@@ -42,12 +42,14 @@ if (!pool.fred.lastRefreshed || Object.keys(pool.fred.series ?? {}).length === 0
   process.exit(0);
 }
 
-// Read the separate METR + adoption snapshots so the analysis reviews EVERYTHING.
+// Read the separate METR + adoption + AEI snapshots so the analysis reviews EVERYTHING.
 const metrSnap = readJson("data/metr/time_horizons.json");
 const adoptionSnap = readJson("data/adoption/ai_adoption.json");
+const aeiSnap = readJson("data/aei/augmentation.json");
 const summary = computeDashboardSummary(pool, {
   metrRecords: metrSnap?.records ?? [],
   adoptionPoints: adoptionSnap?.points ?? [],
+  aeiPoints: aeiSnap?.points ?? [],
 });
 
 // Meaningful-change gate: fingerprint the rounded inputs so float jitter or a
@@ -95,6 +97,9 @@ HIRING FLOWS in exposed sectors (the "quiet non-replacement" tell = openings/hir
 AI ADOPTION (Census survey — the deciding evidence that AI is actually being deployed):
 - ${summary.adoption ? `${fmt(summary.adoption.latestPct, 1)}% of firms use AI in some business function, ${summary.adoption.rising ? "rising" : "flat"}` : "no data"}
 
+HOW AI IS USED (Anthropic Economic Index — of AI conversations, the share that OFFLOADS a task from the human (automation) vs COLLABORATES with them (augmentation); a rising automation share means adoption is shifting toward replacing work rather than assisting it):
+- ${summary.aeiUse ? `${fmt(summary.aeiUse.latestAutomatePct, 1)}% automation vs ${fmt(summary.aeiUse.latestAugmentPct, 1)}% augmentation as of ${summary.aeiUse.latestDate}${summary.aeiUse.automateChange != null ? ` (automation share has moved ${summary.aeiUse.automateChange >= 0 ? "+" : ""}${fmt(summary.aeiUse.automateChange, 1)} pts across the series)` : ""}` : "no data"}
+
 MACRO REGIME (context to separate an AI story from an ordinary business cycle):
 - 10-year real interest rate ${fmt(summary.macro.realYield10y)}%, yield curve (10y minus 2y) ${fmt(summary.macro.termSpread10y2y)}%, expected inflation ${fmt(summary.macro.breakeven10y)}%
 - yield curve inverted (a conventional recession signal): ${summary.macro.recessionSignal}
@@ -122,6 +127,12 @@ ADOPTION: broad labor weakness alone is usually just the business cycle, but
 exposed work weakening RELATIVE to control, while firms are actually deploying
 AI, is the AI-specific fingerprint. Use the MACRO REGIME to check yourself — if
 the yield curve is inverted, an ordinary recession is the more likely story.
+
+Treat HOW AI IS USED (automation vs augmentation) as a soft qualifier on the
+adoption signal, never a trigger on its own: it is a slow research series, so a
+rising automation share raises the displacement reading only when adoption is
+also rising AND exposed work is weakening. A stable or augmentation-leaning
+split is evidence for the augmentation frame even if adoption is climbing.
 
 Always account for the confounder: the post-2021 tech-hiring correction plus
 ordinary economic cooling mimics early AI displacement in the exposed sectors.
