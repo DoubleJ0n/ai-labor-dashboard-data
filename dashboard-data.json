@@ -48456,7 +48456,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": "2026-07-13T02:30:00Z",
+    "lastRefreshed": "2026-07-13T13:52:07Z",
     "points": [
       {
         "metricId": "metr",
@@ -48569,112 +48569,171 @@
       {
         "metricId": "normalized",
         "seriesKey": "reasoning",
-        "pointDate": "2024-11-08",
-        "label": "frontier best (FrontierMath)",
-        "value": 2,
-        "sourceUrl": "https://epoch.ai/frontiermath",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "pointDate": "2025-01-24",
+        "label": "GPT-4o (HLE)",
+        "value": 3,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "reasoning",
-        "pointDate": "2024-12-20",
-        "label": "o3 (FrontierMath)",
+        "pointDate": "2025-05-15",
+        "label": "Claude Opus 4.5 Thinking (HLE)",
         "value": 25,
-        "sourceUrl": "https://epoch.ai/frontiermath",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "reasoning",
-        "pointDate": "2025-08-07",
-        "label": "frontier best (FrontierMath)",
+        "pointDate": "2026-02-12",
+        "label": "Gemini 3 Pro (HLE)",
         "value": 37,
-        "sourceUrl": "https://epoch.ai/frontiermath",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-02-05",
+        "label": "Claude Opus 4.6 Thinking Max (HLE)",
+        "value": 34,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-03-05",
+        "label": "GPT-5.4 Pro (HLE)",
+        "value": 44,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-07-05",
+        "label": "Claude Fable 5 (HLE)",
+        "value": 53,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "coding",
-        "pointDate": "2024-08-13",
-        "label": "GPT-4o (SWE-bench Verified)",
-        "value": 33,
-        "sourceUrl": "https://www.swebench.com/",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "pointDate": "2025-04-01",
+        "label": "GPT-5.2 (SWE-Verified)",
+        "value": 80,
+        "sourceUrl": "https://benchlm.ai/benchmarks",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "coding",
-        "pointDate": "2025-02-24",
-        "label": "Claude 3.7 Sonnet (SWE-bench Verified)",
-        "value": 62,
-        "sourceUrl": "https://www.swebench.com/",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "pointDate": "2026-02-19",
+        "label": "Gemini 3.1 Pro (SWE-Verified)",
+        "value": 81,
+        "sourceUrl": "https://benchlm.ai/benchmarks",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "coding",
-        "pointDate": "2025-09-29",
-        "label": "Claude Sonnet 4.5 (SWE-bench Verified)",
+        "pointDate": "2025-06-01",
+        "label": "Claude 4.5 Sonnet (SWE-Verified)",
         "value": 77,
-        "sourceUrl": "https://www.swebench.com/",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "sourceUrl": "https://benchlm.ai/benchmarks",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-02-05",
+        "label": "Claude Opus 4.6 (SWE-Verified)",
+        "value": 81,
+        "sourceUrl": "https://benchlm.ai/benchmarks",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-05-28",
+        "label": "Claude Opus 4.8 (SWE-Verified)",
+        "value": 87,
+        "sourceUrl": "https://benchlm.ai/benchmarks",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "biology",
-        "pointDate": "2023-11-20",
-        "label": "GPT-4 (GPQA-Bio)",
-        "value": 39,
-        "sourceUrl": "https://arxiv.org/abs/2311.12022",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "pointDate": "2024-08-15",
+        "label": "Claude Opus 4.5 (LAB-Bench)",
+        "value": 58,
+        "sourceUrl": "https://github.com/Future-House/LAB-Bench",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "biology",
-        "pointDate": "2024-06-20",
-        "label": "Claude 3.5 Sonnet (GPQA-Bio)",
-        "value": 64,
-        "sourceUrl": "https://arxiv.org/abs/2311.12022",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "pointDate": "2026-02-01",
+        "label": "GPT-5.2 Pro (LAB-Bench)",
+        "value": 72,
+        "sourceUrl": "https://github.com/Future-House/LAB-Bench",
+        "fetchDate": "2026-07-13"
       },
       {
         "metricId": "normalized",
         "seriesKey": "biology",
-        "pointDate": "2025-05-22",
-        "label": "frontier best (GPQA-Bio)",
-        "value": 92,
-        "sourceUrl": "https://arxiv.org/abs/2311.12022",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
+        "pointDate": "2026-03-01",
+        "label": "Kimi K2.5 (LAB-Bench)",
+        "value": 68,
+        "sourceUrl": "https://github.com/Future-House/LAB-Bench",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "biology",
+        "pointDate": "2026-05-28",
+        "label": "Claude Opus 4.8 (LAB-Bench)",
+        "value": 75,
+        "sourceUrl": "https://github.com/Future-House/LAB-Bench",
+        "fetchDate": "2026-07-13"
       }
     ],
     "slots": [
       {
         "slot": "reasoning",
-        "benchmarkName": "FrontierMath",
-        "sourceUrl": "https://epoch.ai/frontiermath",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)",
+        "benchmarkName": "Humanity's Last Exam (HLE)",
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13",
         "saturated": false,
-        "note": "research-level mathematics problems written to be unpublished (contamination-resistant), scored by Epoch AI"
+        "note": "Expert-vetted multi-domain questions across 100+ subjects; frontier models score 20-54% with substantial headroom."
       },
       {
         "slot": "coding",
         "benchmarkName": "SWE-bench Verified",
-        "sourceUrl": "https://www.swebench.com/",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)",
+        "sourceUrl": "https://benchlm.ai/benchmarks",
+        "fetchDate": "2026-07-13",
         "saturated": false,
-        "note": "real software bug-fixing tasks from public code repositories, human-verified subset"
+        "note": "Real GitHub issue resolution with meaningful spread (77-81%) across frontier models; flagged for data contamination but remains standard."
       },
       {
         "slot": "biology",
-        "benchmarkName": "GPQA-Bio",
-        "sourceUrl": "https://arxiv.org/abs/2311.12022",
-        "fetchDate": "2026-07-10 (seeded — pending enrichment verification)",
-        "saturated": true,
-        "note": "graduate-level biology questions; GPT-4 scored 39% at its late-2023 release vs a 70% expert baseline, and top models have since closed most of that gap — nearing saturation, research-task successor (LAB-Bench-style) preferred when the weekly check finds adequate published coverage"
+        "benchmarkName": "LAB-Bench",
+        "sourceUrl": "https://github.com/Future-House/LAB-Bench",
+        "fetchDate": "2026-07-13",
+        "saturated": false,
+        "note": "Practical research capabilities: literature reasoning, figure interpretation, sequence manipulation, protocol troubleshooting—not memorization."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-07-13",
+        "foundNew": true,
+        "summary": "slots: 3, 15 points"
+      },
       {
         "runDate": "2026-07-12",
         "foundNew": false,
