@@ -1,0 +1,38 @@
+name: aei-refresh
+
+# Weekly check of the Anthropic Economic Index (augment vs automate). FREE
+# (public Hugging Face dataset, no key, no model). New dated releases are
+# auto-detected via the HF API and appended to the trend; changes (and any
+# schema change) are proposed as a PR for review.
+on:
+  schedule:
+    - cron: "30 6 * * 1" # Mondays 06:30 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: aei
+        name: Fetch AEI augment/automate trend
+        run: node scripts/aei-refresh.mjs
+
+      - name: Open PR on change
+        if: steps.aei.outputs.status == 'changes'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: aei-update
+          base: main
+          title: ${{ steps.aei.outputs.title }}
+          body-path: aei-refresh-report.md
+          labels: needs-review
+          add-paths: data/aei/augmentation.json
+          delete-branch: true

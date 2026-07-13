@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "source": "Anthropic Economic Index — how AI is used: augmentation (collaborative) vs automation (task offload), by release",
+  "sourceUrl": "https://huggingface.co/datasets/Anthropic/EconomicIndex",
+  "note": "Automation = directive + feedback loop; augmentation = task iteration + learning + validation (reproduces the ~57/43 headline). Shares normalized over augmentation + automation. Measures Claude usage (a large proxy for AI use), updated per dated release.",
+  "lastRefreshed": "2026-07-12",
+  "points": [
+    { "date": "2025-02-10", "augmentPct": 57.4, "automatePct": 42.6 },
+    { "date": "2025-03-27", "augmentPct": 56.9, "automatePct": 43.1 },
+    { "date": "2025-09-15", "augmentPct": 56.9, "automatePct": 43.1 }
+  ]
+}
