@@ -1,0 +1,36 @@
+name: postings-refresh
+
+# Weekly pull of Indeed Hiring Lab's US Job Postings Tracker (by occupational
+# sector, CC BY 4.0). FREE (public CSV, no key, no model). Mechanical index like
+# FRED — auto-commits the snapshot on change; deterministic invariants fail the
+# run loud on any upstream restructure.
+on:
+  schedule:
+    - cron: "20 6 * * 1" # Mondays 06:20 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Pull Indeed postings spread
+        run: node scripts/postings-refresh.mjs
+      - name: Commit updated snapshot
+        run: |
+          git config user.name "pool-refresh-bot"
+          git config user.email "actions@github.com"
+          git add data/postings/job_postings.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "postings-refresh: weekly Indeed postings spread update"
+            git pull --rebase origin main
+            git push
+          fi
