@@ -39,12 +39,17 @@ const start = new Date();
 start.setFullYear(start.getFullYear() - 10);
 const observationStart = start.toISOString().slice(0, 10);
 
+// A few series need a long history rather than the default 10-year window.
+// Labor share (Phase 6 Card 2) is detrended against its post-1980 secular
+// decline, so it needs decades of data to establish that trend.
+const LONG_HISTORY = { PRS85006173: "1980-01-01" };
+
 async function fetchSeries(seriesId) {
   const url = new URL("https://api.stlouisfed.org/fred/series/observations");
   url.searchParams.set("series_id", seriesId);
   url.searchParams.set("api_key", apiKey);
   url.searchParams.set("file_type", "json");
-  url.searchParams.set("observation_start", observationStart);
+  url.searchParams.set("observation_start", LONG_HISTORY[seriesId] ?? observationStart);
   url.searchParams.set("sort_order", "asc");
   const res = await fetch(url);
   if (!res.ok) throw new Error(`FRED ${seriesId} HTTP ${res.status}`);
