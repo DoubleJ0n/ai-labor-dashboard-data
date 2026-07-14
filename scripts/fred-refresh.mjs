@@ -17,6 +17,9 @@ const OPTIONAL_IDS = [
   // exposed-vs-control industry employment (CES, SA, thousands)
   "USPBS", "USFIRE",              // exposed: professional & business svcs, finance
   "USCONS", "USLAH", "USEHS",     // control: construction, leisure/hosp, edu/health
+  // exposed-vs-control WAGES: avg hourly earnings, all employees (CES, SA, $), same industries
+  "CES5000000003", "CES6000000003", "CES5500000003", // exposed: information, prof&business, financial
+  "CES2000000003", "CES7000000003", "CES6500000003", // control: construction, leisure/hosp, edu/health
   // distributional
   "PRS85006173",                  // nonfarm business labor share (quarterly)
   // JOLTS rates (total nonfarm + professional & business services)
