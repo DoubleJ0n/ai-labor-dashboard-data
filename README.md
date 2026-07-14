@@ -17,7 +17,30 @@ https://raw.githubusercontent.com/DoubleJ0n/ai-labor-dashboard-data/main/dashboa
 | fred-refresh | `scripts/fred-refresh.mjs` | FRED API (free) | Mon 06:00 | `dashboard-data.json` → `fred` |
 | discovery-refresh | `scripts/discovery-refresh.mjs` | Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) + web search | Mon 06:20 | `dashboard-data.json` → `capability` (normalized benchmark slots only) |
 | metr-fetch | `scripts/metr-fetch.mjs` | METR YAML feed (free) | Mon 06:40 | **PR** proposing `data/metr/time_horizons.json` |
+| postings-refresh | `scripts/postings-refresh.mjs` | Indeed Hiring Lab CSV (free, CC BY 4.0) | Mon 06:20 | auto-commits `data/postings/job_postings.json` |
 | analysis-refresh | `scripts/analysis-refresh.mjs` | Claude Sonnet 5 (`claude-sonnet-5`) | Mon 06:50 (after the others) | `dashboard-data.json` → `analysis` |
+
+### `data/postings/job_postings.json` — Indeed job-postings spread
+
+Exposed-vs-control **job-postings** spread from Indeed Hiring Lab's US
+[Job Postings Tracker](https://github.com/hiring-lab/job_postings_tracker)
+(`job_postings_by_sector_US.csv`, `total postings`, CC BY 4.0). Monthly index
+(2020-02 = 100), one point per month:
+
+```
+{ "date": "YYYY-MM-01", "exposed": <index>, "control": <index>, "spread": <exposed−control> }
+```
+
+- **Exposed** (AI-exposed knowledge work): Software Development, Data & Analytics,
+  Marketing, Administrative Assistance (averaged).
+- **Control** (hands-on): Nursing, Installation & Maintenance, Loading & Stocking,
+  Food Preparation & Service (averaged). Construction/driving are not distinct
+  Indeed cuts — mapped to their nearest hands-on sectors.
+- Postings lead headcount (firms stop advertising before they stop filling). The
+  whole index fell from its 2022 peak across the board, so the **spread**, not the
+  level, is the signal. Mechanical index → **auto-commits** on change like
+  `fred-refresh`; deterministic invariants **fail the run loud** on any upstream
+  restructure (renamed/removed sector or variable).
 
 Rules all three follow:
 
