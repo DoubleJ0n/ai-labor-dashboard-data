@@ -73,7 +73,8 @@ are ISO-8601 UTC. Each top-level section carries its own `lastRefreshed`.
     "series": {
       // series ids consumed by the app (domain/Models.kt SeriesIds.ALL):
       // GDPC1 (real GDP, quarterly), PAYEMS (payrolls), USINFO (information
-      // sector), TEMPHELPS (temp help), CES6054150001 (internet publishing),
+      // sector), TEMPHELPS (temp help), CES6054150001 (computer systems design
+      // and related services, NAICS 5415),
       // CGBD2024 (recent-grad unemployment 20-24), LNS14000036 (young
       // unemployment), UNRATE (general unemployment)
       "GDPC1":  [ { "date": "2016-07-01", "value": 18324.312 } /* ... */ ],
@@ -119,12 +120,10 @@ are ISO-8601 UTC. Each top-level section carries its own `lastRefreshed`.
   // file. Mirrors AnalysisEntity.
   "analysis": {
     "lastRefreshed": "2026-07-11T06:50:00Z",
-    "text": "…a few hundred plain-language words… REGIME SIGNAL: AMBIGUOUS",
+    "text": "…under 350 plain-language words, no markdown…",
     "signal": "AMBIGUOUS",           // NONE | AMBIGUOUS | PARTIAL | FIRING | UNKNOWN
-    "model": "claude-sonnet-5",
-    "inputTokens": 0,
-    "outputTokens": 0,
-    "estimatedCostUsd": 0.0,
+    // No token counts, cost, or model id: v9.8 removed all usage telemetry from
+    // the product. The Action prints usage to its own run log only.
     // sha256 of the rounded metric inputs the analysis saw; used to skip the
     // model call when nothing meaningful changed
     "inputsFingerprint": "e3b0c442..."

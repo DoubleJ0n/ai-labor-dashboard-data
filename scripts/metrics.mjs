@@ -10,10 +10,12 @@ const INVERSION_TRAILING_WINDOW_MONTHS = 120;
 const INVERSION_MIN_HISTORY_MONTHS = 36;
 const SECTOR_PEAK_WINDOW_START = "2021-01-01";
 
+// Labels must match the app's Method tab 1:1 — this map is what the analyst
+// model sees, and a wrong name here becomes a wrong claim in the prose.
 const SECTOR_NAMES = {
   USINFO: "Information sector",
   TEMPHELPS: "Temporary-help services",
-  CES6054150001: "Internet publishing and web search",
+  CES6054150001: "Computer systems design and related services",
 };
 
 const ymOf = (dateStr) => dateStr.slice(0, 7);
@@ -48,21 +50,55 @@ function computeGdpEmployment(gdp, payems) {
   };
 }
 
-function computeProductivity(gdp, payems) {
-  const payemsByMonth = new Map(payems.map((o) => [ymOf(o.date), o.value]));
-  const ratios = [];
-  for (const obs of gdp) {
-    const month = quarterEndMonth(obs.date);
-    const p = payemsByMonth.get(month);
-    if (p != null) ratios.push(obs.value / p);
+/** YoY derived from the OPHNFB index, keyed by quarter-end month (cross-check only). */
+function productivityYoYFromIndex(index) {
+  const s = sorted(index);
+  const out = new Map();
+  for (let i = 4; i < s.length; i++) {
+    if (s[i - 4].value !== 0) {
+      out.set(quarterEndMonth(s[i].date), (s[i].value / s[i - 4].value - 1) * 100);
+    }
   }
-  let growth = null;
-  for (let i = 4; i < ratios.length; i++) growth = (ratios[i] / ratios[i - 4] - 1) * 100;
+  return out;
+}
+
+/**
+ * Productivity Break Test: BLS nonfarm business output per HOUR, year-over-year.
+ * [yoy] is PRS85006091, already published as "percent change from quarter one
+ * year ago" — used as-is. [index] is OPHNFB, used only to verify it.
+ *
+ * The 2.7/3.4 band is calibrated on output per HOUR. It must never be computed
+ * from GDPC1/PAYEMS (output per JOB), which runs structurally lower and inverts
+ * the reading.
+ */
+function computeProductivity(yoy, index) {
+  const s = sorted(yoy);
+  const last = s.length ? s[s.length - 1] : null;
+  const growth = last ? last.value : null;
+
+  // Cross-check the published series against its own index; a divergence beyond
+  // rounding means a bad pull or a FRED revision. Log only — never block the run.
+  let crossCheckDiff = null;
+  if (last) {
+    const derived = productivityYoYFromIndex(index).get(quarterEndMonth(last.date));
+    if (derived != null) {
+      crossCheckDiff = growth - derived;
+      if (Math.abs(crossCheckDiff) > 0.1) {
+        console.warn(
+          `WARN productivity cross-check: PRS85006091=${growth} vs YoY(OPHNFB)=${derived.toFixed(2)} ` +
+          `(diff ${crossCheckDiff.toFixed(2)} pts) at ${last.date} — possible bad pull or FRED revision`,
+        );
+      }
+    }
+  }
+
   return {
     growthPct: growth,
+    latestDate: last ? last.date : null,
     flagged: growth != null && growth > PRODUCTIVITY_BAND_HIGH_PCT,
     bandLowPct: PRODUCTIVITY_BAND_LOW_PCT,
     bandHighPct: PRODUCTIVITY_BAND_HIGH_PCT,
+    crossCheckDiff,
   };
 }
 
@@ -109,6 +145,11 @@ function computeInversion(grad, unrate) {
 const EXPOSED_IND = ["USINFO", "USPBS", "USFIRE"];
 const CONTROL_IND = ["USCONS", "USLAH", "USEHS"];
 
+// v9.7 Phase 5: exposed-vs-control WAGES (average hourly earnings, CES),
+// same taxonomy as the jobs differential. YoY growth %, then exposed minus control.
+const WAGE_EXPOSED_IDS = ["CES5000000003", "CES6000000003", "CES5500000003"];
+const WAGE_CONTROL_IDS = ["CES2000000003", "CES7000000003", "CES6500000003"];
+
 function yoyLatestAvg(ids, series) {
   const vals = ids.map((id) => {
     const s = sorted(series[id]);
@@ -122,8 +163,10 @@ function yoyLatestAvg(ids, series) {
 
 function lastVal(series, id) { const s = sorted(series[id]); return s.length ? s[s.length - 1].value : null; }
 
-/** Summary of the whole dashboard. `extras` carries the METR + adoption
- *  snapshots (separate files) so the analysis reasons over EVERYTHING. */
+/** Summary of the whole dashboard. `extras` carries the METR + adoption +
+ *  AEI + postings snapshots (separate files) so the analysis reasons over
+ *  EVERYTHING. Wages come from the pool's FRED series (CES average hourly
+ *  earnings), so they need no extra. */
 export function computeDashboardSummary(pool, extras = {}) {
   const series = pool.fred.series ?? {};
   const gdp = sorted(series.GDPC1);
@@ -138,18 +181,24 @@ export function computeDashboardSummary(pool, extras = {}) {
   const coYoY = yoyLatestAvg(CONTROL_IND, series);
   const exposedControl = { exposedYoY: exYoY, controlYoY: coYoY, differential: (exYoY != null && coYoY != null) ? exYoY - coYoY : null };
 
-  // Type D: labor share.
+  // Type D: exposed-minus-control WAGES (the pay-compression channel).
+  const wExY = yoyLatestAvg(WAGE_EXPOSED_IDS, series);
+  const wCoY = yoyLatestAvg(WAGE_CONTROL_IDS, series);
+  const wages = { exposedYoY: wExY, controlYoY: wCoY, differential: (wExY != null && wCoY != null) ? wExY - wCoY : null };
+
+  // Type D: worker/labor share of income.
   const ls = sorted(series.PRS85006173);
   const laborShare = { latest: ls.length ? ls[ls.length - 1].value : null, changeVs4qAgo: ls.length > 4 ? ls[ls.length - 1].value - ls[ls.length - 5].value : null };
 
-  // Type C: hiring flows (prof & business preferred).
-  const hiresS = sorted(series.JTS6000HIR).length ? sorted(series.JTS6000HIR) : sorted(series.JTSHIR);
-  const hiringFlows = {
-    openingsRate: lastVal(series, "JTS6000JOR") ?? lastVal(series, "JTSJOR"),
-    hiresRate: hiresS.length ? hiresS[hiresS.length - 1].value : null,
-    hiresChangeYoY: hiresS.length > 12 ? hiresS[hiresS.length - 1].value - hiresS[hiresS.length - 13].value : null,
-    layoffsRate: lastVal(series, "JTSLDR"),
-  };
+  // v9.7 Phase 4: Indeed job-postings spread (exposed occupations minus control).
+  // Postings lead hiring, so this is the early-warning version of the jobs test.
+  const pp = extras.postingsPoints ?? [];
+  const postings = pp.length ? {
+    exposedIndex: pp[pp.length - 1].exposed,
+    controlIndex: pp[pp.length - 1].control,
+    spread: pp[pp.length - 1].spread,
+    spreadChange6mo: pp.length > 6 ? pp[pp.length - 1].spread - pp[pp.length - 7].spread : null,
+  } : null;
 
   // Type E: macro-regime gate.
   const ts2 = lastVal(series, "T10Y2Y");
@@ -186,11 +235,11 @@ export function computeDashboardSummary(pool, extras = {}) {
   } : null;
 
   return {
-    productivity: computeProductivity(gdp, payems),
+    productivity: computeProductivity(series.PRS85006091 ?? [], series.OPHNFB ?? []),
     sectors,
     inversion: computeInversion(sorted(series.CGBD2024), sorted(series.UNRATE)),
     gdpEmployment: computeGdpEmployment(gdp, payems),
-    exposedControl, laborShare, hiringFlows, macro, adoption, aeiUse,
+    exposedControl, wages, postings, laborShare, macro, adoption, aeiUse,
     metrTop5,
     slots: slotLatest,
   };

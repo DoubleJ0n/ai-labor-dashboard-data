@@ -9,6 +9,14 @@ import { loadPool, saveSection, nowIso } from "./lib.mjs";
 const REQUIRED_IDS = [
   "GDPC1", "PAYEMS", "USINFO", "TEMPHELPS",
   "CES6054150001", "CGBD2024", "LNS14000036", "UNRATE",
+  // Productivity Break Test — output per HOUR, which is what the 2.7/3.4 band
+  // was calibrated on. PRS85006091 is the PUBLISHED year-over-year ("percent
+  // change from quarter one year ago") and is what the panel plots. Do NOT
+  // swap in PRS85006092: that is "percent change at annual rate" (q/q), which
+  // swings far wider and would trip the 3.4 line on quarterly noise.
+  "PRS85006091",
+  // OPHNFB is the index behind PRS85006091, pulled ONLY to cross-check it.
+  "OPHNFB",
 ];
 
 // v9.2 additions for the recession-robust indicator. OPTIONAL: a bad/renamed
@@ -22,9 +30,6 @@ const OPTIONAL_IDS = [
   "CES2000000003", "CES7000000003", "CES6500000003", // control: construction, leisure/hosp, edu/health
   // distributional
   "PRS85006173",                  // nonfarm business labor share (quarterly)
-  // JOLTS rates (total nonfarm + professional & business services)
-  "JTSJOR", "JTSHIR", "JTSLDR",
-  "JTS6000JOR", "JTS6000HIR", "JTS6000LDR",
   // macro-regime gate (daily)
   "DFII10", "T10Y2Y", "T10Y3M", "T10YIE",
 ];

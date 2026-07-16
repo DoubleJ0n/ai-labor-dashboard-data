@@ -1,9 +1,25 @@
 name: analysis-refresh
 
+# v9.8 item 6 — ORDERING FIX. Previously this ran on its own cron 50 min after
+# fred-refresh (an OFFSET, not a chain). A manual or off-schedule fred-refresh —
+# exactly what happened on 2026-07-14 13:49 UTC — then left the analysis stale,
+# so the pool carried data newer than the analysis describing it.
+#
+# Now analysis is CHAINED: it fires when a data workflow COMPLETES and checks out
+# the latest main (the commit that workflow just pushed), so the analysis always
+# reflects — and post-dates — the pool it timestamps. It fires after fred AND
+# after discovery; the on-change fingerprint gate makes the redundant fire a
+# cheap no-op when nothing meaningful changed.
 on:
-  schedule:
-    - cron: "50 6 * * 1" # Mondays 06:50 UTC — AFTER fred (06:00) and discovery (06:20)
+  workflow_run:
+    workflows: ["fred-refresh", "discovery-refresh"]
+    types: [completed]
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Print the exact API request body and make NO model call"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -15,17 +31,29 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    # Skip if the upstream data step failed or was cancelled — never analyze a
+    # half-written pool. Manual dispatch always proceeds.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main # the latest pushed pool, NOT the workflow_run trigger SHA
+      - name: Ensure latest pool
+        run: git pull --rebase origin main
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
+      - name: Dry run (print request body, no model call)
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: node scripts/analysis-refresh.mjs --dry-run
       - name: Analysis (Sonnet 5, gated on-change)
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/analysis-refresh.mjs
       - name: Commit updated pool
+        if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           git config user.name "pool-refresh-bot"
           git config user.email "actions@github.com"

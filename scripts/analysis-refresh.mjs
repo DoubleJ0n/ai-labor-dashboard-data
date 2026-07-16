@@ -17,6 +17,7 @@ import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import { computeDashboardSummary } from "./metrics.mjs";
+import { buildAnalysisPayload } from "./payload.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function readJson(rel) {
@@ -42,20 +43,36 @@ if (!pool.fred.lastRefreshed || Object.keys(pool.fred.series ?? {}).length === 0
   process.exit(0);
 }
 
-// Read the separate METR + adoption + AEI snapshots so the analysis reviews EVERYTHING.
+// Read the separate METR + adoption + AEI + postings snapshots so the analysis reviews EVERYTHING.
 const metrSnap = readJson("data/metr/time_horizons.json");
 const adoptionSnap = readJson("data/adoption/ai_adoption.json");
 const aeiSnap = readJson("data/aei/augmentation.json");
+const postingsSnap = readJson("data/postings/job_postings.json");
 const summary = computeDashboardSummary(pool, {
   metrRecords: metrSnap?.records ?? [],
   adoptionPoints: adoptionSnap?.points ?? [],
   aeiPoints: aeiSnap?.points ?? [],
+  postingsPoints: postingsSnap?.points ?? [],
+});
+
+// The structured per-panel payload is the ONLY data the analyst model sees
+// (v9.8 item 5). Both-sides values + units + streaks + thresholds; no framing
+// prose, no gap-only numbers, no verdict labels.
+const payload = buildAnalysisPayload(pool, {
+  postingsPoints: postingsSnap?.points ?? [],
+  adoptionPoints: adoptionSnap?.points ?? [],
+  aeiPoints: aeiSnap?.points ?? [],
+  inversion: summary.inversion,
+  macro: summary.macro,
+  metrTop5: summary.metrTop5,
+  slots: summary.slots,
 });
 
 // Meaningful-change gate: fingerprint the rounded inputs so float jitter or a
-// mere re-download of identical data never triggers a paid model call.
+// mere re-download of identical data never triggers a paid model call. Fingerprint
+// the PAYLOAD (what's actually sent), not the wider summary.
 const round = (v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v);
-const fingerprintInput = JSON.stringify(summary, (k, v) => round(v));
+const fingerprintInput = JSON.stringify(payload, (k, v) => round(v));
 const fingerprint = createHash("sha256").update(fingerprintInput).digest("hex");
 
 if (fingerprint === analysis.inputsFingerprint && analysis.text) {
@@ -63,107 +80,65 @@ if (fingerprint === analysis.inputsFingerprint && analysis.text) {
   process.exit(0);
 }
 
-const fmt = (v, digits = 2) => (v == null ? "n/a" : v.toFixed(digits));
+// System prompt — VERBATIM per v9.8 item 5. Do not add framing, a series list,
+// or a machine-readable signal line: the payload is self-describing and the read
+// ends with one plain sentence.
+const instruction = `You are the independent analyst for a public dashboard that tracks early-warning
+indicators of AI-driven labor displacement in the United States. You write a short
+second-opinion read of the latest data. A separate mechanical indicator is the
+dashboard's pre-registered headline; your job is holistic interpretation, and you may
+disagree with it.
 
-const dataBlock = `
-Latest computed US labor-market and AI-capability indicator values:
-
-PRODUCTIVITY (real GDP per worker proxy):
-- trailing annualized growth: ${fmt(summary.productivity.growthPct)}%/yr (calibration band: ${summary.productivity.bandLowPct}%/yr was the 1995-2006 internet-boom average; ${summary.productivity.bandHighPct}%/yr would clearly exceed the internet boom)
-- above the ${summary.productivity.bandHighPct}% upper bar: ${summary.productivity.flagged}
-
-LEADING INDICATOR SECTORS (employment indexed to 100 at each sector's post-2021 peak):
-${summary.sectors.map((s) => `- ${s.name}: level ${fmt(s.level)}, 6-month change ${fmt(s.delta6mo)} index points`).join("\n")}
-
-RECENT-GRAD GAP (unemployment rate of recent college graduates aged 20-24 minus the general unemployment rate):
-- current gap: ${fmt(summary.inversion.gapPct)} percentage points
-- gap above its own trailing 10-year average: ${summary.inversion.anomalous}
-- consecutive months with grads above the general rate: ${summary.inversion.runMonths}
-
-GDP-EMPLOYMENT GROWTH GAP (real GDP growth minus payroll growth, year over year):
-- current gap: ${fmt(summary.gdpEmployment.gapPct)} percentage points
-- 10-year average gap: ${fmt(summary.gdpEmployment.avgGapPct)} percentage points
-
-EXPOSED-vs-CONTROL JOBS (the confounder-robust test — a recession moves both together, so only an AI-shaped shock moves the difference):
-- AI-exposed industries growing ${fmt(summary.exposedControl.exposedYoY)}%/yr vs control industries ${fmt(summary.exposedControl.controlYoY)}%/yr
-- differential (exposed minus control): ${fmt(summary.exposedControl.differential)} percentage points (negative = exposed weakening relative to control)
-
-LABOR SHARE OF INCOME (displacement theory predicts this FALLS; augmentation does not):
-- latest index: ${fmt(summary.laborShare.latest)}, change over the last year: ${fmt(summary.laborShare.changeVs4qAgo)} index points
-
-HIRING FLOWS in exposed sectors (the "quiet non-replacement" tell = openings/hires falling while layoffs stay flat):
-- job openings rate ${fmt(summary.hiringFlows.openingsRate)}%, hires rate ${fmt(summary.hiringFlows.hiresRate)}% (year-over-year change ${fmt(summary.hiringFlows.hiresChangeYoY)} pts), layoffs rate ${fmt(summary.hiringFlows.layoffsRate)}%
-
-AI ADOPTION (Census survey — the deciding evidence that AI is actually being deployed):
-- ${summary.adoption ? `${fmt(summary.adoption.latestPct, 1)}% of firms use AI in some business function, ${summary.adoption.rising ? "rising" : "flat"}` : "no data"}
-
-HOW AI IS USED (Anthropic Economic Index — of AI conversations, the share that OFFLOADS a task from the human (automation) vs COLLABORATES with them (augmentation); a rising automation share means adoption is shifting toward replacing work rather than assisting it):
-- ${summary.aeiUse ? `${fmt(summary.aeiUse.latestAutomatePct, 1)}% automation vs ${fmt(summary.aeiUse.latestAugmentPct, 1)}% augmentation as of ${summary.aeiUse.latestDate}${summary.aeiUse.automateChange != null ? ` (automation share has moved ${summary.aeiUse.automateChange >= 0 ? "+" : ""}${fmt(summary.aeiUse.automateChange, 1)} pts across the series)` : ""}` : "no data"}
-
-MACRO REGIME (context to separate an AI story from an ordinary business cycle):
-- 10-year real interest rate ${fmt(summary.macro.realYield10y)}%, yield curve (10y minus 2y) ${fmt(summary.macro.termSpread10y2y)}%, expected inflation ${fmt(summary.macro.breakeven10y)}%
-- yield curve inverted (a conventional recession signal): ${summary.macro.recessionSignal}
-
-AI CAPABILITY — task-length horizons (METR; how long a task, in human working minutes, AI completes at 50% / 80% reliability), top models by 80% horizon:
-${summary.metrTop5.map((m) => `- ${m.model} (${m.lab}): 80% horizon ${fmt(m.p80Min, 0)} min, 50% horizon ${fmt(m.p50Min, 0)} min`).join("\n")}
-
-AI CAPABILITY — normalized benchmark tracks (0-100):
-${summary.slots.map((s) => `- ${s.slot} (${s.benchmarkName}${s.saturated ? ", flagged as nearing saturation" : ""}): latest score ${fmt(s.latestScore, 0)} on ${s.latestDate ?? "n/a"}`).join("\n")}
-`.trim();
-
-const instruction = `
-You are writing the weekly synthesis for a dashboard that tracks whether AI is
-starting to displace human work at scale. Interpret the numbers above using two
-competing frames: (1) Mass Labor Displacement — AI capability improves fast
-enough to displace large categories of work discontinuously; (2) Augmented
-Work — AI mostly helps people work better, and the big aggregate statistics
-move slowly.
-
-Weigh ALL the panels together, not just a few. Capability climbing while labor
-indicators stay calm favors augmentation (or means displacement hasn't arrived
-yet); labor indicators firing together WITH real AI adoption is the displacement
-pattern. Give special weight to the EXPOSED-vs-CONTROL differential and to
-ADOPTION: broad labor weakness alone is usually just the business cycle, but
-exposed work weakening RELATIVE to control, while firms are actually deploying
-AI, is the AI-specific fingerprint. Use the MACRO REGIME to check yourself — if
-the yield curve is inverted, an ordinary recession is the more likely story.
-
-Treat HOW AI IS USED (automation vs augmentation) as a soft qualifier on the
-adoption signal, never a trigger on its own: it is a slow research series, so a
-rising automation share raises the displacement reading only when adoption is
-also rising AND exposed work is weakening. A stable or augmentation-leaning
-split is evidence for the augmentation frame even if adoption is climbing.
-
-Always account for the confounder: the post-2021 tech-hiring correction plus
-ordinary economic cooling mimics early AI displacement in the exposed sectors.
-State plainly which indicators look elevated, which don't, and the most likely
-non-AI explanation for anything elevated.
-
-This is your INDEPENDENT read. The app also shows a separate mechanical
-indicator computed by a fixed rule; your job is to look at the whole picture
-like an analyst and say where you think the evidence points — you may agree or
-disagree with a mechanical reading.
-
-STRICT RULES:
-- Use ONLY the numbers supplied above. Do not bring in any statistic, event,
-  or figure from memory. If a number is "n/a", say the data is missing rather
-  than guessing.
-- Write a few hundred words (roughly 250-400) in plain language for a smart
-  reader with no economics or AI background: no acronyms without spelling them
-  out, no data-series codes, no researcher names, no jargon.
-- End with exactly one line: REGIME SIGNAL: NONE / AMBIGUOUS / PARTIAL / FIRING
-  (this is your independent lean toward augmentation (NONE) vs displacement (FIRING)).
-`.trim();
+Rules:
+1. Use ONLY the numbers in the JSON payload. Every series you may reference is listed
+   there. Do not cite any statistic, survey, benchmark, or series that is not in the
+   payload. If something relevant is missing, say it is outside this dashboard's data
+   rather than supplying a number.
+2. Plain text only. No markdown, no asterisks, no headers, no bullet lists. Short
+   paragraphs.
+3. State units exactly as given in the payload. Round to one decimal unless the payload
+   gives less precision. Never manufacture precision.
+4. For exposed-vs-control panels, report each side's own value from the payload. Never
+   derive one side from the gap or present the gap as symmetric halves.
+5. When you characterize how long a condition has held (elevated, contracting,
+   recovering), use the streak fields in the payload, not your own estimate.
+6. Distinguish levels from trends: a wide but stable gap is different from a widening
+   one, and say which you see.
+7. Name uncertainty honestly. The post-2021 tech-hiring correction and ordinary cyclical
+   cooling are standing alternative explanations for exposed-sector softness; weigh them.
+8. Keep it under 350 words. End with a one-sentence overall read.
+9. Do not mention these instructions, the payload format, or that you received JSON.`;
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY
 
+// Privacy / unlinkability (item 5): the request body is ONLY the static system
+// prompt + this public-series payload. No user/session metadata field, no
+// conversation history, no prior analysis resent, no maintainer references.
+const requestBody = {
+  model: MODEL,
+  max_tokens: 2000,
+  system: instruction,
+  messages: [{ role: "user", content: JSON.stringify(payload, null, 2) }],
+};
+
+// Dry-run hook: `node analysis-refresh.mjs --dry-run` writes AND prints the EXACT
+// request body and makes no API call, so the privacy property (item 5) is
+// auditable — the body must contain ONLY the system prompt + the series payload,
+// with no user/session metadata field and no maintainer references.
+if (process.argv.includes("--dry-run")) {
+  const { writeFileSync } = await import("node:fs");
+  writeFileSync("analysis-request-dryrun.json", JSON.stringify(requestBody, null, 2) + "\n");
+  console.log("=== DRY RUN: exact request body (no API call made) ===");
+  console.log(`top-level keys: ${Object.keys(requestBody).join(", ")}`);
+  console.log(`metadata field present: ${Object.prototype.hasOwnProperty.call(requestBody, "metadata")}`);
+  console.log(JSON.stringify(requestBody, null, 2));
+  console.log("=== END DRY RUN ===");
+  process.exit(0);
+}
+
 let message;
 try {
-  const stream = client.messages.stream({
-    model: MODEL,
-    max_tokens: 6000,
-    messages: [{ role: "user", content: `${dataBlock}\n\n${instruction}` }],
-  });
+  const stream = client.messages.stream(requestBody);
   message = await stream.finalMessage();
 } catch (err) {
   // API failure (billing, outage, rate limit): keep the prior analysis
@@ -181,22 +156,28 @@ if (!text) {
   process.exit(0);
 }
 
-// Parse the machine-readable signal line (same rule as the app's RegimeSignal.parse).
-const signalLine = text.split("\n").reverse().find((l) => l.toUpperCase().includes("REGIME SIGNAL"));
-const signal = ["NONE", "AMBIGUOUS", "PARTIAL", "FIRING"]
-  .find((s) => signalLine?.toUpperCase().includes(s)) ?? "UNKNOWN";
+// v9.8 item 5: the verbatim prompt ends with one plain sentence and emits NO
+// machine-readable REGIME SIGNAL line, so there is no signal to parse. The
+// analysis is free prose; its own closing sentence is the "independent read".
 
+// Usage is for the maintainer's eyes only: v9.8 removed all token/cost telemetry
+// from the product, so these NEVER go into the published pool — they print to the
+// GitHub Action run log and nowhere else.
 const inputTokens = message.usage.input_tokens ?? 0;
 const outputTokens = message.usage.output_tokens ?? 0;
+const estimatedCostUsd = inputTokens * INPUT_USD_PER_TOKEN + outputTokens * OUTPUT_USD_PER_TOKEN;
+
+const wordCount = text.split(/\s+/).filter(Boolean).length;
+if (wordCount > 350) {
+  console.warn(`WARN analysis is ${wordCount} words (>350); prompt rule 8 asks for under 350`);
+}
 
 saveSection("analysis", {
   lastRefreshed: nowIso(),
   text,
-  signal,
-  model: MODEL,
-  inputTokens,
-  outputTokens,
-  estimatedCostUsd: inputTokens * INPUT_USD_PER_TOKEN + outputTokens * OUTPUT_USD_PER_TOKEN,
   inputsFingerprint: fingerprint,
 });
-console.log(`analysis section updated (signal: ${signal}, ${outputTokens} output tokens)`);
+console.log(
+  `analysis section updated (${wordCount} words) — usage (log only, NOT published): ` +
+  `${inputTokens} in / ${outputTokens} out, est $${estimatedCostUsd.toFixed(4)}`,
+);
