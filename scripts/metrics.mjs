@@ -112,10 +112,27 @@ function computeSector(obs) {
   return { level, delta6mo: level != null && past != null ? level - past : null };
 }
 
+// Item 9: 12-month trailing MA over contiguous months. CGBD2024 is NSA and spikes
+// each June with the graduate influx; smoothing before the gap/run/anomaly matches
+// the app (Metrics.movingAvg12) so the payload's grad gap is deseasonalized, not
+// the ~4.7 June artifact.
+function movingAvg12(obs) {
+  const s = sorted(obs);
+  const out = [];
+  for (let i = 11; i < s.length; i++) {
+    const w = s.slice(i - 11, i + 1);
+    let contiguous = true;
+    for (let k = 1; k < 12; k++) if (ymAdd(ymOf(w[k - 1].date), 1) !== ymOf(w[k].date)) { contiguous = false; break; }
+    if (contiguous) out.push({ date: s[i].date, value: w.reduce((a, b) => a + b.value, 0) / 12 });
+  }
+  return out;
+}
+
 function computeInversion(grad, unrate) {
-  const unByMonth = new Map(unrate.map((o) => [ymOf(o.date), o.value]));
+  const gradSm = movingAvg12(grad);
+  const unByMonth = new Map(movingAvg12(unrate).map((o) => [ymOf(o.date), o.value]));
   const joined = [];
-  for (const g of grad) {
+  for (const g of gradSm) {
     const month = ymOf(g.date);
     const un = unByMonth.get(month);
     if (un != null) joined.push({ month, gap: g.value - un });
