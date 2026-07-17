@@ -6,12 +6,18 @@
   "feedUrl": "https://metr.org/assets/benchmark_results_1_1.yaml",
   "feedLongTasksVersion": "799cc9c4b4483a93fc3445623a49ea1bd74fdeb2",
   "snapshotDate": "2026-07-12",
+  "lastVerifiedAgainstFeed": "2026-07-17",
   "threshold": {
     "amberP80Min": 2400,
     "registeredDate": "2026-07-12",
     "rationale": "AMBER when the 80% time horizon reaches 40 hours. Verification cost does not scale with task length, so leverage is roughly (horizon x reliability) / (fixed oversight + rework). At 16h/80% a human still touches the work every other day; at 40h/80% the touch interval goes weekly and oversight becomes small relative to output. Arbitrary but fixed in advance and dated, so it cannot be renegotiated once the number arrives."
   },
   "dataQualityCeilingMin": 960,
+  "sourceRevision": {
+    "correctionDate": "2026-03-03",
+    "note": "METR corrected a regularization mistake that affected their measurements. Source: METR changelog, metr.org/time-horizons. Every value in this snapshot was pulled on snapshotDate, which is after that correction, so none of them predate it. The pre-correction values were never held here and cannot be diffed against.",
+    "changelogUrl": "https://metr.org/time-horizons"
+  },
   "doublingReference": {
     "lab": "Anthropic",
     "threshold": "p80",
