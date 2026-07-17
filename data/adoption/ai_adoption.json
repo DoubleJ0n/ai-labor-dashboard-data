@@ -3,7 +3,7 @@
   "source": "US Census Bureau, Business Trends and Outlook Survey (BTOS) — share of firms using AI to produce goods or services",
   "sourceUrl": "https://www.census.gov/hfp/btos/",
   "note": "Live from the Census BTOS National.xlsx (share of firms using AI in ANY business function). Broader than the older 'producing goods/services' supplement. Parsed with deterministic invariants.",
-  "lastRefreshed": "2026-07-12",
+  "lastRefreshed": "2026-07-17",
   "points": [
     {
       "date": "2025-11-01",
@@ -36,7 +36,98 @@
     {
       "date": "2026-06-01",
       "pct": 20.6
+    },
+    {
+      "date": "2026-07-01",
+      "pct": 21.7
     }
   ],
-  "question": "In the last two weeks, did this business use Artificial Intelligence (AI) in any of its business functions? — Yes"
+  "question": "In the last two weeks, did this business use Artificial Intelligence (AI) in any of its business functions? — Yes",
+  "bySize": {
+    "source": "US Census Bureau, BTOS Employment Size Class.xlsx — AI use in any business function (Yes), by firm employment-size class",
+    "sourceUrl": "https://www.census.gov/hfp/btos/downloads/Employment%20Size%20Class.xlsx",
+    "note": "Share of firms using AI in any business function, split by employment size (1–4 vs 250+ staff). Context only — big-employer adoption bears most on displacement, but the RED gate stays on the all-firms share. Cycles 202521–202523 (Oct–Nov 2025) were uncollected (funding lapse) and appear as gaps, never zero.",
+    "smallest": {
+      "label": "1–4 employees",
+      "points": [
+        {
+          "date": "2025-11-01",
+          "pct": 17
+        },
+        {
+          "date": "2025-12-01",
+          "pct": 17.7
+        },
+        {
+          "date": "2026-01-01",
+          "pct": 18.5
+        },
+        {
+          "date": "2026-02-01",
+          "pct": 18.2
+        },
+        {
+          "date": "2026-03-01",
+          "pct": 19
+        },
+        {
+          "date": "2026-04-01",
+          "pct": 19
+        },
+        {
+          "date": "2026-05-01",
+          "pct": 20
+        },
+        {
+          "date": "2026-06-01",
+          "pct": 20
+        },
+        {
+          "date": "2026-07-01",
+          "pct": 20.8
+        }
+      ]
+    },
+    "largest": {
+      "label": "250+ employees",
+      "points": [
+        {
+          "date": "2025-11-01",
+          "pct": 30.5
+        },
+        {
+          "date": "2025-12-01",
+          "pct": 32.7
+        },
+        {
+          "date": "2026-01-01",
+          "pct": 34.8
+        },
+        {
+          "date": "2026-02-01",
+          "pct": 33.5
+        },
+        {
+          "date": "2026-03-01",
+          "pct": 37
+        },
+        {
+          "date": "2026-04-01",
+          "pct": 37.3
+        },
+        {
+          "date": "2026-05-01",
+          "pct": 36.8
+        },
+        {
+          "date": "2026-06-01",
+          "pct": 40.3
+        },
+        {
+          "date": "2026-07-01",
+          "pct": 38.8
+        }
+      ]
+    }
+  }
 }
