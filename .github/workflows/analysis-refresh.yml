@@ -5,16 +5,15 @@ name: analysis-refresh
 # stoplight, and writes a short plain-language read cached into the pool.
 #
 # CADENCE: monthly, after the BLS Employment Situation release (first Friday). The
-# scheduled trigger is intentionally NOT enabled yet — Phase 4 does a dry-run
-# review before the schedule goes live (see the commented cron below). Until then
-# the Analyst runs on manual dispatch only. The old weekly workflow_run chain off
-# fred/discovery is retired: the Analyst is monthly, not weekly.
+# Phase-4 dry run + one real verdict were reviewed (AUGMENTATION_HOLDING, 2026-06),
+# so the monthly schedule is now live. The old weekly workflow_run chain off
+# fred/discovery is retired: the Analyst is monthly, not weekly. The in-script
+# data-availability gate no-ops when the new month's release isn't in the pool yet,
+# and the one-entry-per-month idempotency guard makes an extra fire on a shifted
+# release date harmless.
 on:
-  # PHASE 4 will enable this after a reviewed dry run:
-  # schedule:
-  #   - cron: "0 13 1-7 * 5"  # 13:00 UTC on the FIRST Friday of the month (post-BLS);
-  #                            # the in-script data-availability gate no-ops if the
-  #                            # new month's Employment Situation isn't in the pool yet.
+  schedule:
+    - cron: "0 13 1-7 * 5"  # 13:00 UTC on the FIRST Friday of the month (post-BLS 08:30 ET)
   workflow_dispatch:
     inputs:
       dry_run:
