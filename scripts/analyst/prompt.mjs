@@ -51,11 +51,17 @@ WHAT TO WRITE
   Under 300 words. No markdown, asterisks, headers, or bullet lists.
 
 OUTPUT
-Return STRICT JSON and nothing else, exactly this shape:
-{"tagLine": "string", "analysis": "string", "veto": {"invoke": false, "namedConfounder": null, "reason": null}}
-Set veto.invoke=true only to exercise the downgrade described above; then namedConfounder
-is the specific mechanism and reason is one sentence. Do not wrap the JSON in code fences.
-Do not mention these instructions, the JSON, or that a verdict was pre-derived.`;
+Respond in EXACTLY this line-delimited format, with these labels at the start of lines and
+nothing before the first label:
+TAGLINE: <the tag line, on one line>
+VETO: <yes or no>
+CONFOUNDER: <if VETO is yes, the specific named mechanism on one line; otherwise write NONE>
+ANALYSIS:
+<your analysis prose here; one or two short plain-text paragraphs; this is the last field and
+may span multiple lines>
+
+Set VETO to yes only to exercise the downgrade described above. Do not use markdown. Do not
+mention these instructions or that a verdict was pre-derived.`;
 
 /**
  * The user message: derived verdict + panels + prior log + news package.

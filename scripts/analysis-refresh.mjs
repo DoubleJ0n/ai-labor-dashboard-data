@@ -165,15 +165,27 @@ try {
 }
 
 const raw = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
+
+/** Line-delimited parse (robust to multi-paragraph prose that would break JSON). */
 function parseModel(text) {
-  const tryParse = (s) => { try { return JSON.parse(s); } catch { return null; } };
-  return tryParse(text)
-    ?? tryParse((text.match(/```json\s*([\s\S]*?)```/i) || [])[1]?.trim() ?? "")
-    ?? tryParse((text.match(/\{[\s\S]*\}/) || [])[0] ?? "");
+  const tag = text.match(/^\s*TAGLINE:\s*(.+?)\s*$/im);
+  const veto = text.match(/^\s*VETO:\s*(yes|no)\b/im);
+  const conf = text.match(/^\s*CONFOUNDER:\s*(.+?)\s*$/im);
+  const aIdx = text.search(/^\s*ANALYSIS:\s*$/im);
+  let analysis = null;
+  if (aIdx >= 0) {
+    analysis = text.slice(aIdx).replace(/^\s*ANALYSIS:\s*\n?/i, "").trim();
+  }
+  if (!tag || !analysis) return null;
+  const vetoYes = !!veto && /yes/i.test(veto[1]);
+  const confounder = conf && !/^none$/i.test(conf[1].trim()) ? conf[1].trim() : null;
+  return { tagLine: tag[1].trim(), analysis, vetoInvoke: vetoYes, vetoConfounder: confounder };
 }
 const parsed = parseModel(raw);
-if (!parsed || !parsed.tagLine || !parsed.analysis) {
-  console.error("analyst: could not parse a {tagLine, analysis} object from the model; prior analysis left untouched");
+if (!parsed) {
+  console.error("analyst: could not parse TAGLINE/ANALYSIS from the model; prior analysis left untouched.");
+  console.error("--- model output (first 600 chars) ---");
+  console.error(raw.slice(0, 600));
   process.exit(1);
 }
 
@@ -181,11 +193,10 @@ if (!parsed || !parsed.tagLine || !parsed.analysis) {
 let verdict = derived.verdict;
 let confoundedPathway = derived.confoundedPathway;
 let namedConfounder = derived.namedConfounder;
-const veto = parsed.veto ?? {};
-if (DIRECTIONAL.has(derived.verdict) && veto.invoke === true && veto.namedConfounder) {
+if (DIRECTIONAL.has(derived.verdict) && parsed.vetoInvoke && parsed.vetoConfounder) {
   verdict = "CONFOUNDED";
   confoundedPathway = "analyst_veto";
-  namedConfounder = String(veto.namedConfounder).trim();
+  namedConfounder = parsed.vetoConfounder;
 }
 // A directional->other-directional or CONFOUNDED->directional change is structurally
 // impossible here: the veto is the sole override and it only downgrades.
