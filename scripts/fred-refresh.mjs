@@ -29,7 +29,8 @@ const OPTIONAL_IDS = [
   "CES5000000003", "CES6000000003", "CES5500000003", // exposed: information, prof&business, financial
   "CES2000000003", "CES7000000003", "CES6500000003", // control: construction, leisure/hosp, edu/health
   // distributional
-  "PRS85006173",                  // nonfarm business labor share (quarterly)
+  "PRS85006173",                  // nonfarm business labor share INDEX (2017=100), quarterly, 1947+
+  "MPU4910141",                   // BLS labor share — candidate ACTUAL-% level (verify units/history in CI)
   // macro-regime gate (daily)
   "DFII10", "T10Y2Y", "T10Y3M", "T10YIE",
 ];
@@ -45,9 +46,10 @@ start.setFullYear(start.getFullYear() - 10);
 const observationStart = start.toISOString().slice(0, 10);
 
 // A few series need a long history rather than the default 10-year window.
-// Labor share (Phase 6 Card 2) is detrended against its post-1980 secular
-// decline, so it needs decades of data to establish that trend.
-const LONG_HISTORY = { PRS85006173: "1980-01-01" };
+// Labor share: pull the FULL series back to 1947 — the multi-decade decline is
+// itself the story (the detrend still works; it just has more history). MPU4910141
+// gets the same long window (FRED will return whatever it actually has).
+const LONG_HISTORY = { PRS85006173: "1947-01-01", MPU4910141: "1947-01-01" };
 
 async function fetchSeries(seriesId) {
   const url = new URL("https://api.stlouisfed.org/fred/series/observations");
