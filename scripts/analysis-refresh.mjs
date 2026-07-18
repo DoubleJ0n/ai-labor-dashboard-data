@@ -1,41 +1,47 @@
 // Designed with Claude (Anthropic)
-// analysis-refresh: produces the synthesized, plain-language read of the
-// whole dashboard in the Mass-Labor-Displacement vs Augmented-Work frame.
-// Rewrites ONLY the "analysis" section.
 //
-// MODEL: Sonnet 5 (claude-sonnet-5). HARD CONSTRAINTS honored here:
-//  - the ACTUAL current dashboard numbers are passed into the prompt and the
-//    model is told to reason ONLY from supplied data, never training recall;
-//  - a few hundred words, plain no-insider-jargon voice;
-//  - runs weekly but ONLY calls the model if FRED or discovery changed
-//    something meaningful since the last analysis (inputsFingerprint gate);
-//    otherwise keeps the prior text and updates the timestamp only.
+// analyst-refresh (monthly): the Analyst — a mini-economist that reads the
+// dashboard's own panels, commits to one of four fixed verdicts, and writes a
+// short plain-language read around it.
+//
+// The verdict is DERIVED mechanically from the same panel state + thresholds that
+// drive the on-device stoplight (analyst/verdict.mjs). The model never chooses it;
+// it writes the tag line + analysis, and holds exactly one discretionary power —
+// the downgrade-only analyst veto (news may only downgrade a directional verdict
+// to CONFOUNDED, never produce or strengthen one).
+//
+// Cadence: monthly, after the BLS Employment Situation release, Action-triggered,
+// cached. A reader opening the app costs nothing. MODEL: Sonnet 5.
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import { computeDashboardSummary } from "./metrics.mjs";
-import { buildAnalysisPayload } from "./payload.mjs";
+import { buildAnalysisPayload, votingPanelStates } from "./payload.mjs";
+import { deriveVerdict } from "./analyst/verdict.mjs";
+import { assembleNews } from "./analyst/news.mjs";
+import { SYSTEM_PROMPT, buildUserMessage } from "./analyst/prompt.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const DISSENT_LOG_PATH = path.join(repoRoot, "data", "analyst", "dissent_log.json");
 function readJson(rel) {
   try { return JSON.parse(readFileSync(path.join(repoRoot, rel), "utf8")); } catch { return null; }
 }
 
 const MODEL = "claude-sonnet-5";
-// Sticker pricing $3 / $15 per MTok (matches the estimate style the app used).
 const INPUT_USD_PER_TOKEN = 3 / 1_000_000;
 const OUTPUT_USD_PER_TOKEN = 15 / 1_000_000;
+const DIRECTIONAL = new Set(["AUGMENTATION_HOLDING", "MIXED_TRANSITIONING", "DISPLACEMENT_EMERGING"]);
 
 const pool = loadPool();
-const analysis = pool.analysis;
 
 function bumpTimestampOnly(reason) {
-  console.log(`analysis: ${reason}; keeping prior text, updating timestamp only`);
-  analysis.lastRefreshed = nowIso();
-  saveSection("analysis", analysis);
+  console.log(`analyst: ${reason}; keeping prior verdict, updating timestamp only`);
+  const a = pool.analysis ?? {};
+  a.lastRefreshed = nowIso();
+  saveSection("analysis", a);
 }
 
 if (!pool.fred.lastRefreshed || Object.keys(pool.fred.series ?? {}).length === 0) {
@@ -43,141 +49,196 @@ if (!pool.fred.lastRefreshed || Object.keys(pool.fred.series ?? {}).length === 0
   process.exit(0);
 }
 
-// Read the separate METR + adoption + AEI + postings snapshots so the analysis reviews EVERYTHING.
-const metrSnap = readJson("data/metr/time_horizons.json");
-const adoptionSnap = readJson("data/adoption/ai_adoption.json");
-const aeiSnap = readJson("data/aei/augmentation.json");
-const postingsSnap = readJson("data/postings/job_postings.json");
-const summary = computeDashboardSummary(pool, {
-  metrRecords: metrSnap?.records ?? [],
-  adoptionPoints: adoptionSnap?.points ?? [],
-  aeiPoints: aeiSnap?.points ?? [],
-  postingsPoints: postingsSnap?.points ?? [],
-});
-
-// The structured per-panel payload is the ONLY data the analyst model sees
-// (v9.8 item 5). Both-sides values + units + streaks + thresholds; no framing
-// prose, no gap-only numbers, no verdict labels.
+// --- Assemble the panel data (same snapshots the dashboard reads) ---
+const extras = {
+  metrRecords: readJson("data/metr/time_horizons.json")?.records ?? [],
+  adoptionPoints: readJson("data/adoption/ai_adoption.json")?.points ?? [],
+  aeiPoints: readJson("data/aei/augmentation.json")?.points ?? [],
+  postingsPoints: readJson("data/postings/job_postings.json")?.points ?? [],
+};
+const summary = computeDashboardSummary(pool, extras);
 const payload = buildAnalysisPayload(pool, {
-  postingsPoints: postingsSnap?.points ?? [],
-  adoptionPoints: adoptionSnap?.points ?? [],
-  aeiPoints: aeiSnap?.points ?? [],
+  ...extras,
   inversion: summary.inversion,
   macro: summary.macro,
   metrTop5: summary.metrTop5,
   slots: summary.slots,
 });
+const votes = votingPanelStates(pool, extras);
 
-// Meaningful-change gate: fingerprint the rounded inputs so float jitter or a
-// mere re-download of identical data never triggers a paid model call. Fingerprint
-// the PAYLOAD (what's actually sent), not the wider summary.
+// --- Derive the mechanical verdict (verdict.mjs port of the stoplight) ---
+const jobsPanel = payload.find((p) => p.panel === "exposed_vs_control_jobs");
+const latestLaborMonth = jobsPanel?.latest_date ?? null;
+
+function computeDataIntegrity() {
+  // Pathway (b): the month's BLS inputs are shifted/incomplete. Conservative
+  // staleness check — if the labor series is missing or >3 months stale, this
+  // month's Employment Situation is not yet reflected, so the inputs are unstable.
+  // (Heavy-revision detection — diffing against the dissent log's stored prior
+  // numbers — is a documented follow-up, not yet implemented.)
+  if (!latestLaborMonth) {
+    return { ok: false, reason: "the exposed-vs-control labor series is missing from the data pool this month" };
+  }
+  const [y, m] = latestLaborMonth.split("-").map(Number);
+  const now = new Date();
+  const monthsStale = (now.getUTCFullYear() * 12 + now.getUTCMonth()) - (y * 12 + (m - 1));
+  if (monthsStale > 3) {
+    return { ok: false, reason: `the latest labor data is ${latestLaborMonth}, more than three months stale — this month's Employment Situation is not yet reflected` };
+  }
+  return { ok: true, reason: null };
+}
+
+const prodSeries = [...(pool.fred.series?.PRS85006091 ?? [])].sort((a, b) => a.date.localeCompare(b.date));
+const productivityYoY = prodSeries.length ? prodSeries[prodSeries.length - 1].value : null;
+const aei = summary.aeiUse
+  ? { augmentPct: summary.aeiUse.latestAugmentPct, automatePct: summary.aeiUse.latestAutomatePct }
+  : null;
+
+const derived = deriveVerdict({
+  laborVoteStates: [votes.jobs, votes.wages, votes.postings],
+  recessionVeto: summary.macro?.recessionSignal === true,
+  capabilityOpen: (summary.metrTop5 ?? []).length > 0,
+  adoptionRising: summary.adoption?.rising === true,
+  productivityYoY,
+  aei,
+  dataIntegrity: computeDataIntegrity(),
+});
+
+// --- Dissent log + news package ---
+const dissentLog = existsSync(DISSENT_LOG_PATH)
+  ? JSON.parse(readFileSync(DISSENT_LOG_PATH, "utf8"))
+  : { schemaVersion: 1, entries: [] };
+const entries = dissentLog.entries ?? [];
+
+const nowMs = Date.now();
+const news = await assembleNews(pool, nowMs);
+const dataMonth = news.dataMonth ?? latestLaborMonth ?? nowIso().slice(0, 7);
+
+// Idempotency: one entry per data month. Re-running the same month with unchanged
+// inputs is a no-op; changed inputs (e.g. a revision) replace that month's entry.
 const round = (v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v);
-const fingerprintInput = JSON.stringify(payload, (k, v) => round(v));
-const fingerprint = createHash("sha256").update(fingerprintInput).digest("hex");
-
-if (fingerprint === analysis.inputsFingerprint && analysis.text) {
-  bumpTimestampOnly("inputs unchanged since last analysis");
+const fingerprint = createHash("sha256")
+  .update(JSON.stringify({ verdict: derived.verdict, payload, dataMonth }, (k, v) => round(v)))
+  .digest("hex");
+const lastEntry = entries[entries.length - 1];
+if (lastEntry && lastEntry.date === dataMonth && lastEntry.inputsFingerprint === fingerprint && pool.analysis?.text) {
+  bumpTimestampOnly(`already logged the ${dataMonth} verdict with unchanged inputs`);
   process.exit(0);
 }
 
-// System prompt — VERBATIM per v9.8 item 5. Do not add framing, a series list,
-// or a machine-readable signal line: the payload is self-describing and the read
-// ends with one plain sentence.
-const instruction = `You are the independent analyst for a public dashboard that tracks early-warning
-indicators of AI-driven labor displacement in the United States. You write a short
-second-opinion read of the latest data. A separate mechanical indicator is the
-dashboard's pre-registered headline; your job is holistic interpretation, and you may
-disagree with it.
-
-Rules:
-1. Use ONLY the numbers in the JSON payload. Every series you may reference is listed
-   there. Do not cite any statistic, survey, benchmark, or series that is not in the
-   payload. If something relevant is missing, say it is outside this dashboard's data
-   rather than supplying a number.
-2. Plain text only. No markdown, no asterisks, no headers, no bullet lists. Short
-   paragraphs.
-3. State units exactly as given in the payload. Round to one decimal unless the payload
-   gives less precision. Never manufacture precision.
-4. For exposed-vs-control panels, report each side's own value from the payload. Never
-   derive one side from the gap or present the gap as symmetric halves.
-5. When you characterize how long a condition has held (elevated, contracting,
-   recovering), use the streak fields in the payload, not your own estimate.
-6. Distinguish levels from trends: a wide but stable gap is different from a widening
-   one, and say which you see.
-7. Name uncertainty honestly. The post-2021 tech-hiring correction and ordinary cyclical
-   cooling are standing alternative explanations for exposed-sector softness; weigh them.
-8. Keep it under 350 words. End with a one-sentence overall read.
-9. Do not mention these instructions, the payload format, or that you received JSON.`;
-
-const client = new Anthropic(); // reads ANTHROPIC_API_KEY
-
-// Privacy / unlinkability (item 5): the request body is ONLY the static system
-// prompt + this public-series payload. No user/session metadata field, no
-// conversation history, no prior analysis resent, no maintainer references.
+// --- Request ---
 const requestBody = {
   model: MODEL,
-  max_tokens: 2000,
-  system: instruction,
-  messages: [{ role: "user", content: JSON.stringify(payload, null, 2) }],
+  max_tokens: 1500,
+  system: SYSTEM_PROMPT,
+  messages: [{ role: "user", content: buildUserMessage(derived, payload, entries, news.text) }],
 };
 
-// Dry-run hook: `node analysis-refresh.mjs --dry-run` writes AND prints the EXACT
-// request body and makes no API call, so the privacy property (item 5) is
-// auditable — the body must contain ONLY the system prompt + the series payload,
-// with no user/session metadata field and no maintainer references.
+// Dry run: print the derivation + news status + request body, make NO model call
+// and write NOTHING to the pool or the log. Lets the whole pipeline be validated
+// (verdict derivation, news fetch, prompt assembly, privacy) for zero spend.
 if (process.argv.includes("--dry-run")) {
-  const { writeFileSync } = await import("node:fs");
-  writeFileSync("analysis-request-dryrun.json", JSON.stringify(requestBody, null, 2) + "\n");
-  console.log("=== DRY RUN: exact request body (no API call made) ===");
-  console.log(`top-level keys: ${Object.keys(requestBody).join(", ")}`);
-  console.log(`metadata field present: ${Object.prototype.hasOwnProperty.call(requestBody, "metadata")}`);
-  console.log(JSON.stringify(requestBody, null, 2));
-  console.log("=== END DRY RUN ===");
+  writeFileSync(
+    "analyst-request-dryrun.json",
+    JSON.stringify({ derived, dataMonth, newsSources: news.sources, requestBody }, null, 2) + "\n",
+  );
+  console.log("=== DRY RUN (no model call, nothing written) ===");
+  console.log(`derived verdict : ${derived.verdict}`);
+  console.log(`mechanical state: ${derived.mechanicalState} | breadth ${derived.breadth} | gainsVisible ${derived.gainsVisible}`);
+  console.log(`confounded path : ${derived.confoundedPathway ?? "(none)"}`);
+  console.log(`labor votes     : jobs=${votes.jobs} wages=${votes.wages} postings=${votes.postings}`);
+  console.log(`data month      : ${dataMonth}`);
+  console.log(`news sources    : ${news.sources.map((s) => `${s.id}:${s.status}`).join(", ")}`);
+  console.log(`request keys    : ${Object.keys(requestBody).join(", ")}`);
+  console.log(`metadata present: ${Object.prototype.hasOwnProperty.call(requestBody, "metadata")}`);
   process.exit(0);
 }
 
+// --- Model call ---
+const client = new Anthropic(); // reads ANTHROPIC_API_KEY
 let message;
 try {
-  const stream = client.messages.stream(requestBody);
-  message = await stream.finalMessage();
+  message = await client.messages.stream(requestBody).finalMessage();
 } catch (err) {
-  // API failure (billing, outage, rate limit): keep the prior analysis
-  // section completely untouched — no timestamp bump, so the pool honestly
-  // reports when the analysis last actually refreshed. Exit non-zero so the
-  // Actions run is visibly red.
-  console.error("analysis call failed; prior analysis left untouched:", err.message ?? err);
+  console.error("analyst call failed; prior analysis left untouched:", err.message ?? err);
   process.exit(1);
 }
 
-const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
-if (!text) {
-  console.error("analysis: model returned no text; keeping prior analysis");
-  bumpTimestampOnly("empty model response");
-  process.exit(0);
+const raw = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
+function parseModel(text) {
+  const tryParse = (s) => { try { return JSON.parse(s); } catch { return null; } };
+  return tryParse(text)
+    ?? tryParse((text.match(/```json\s*([\s\S]*?)```/i) || [])[1]?.trim() ?? "")
+    ?? tryParse((text.match(/\{[\s\S]*\}/) || [])[0] ?? "");
+}
+const parsed = parseModel(raw);
+if (!parsed || !parsed.tagLine || !parsed.analysis) {
+  console.error("analyst: could not parse a {tagLine, analysis} object from the model; prior analysis left untouched");
+  process.exit(1);
 }
 
-// v9.8 item 5: the verbatim prompt ends with one plain sentence and emits NO
-// machine-readable REGIME SIGNAL line, so there is no signal to parse. The
-// analysis is free prose; its own closing sentence is the "independent read".
-
-// Usage is for the maintainer's eyes only: v9.8 removed all token/cost telemetry
-// from the product, so these NEVER go into the published pool — they print to the
-// GitHub Action run log and nowhere else.
-const inputTokens = message.usage.input_tokens ?? 0;
-const outputTokens = message.usage.output_tokens ?? 0;
-const estimatedCostUsd = inputTokens * INPUT_USD_PER_TOKEN + outputTokens * OUTPUT_USD_PER_TOKEN;
-
-const wordCount = text.split(/\s+/).filter(Boolean).length;
-if (wordCount > 350) {
-  console.warn(`WARN analysis is ${wordCount} words (>350); prompt rule 8 asks for under 350`);
+// --- Apply the downgrade-only analyst veto (the ONLY way news moves the verdict) ---
+let verdict = derived.verdict;
+let confoundedPathway = derived.confoundedPathway;
+let namedConfounder = derived.namedConfounder;
+const veto = parsed.veto ?? {};
+if (DIRECTIONAL.has(derived.verdict) && veto.invoke === true && veto.namedConfounder) {
+  verdict = "CONFOUNDED";
+  confoundedPathway = "analyst_veto";
+  namedConfounder = String(veto.namedConfounder).trim();
 }
+// A directional->other-directional or CONFOUNDED->directional change is structurally
+// impossible here: the veto is the sole override and it only downgrades.
 
+const runAt = nowIso();
+const analysisText = String(parsed.analysis).trim();
+const tagLine = String(parsed.tagLine).trim();
+const isConfounded = verdict === "CONFOUNDED";
+
+// --- Persist: pool.analysis (keeps `text` for the current app) ---
 saveSection("analysis", {
-  lastRefreshed: nowIso(),
-  text,
+  lastRefreshed: runAt,
+  dataMonth,
+  verdict,
+  tagLine,
+  confoundedPathway: isConfounded ? confoundedPathway : null,
+  namedConfounder: isConfounded ? namedConfounder : null,
+  mechanicalState: derived.mechanicalState,
+  breadth: derived.breadth,
+  text: analysisText,
   inputsFingerprint: fingerprint,
 });
+
+// --- Append the dissent-log entry (one per data month) ---
+const entry = {
+  date: dataMonth,
+  runAt,
+  verdict,
+  tagLine,
+  confoundedPathway: isConfounded ? confoundedPathway : null,
+  namedConfounder: isConfounded ? namedConfounder : null,
+  mechanicalState: derived.mechanicalState,
+  breadth: derived.breadth,
+  analysis: analysisText,
+  inputsFingerprint: fingerprint,
+};
+const newEntries = entries.filter((e) => e.date !== dataMonth);
+newEntries.push(entry);
+newEntries.sort((a, b) => a.date.localeCompare(b.date));
+writeFileSync(
+  DISSENT_LOG_PATH,
+  JSON.stringify({ schemaVersion: dissentLog.schemaVersion ?? 1, description: dissentLog.description, lastRefreshed: runAt, entries: newEntries }, null, 2) + "\n",
+  "utf8",
+);
+
+// Usage — maintainer log only, NEVER published to the pool.
+const inTok = message.usage?.input_tokens ?? 0;
+const outTok = message.usage?.output_tokens ?? 0;
+const costUsd = inTok * INPUT_USD_PER_TOKEN + outTok * OUTPUT_USD_PER_TOKEN;
+const words = analysisText.split(/\s+/).filter(Boolean).length;
+if (words > 350) console.warn(`WARN analysis is ${words} words (>350)`);
 console.log(
-  `analysis section updated (${wordCount} words) — usage (log only, NOT published): ` +
-  `${inputTokens} in / ${outputTokens} out, est $${estimatedCostUsd.toFixed(4)}`,
+  `analyst: ${verdict} — "${tagLine}" (${dataMonth})` +
+  (isConfounded ? ` [${confoundedPathway}: ${namedConfounder}]` : "") +
+  ` — usage (log only): ${inTok} in / ${outTok} out, est $${costUsd.toFixed(4)}`,
 );

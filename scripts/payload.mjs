@@ -146,6 +146,38 @@ function declineStreakQuarters(obs) {
   return run;
 }
 
+/**
+ * Current displacement state of an oriented series (higher = more toward
+ * displacement). Mirrors the last iteration of streakString / Watch.kt's
+ * stateForZ(zScoreExCovid(...)) — same trailing-120 window, same COVID exclusion.
+ */
+function currentDisplacementState(oriented) {
+  if (!oriented.length) return "steady";
+  const hist = oriented.slice(0, -1).slice(-TRAILING_WINDOW);
+  const z = zScore(oriented[oriented.length - 1][1], keepExCovid(hist));
+  return stateForZ(z);
+}
+
+/**
+ * The three confounder-robust differentials that VOTE in the displacement chain,
+ * as "steady" | "watch" | "break". Fed to analyst/verdict.mjs so the Analyst
+ * verdict derives from the same panel state as the on-device stoplight.
+ */
+export function votingPanelStates(pool, extras = {}) {
+  const series = pool.fred.series ?? {};
+  const jobs = avgYoyDiffSeries(["USINFO", "USPBS", "USFIRE"], ["USCONS", "USLAH", "USEHS"], series);
+  const wages = avgYoyDiffSeries(
+    ["CES5000000003", "CES6000000003", "CES5500000003"],
+    ["CES2000000003", "CES7000000003", "CES6500000003"], series,
+  );
+  const postings = extras.postingsPoints ?? [];
+  return {
+    jobs: currentDisplacementState(jobs.map((p) => [p.month, -p.diff])),
+    wages: currentDisplacementState(wages.map((p) => [p.month, -p.diff])),
+    postings: currentDisplacementState(postings.map((p) => [p.date.slice(0, 7), -p.spread])),
+  };
+}
+
 export function buildAnalysisPayload(pool, extras = {}) {
   const series = pool.fred.series ?? {};
   const panels = [];

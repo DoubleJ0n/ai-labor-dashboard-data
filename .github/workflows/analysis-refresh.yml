@@ -1,23 +1,24 @@
 name: analysis-refresh
 
-# v9.8 item 6 — ORDERING FIX. Previously this ran on its own cron 50 min after
-# fred-refresh (an OFFSET, not a chain). A manual or off-schedule fred-refresh —
-# exactly what happened on 2026-07-14 13:49 UTC — then left the analysis stale,
-# so the pool carried data newer than the analysis describing it.
+# The monthly Analyst (mini-economist). It reads the dashboard's panels, derives
+# one of four fixed verdicts from the SAME panel state + thresholds as the
+# stoplight, and writes a short plain-language read cached into the pool.
 #
-# Now analysis is CHAINED: it fires when a data workflow COMPLETES and checks out
-# the latest main (the commit that workflow just pushed), so the analysis always
-# reflects — and post-dates — the pool it timestamps. It fires after fred AND
-# after discovery; the on-change fingerprint gate makes the redundant fire a
-# cheap no-op when nothing meaningful changed.
+# CADENCE: monthly, after the BLS Employment Situation release (first Friday). The
+# scheduled trigger is intentionally NOT enabled yet — Phase 4 does a dry-run
+# review before the schedule goes live (see the commented cron below). Until then
+# the Analyst runs on manual dispatch only. The old weekly workflow_run chain off
+# fred/discovery is retired: the Analyst is monthly, not weekly.
 on:
-  workflow_run:
-    workflows: ["fred-refresh", "discovery-refresh"]
-    types: [completed]
+  # PHASE 4 will enable this after a reviewed dry run:
+  # schedule:
+  #   - cron: "0 13 1-7 * 5"  # 13:00 UTC on the FIRST Friday of the month (post-BLS);
+  #                            # the in-script data-availability gate no-ops if the
+  #                            # new month's Employment Situation isn't in the pool yet.
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Print the exact API request body and make NO model call"
+        description: "Derive the verdict + assemble news + print the request body, make NO model call"
         type: boolean
         default: false
 
@@ -31,37 +32,36 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    # Skip if the upstream data step failed or was cancelled — never analyze a
-    # half-written pool. Manual dispatch always proceeds.
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main # the latest pushed pool, NOT the workflow_run trigger SHA
+          ref: main
       - name: Ensure latest pool
         run: git pull --rebase origin main
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
-      - name: Dry run (print request body, no model call)
+      - name: Verify verdict derivation (unit tests)
+        run: node --test scripts/analyst/
+      - name: Dry run (derive + assemble news + print request body, no model call)
         if: ${{ github.event.inputs.dry_run == 'true' }}
         run: node scripts/analysis-refresh.mjs --dry-run
-      - name: Analysis (Sonnet 5, gated on-change)
+      - name: Analyst (Sonnet 5, monthly verdict)
         if: ${{ github.event.inputs.dry_run != 'true' }}
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/analysis-refresh.mjs
-      - name: Commit updated pool
+      - name: Commit updated pool + dissent log
         if: ${{ github.event.inputs.dry_run != 'true' }}
         run: |
           git config user.name "pool-refresh-bot"
           git config user.email "actions@github.com"
-          git add dashboard-data.json
+          git add dashboard-data.json data/analyst/dissent_log.json
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "analysis-refresh: weekly dashboard synthesis"
+            git commit -m "analyst-refresh: monthly verdict"
             git pull --rebase origin main
             git push
           fi
