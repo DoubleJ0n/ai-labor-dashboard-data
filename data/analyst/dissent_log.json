@@ -1,6 +1,19 @@
 {
   "schemaVersion": 1,
   "description": "Append-only monthly Analyst verdict log. See README.md for the entry shape. One entry is appended by analyst-refresh after each BLS Employment Situation release; this file is the data source for the Analyst Track Record timeline panel. Entries are never edited retroactively.",
-  "lastRefreshed": null,
-  "entries": []
+  "lastRefreshed": "2026-07-18T01:17:52Z",
+  "entries": [
+    {
+      "date": "2026-06",
+      "runAt": "2026-07-18T01:17:52Z",
+      "verdict": "AUGMENTATION_HOLDING",
+      "tagLine": "exposed-sector gaps holding steady",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "mechanicalState": "STEADY",
+      "breadth": 0,
+      "analysis": "Productivity growth came in at 2.8 percent year over year, inside the 2.7 to 3.4 band that historically marks a strong-but-normal pace, and this is only the first quarter there, not the two straight quarters that would flag a break. Nothing else in the panel moved enough to change the picture. AI-exposed industries are still growing jobs slower than control industries, a 2.5 point gap, but that gap is well within its calm-period range and has held roughly flat for 21 months. Pay in exposed industries is actually running ahead of control, not behind, and job postings for exposed occupations, while structurally weaker than hands-on work since 2020, actually narrowed slightly over the past six months rather than widening toward the alarm line.\n\nThe one soft spot is worker share of national income, down for a fourth straight quarter to 95. But the rule here is about acceleration away from trend, and a multi-decade downward drift showing up again isn't itself evidence of an AI-specific break. Recent graduates continue to face a wider unemployment gap than the general workforce, as they have for over eight years running, which is worth watching but doesn't move the headline on its own.\n\nOn the capability side, model time horizons and benchmark scores keep climbing, and Census now puts AI adoption at 21.7 percent of firms, up on a series that only started last November. Those are permissive conditions, not causes, and this month they aren't paired with weakening in the exposed-sector labor data. The news package this month is generic economic and geopolitical coverage with nothing specific tied to any of these series, so there's no basis for a confounder call. The panels are clean and the read holds: augmentation, not displacement.",
+      "inputsFingerprint": "8cd2a21fc4320536a383b3038d9395ad8cb4ee229b0b8de2714c8e05416d8c11"
+    }
+  ]
 }
