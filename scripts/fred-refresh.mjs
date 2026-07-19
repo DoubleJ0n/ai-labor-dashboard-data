@@ -74,7 +74,28 @@ async function fetchSeries(seriesId) {
     .map((o) => ({ date: o.date, value: Number(o.value) }));
 }
 
+const prior = loadPool().fred;
+
 const series = {};
+// Per-series gap markers (audit-2026-07 finding 2 / C-2): when an optional
+// fetch fails, last week's copy is carried forward and the gap is RECORDED in
+// the pool — a failed fetch must never leave a series silently absent while
+// lastRefreshed claims the section is fresh. Downstream, absence of a
+// verdict-critical series is a data-integrity CONFOUNDED, not a benign read.
+const seriesGaps = {};
+
+function carryForward(id, why) {
+  const carried = prior.series?.[id];
+  if (carried && carried.length > 0) {
+    series[id] = carried;
+    seriesGaps[id] = { carriedForwardFrom: prior.lastRefreshed ?? null, reason: why };
+    console.warn(`${id}: ${why} — carried forward ${carried.length} observations from ${prior.lastRefreshed ?? "prior pool"}`);
+  } else {
+    seriesGaps[id] = { carriedForwardFrom: null, reason: `${why}; no prior copy to carry forward` };
+    console.warn(`${id}: ${why} — no prior copy to carry forward, series absent`);
+  }
+}
+
 for (const id of REQUIRED_IDS) {
   series[id] = await fetchSeries(id);
   console.log(`${id}: ${series[id].length} observations`);
@@ -87,13 +108,12 @@ for (const id of OPTIONAL_IDS) {
       series[id] = obs;
       console.log(`${id}: ${obs.length} observations (optional)`);
     } else {
-      console.warn(`${id}: no data (optional) — skipped`);
+      carryForward(id, "fetch returned no data (optional)");
     }
   } catch (e) {
-    console.warn(`${id}: fetch failed (optional) — skipped: ${e.message ?? e}`);
+    carryForward(id, `fetch failed (optional): ${e.message ?? e}`);
   }
 }
 
-const prior = loadPool().fred;
-saveSection("fred", { ...prior, lastRefreshed: nowIso(), series });
-console.log("fred section updated");
+saveSection("fred", { ...prior, lastRefreshed: nowIso(), series, seriesGaps });
+console.log(`fred section updated${Object.keys(seriesGaps).length ? ` (${Object.keys(seriesGaps).length} gap-marked series)` : ""}`);

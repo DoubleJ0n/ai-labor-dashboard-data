@@ -21,7 +21,7 @@ import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import { computeDashboardSummary } from "./metrics.mjs";
 import { buildAnalysisPayload, votingPanelStates } from "./payload.mjs";
 import { deriveVerdict, DIRECTIONAL } from "./analyst/verdict.mjs";
-import { DATA_INTEGRITY_MAX_STALE_MONTHS } from "./config.mjs";
+import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES } from "./config.mjs";
 import { assembleNews } from "./analyst/news.mjs";
 import { SYSTEM_PROMPT, buildUserMessage } from "./analyst/prompt.mjs";
 
@@ -74,8 +74,15 @@ function computeDataIntegrity() {
   // Pathway (b): the month's BLS inputs are shifted/incomplete. Conservative
   // staleness check — if the labor series is missing or >3 months stale, this
   // month's Employment Situation is not yet reflected, so the inputs are unstable.
-  // (Heavy-revision detection — diffing against the dissent log's stored prior
-  // numbers — is a documented follow-up, not yet implemented.)
+  //
+  // Verdict-critical presence (audit-2026-07 finding 2 / C-2): a series the
+  // verdict depends on that is absent from the pool — a vanished macro spread
+  // silently disarming the recession veto, a vanished CES series silently
+  // shrinking the voting set — must read as "no data", never as benign.
+  const missing = VERDICT_CRITICAL_SERIES.filter((id) => !(pool.fred.series?.[id]?.length > 0));
+  if (missing.length > 0) {
+    return { ok: false, reason: `verdict-critical series missing from the data pool: ${missing.join(", ")} — absence must not read as a benign value` };
+  }
   if (!latestLaborMonth) {
     return { ok: false, reason: "the exposed-vs-control labor series is missing from the data pool this month" };
   }
