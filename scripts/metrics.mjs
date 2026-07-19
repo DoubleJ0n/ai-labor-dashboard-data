@@ -3,6 +3,15 @@
 // used ONLY to build the analysis prompt from the pool's raw FRED series.
 // The Android app still does its own on-device computation; keep the two in
 // sync if the app's rules ever change.
+//
+// SCOPE (audit-2026-07 finding 17 / B-4): this file computes ONLY what
+// analysis-refresh actually reads — productivity (for the OPHNFB
+// cross-check), inversion, macro, adoption, aeiUse, metrTop5, slots. The
+// panel payload the analyst sees comes from payload.mjs, the faithful port.
+// The old per-panel summaries (gdpEmployment, exposedControl, wages,
+// laborShare, sectors, postings) had drifted from the app and were read by
+// nothing; they are deleted so a drifted number can never be wired into the
+// prompt.
 
 // Registered values come from config.mjs — one home, no per-file copies
 // (audit-2026-07 findings 5, 6, 7, 9).
@@ -10,17 +19,8 @@ import {
   PROD_BAND_LOW as PRODUCTIVITY_BAND_LOW_PCT,
   PROD_BAND_HIGH as PRODUCTIVITY_BAND_HIGH_PCT,
   INVERSION_TRAILING_WINDOW_MONTHS, INVERSION_MIN_HISTORY_MONTHS,
-  SECTOR_PEAK_WINDOW_START, COVID_START, COVID_END,
-  ADOPTION_RISING_LOOKBACK, DIFFERENTIALS,
+  COVID_START, COVID_END, ADOPTION_RISING_LOOKBACK,
 } from "./config.mjs";
-
-// Labels must match the app's Method tab 1:1 — this map is what the analyst
-// model sees, and a wrong name here becomes a wrong claim in the prose.
-const SECTOR_NAMES = {
-  USINFO: "Information sector",
-  TEMPHELPS: "Temporary-help services",
-  CES6054150001: "Computer systems design and related services",
-};
 
 const ymOf = (dateStr) => dateStr.slice(0, 7);
 function ymAdd(ym, n) {
@@ -33,26 +33,6 @@ function ymAdd(ym, n) {
 const quarterEndMonth = (dateStr) => ymAdd(ymOf(dateStr), 2);
 
 const sorted = (obs) => [...(obs ?? [])].sort((a, b) => a.date.localeCompare(b.date));
-
-function computeGdpEmployment(gdp, payems) {
-  const gdpYoY = new Map();
-  for (let i = 4; i < gdp.length; i++) {
-    gdpYoY.set(quarterEndMonth(gdp[i].date), (gdp[i].value / gdp[i - 4].value - 1) * 100);
-  }
-  const gdpMonths = [...gdpYoY.keys()];
-  const gaps = [];
-  for (let i = 12; i < payems.length; i++) {
-    const month = ymOf(payems[i].date);
-    const pYoY = (payems[i].value / payems[i - 12].value - 1) * 100;
-    let g = null;
-    for (const gm of gdpMonths) if (gm <= month) g = gdpYoY.get(gm);
-    if (g != null) gaps.push(g - pYoY);
-  }
-  return {
-    gapPct: gaps.length ? gaps[gaps.length - 1] : null,
-    avgGapPct: gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : null,
-  };
-}
 
 /** YoY derived from the OPHNFB index, keyed by quarter-end month (cross-check only). */
 function productivityYoYFromIndex(index) {
@@ -104,16 +84,6 @@ function computeProductivity(yoy, index) {
     bandHighPct: PRODUCTIVITY_BAND_HIGH_PCT,
     crossCheckDiff,
   };
-}
-
-function computeSector(obs) {
-  const inWindow = obs.filter((o) => o.date >= SECTOR_PEAK_WINDOW_START);
-  const peak = inWindow.length ? Math.max(...inWindow.map((o) => o.value)) : 0;
-  if (!peak) return { level: null, delta6mo: null };
-  const indexed = obs.map((o) => (o.value / peak) * 100);
-  const level = indexed[indexed.length - 1] ?? null;
-  const past = indexed[indexed.length - 7] ?? null;
-  return { level, delta6mo: level != null && past != null ? level - past : null };
 }
 
 // Item 9: 12-month trailing MA over contiguous months. CGBD2024 is NSA and spikes
@@ -168,24 +138,6 @@ function computeInversion(grad, unrate) {
   return { gapPct: idx >= 0 ? joined[idx].gap : null, anomalous, runMonths: run };
 }
 
-// v9.2/v9.3 panels (simplified latest-value reads for the analysis prompt).
-// Taxonomy registered once in config.mjs (audit-2026-07 finding 5).
-const EXPOSED_IND = DIFFERENTIALS.jobs.exposed;
-const CONTROL_IND = DIFFERENTIALS.jobs.control;
-const WAGE_EXPOSED_IDS = DIFFERENTIALS.wages.exposed;
-const WAGE_CONTROL_IDS = DIFFERENTIALS.wages.control;
-
-function yoyLatestAvg(ids, series) {
-  const vals = ids.map((id) => {
-    const s = sorted(series[id]);
-    if (s.length < 13) return null;
-    const last = s[s.length - 1].value;
-    const prior = s[s.length - 13].value;
-    return prior ? (last / prior - 1) * 100 : null;
-  }).filter((v) => v != null);
-  return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
-}
-
 function lastVal(series, id) { const s = sorted(series[id]); return s.length ? s[s.length - 1].value : null; }
 
 /** Summary of the whole dashboard. `extras` carries the METR + adoption +
@@ -194,36 +146,6 @@ function lastVal(series, id) { const s = sorted(series[id]); return s.length ? s
  *  earnings), so they need no extra. */
 export function computeDashboardSummary(pool, extras = {}) {
   const series = pool.fred.series ?? {};
-  const gdp = sorted(series.GDPC1);
-  const payems = sorted(series.PAYEMS);
-
-  const sectors = ["USINFO", "TEMPHELPS", "CES6054150001"].map((id) => ({
-    id, name: SECTOR_NAMES[id], ...computeSector(sorted(series[id])),
-  }));
-
-  // Type D: exposed-minus-control (the confounder-robust signal).
-  const exYoY = yoyLatestAvg(EXPOSED_IND, series);
-  const coYoY = yoyLatestAvg(CONTROL_IND, series);
-  const exposedControl = { exposedYoY: exYoY, controlYoY: coYoY, differential: (exYoY != null && coYoY != null) ? exYoY - coYoY : null };
-
-  // Type D: exposed-minus-control WAGES (the pay-compression channel).
-  const wExY = yoyLatestAvg(WAGE_EXPOSED_IDS, series);
-  const wCoY = yoyLatestAvg(WAGE_CONTROL_IDS, series);
-  const wages = { exposedYoY: wExY, controlYoY: wCoY, differential: (wExY != null && wCoY != null) ? wExY - wCoY : null };
-
-  // Type D: worker/labor share of income.
-  const ls = sorted(series.PRS85006173);
-  const laborShare = { latest: ls.length ? ls[ls.length - 1].value : null, changeVs4qAgo: ls.length > 4 ? ls[ls.length - 1].value - ls[ls.length - 5].value : null };
-
-  // v9.7 Phase 4: Indeed job-postings spread (exposed occupations minus control).
-  // Postings lead hiring, so this is the early-warning version of the jobs test.
-  const pp = extras.postingsPoints ?? [];
-  const postings = pp.length ? {
-    exposedIndex: pp[pp.length - 1].exposed,
-    controlIndex: pp[pp.length - 1].control,
-    spread: pp[pp.length - 1].spread,
-    spreadChange6mo: pp.length > 6 ? pp[pp.length - 1].spread - pp[pp.length - 7].spread : null,
-  } : null;
 
   // Type E: macro-regime gate.
   const ts2 = lastVal(series, "T10Y2Y");
@@ -261,10 +183,8 @@ export function computeDashboardSummary(pool, extras = {}) {
 
   return {
     productivity: computeProductivity(series.PRS85006091 ?? [], series.OPHNFB ?? []),
-    sectors,
     inversion: computeInversion(sorted(series.CGBD2024), sorted(series.UNRATE)),
-    gdpEmployment: computeGdpEmployment(gdp, payems),
-    exposedControl, wages, postings, laborShare, macro, adoption, aeiUse,
+    macro, adoption, aeiUse,
     metrTop5,
     slots: slotLatest,
   };
