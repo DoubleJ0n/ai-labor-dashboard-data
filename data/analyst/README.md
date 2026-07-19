@@ -1,10 +1,15 @@
 # Analyst dissent log (`dissent_log.json`)
 
 Append-only record of the monthly Analyst verdict. `analyst-refresh` appends
-exactly one entry per BLS Employment Situation release and never rewrites a prior
-entry. It is the data source for the app's **Analyst Track Record** timeline, and
-each run receives the prior log so it can score whether last month's named
-confounder held up.
+one entry per BLS Employment Situation release and never rewrites or deletes a
+prior entry. If a month's inputs change after its entry was written (a BLS
+revision), a NEW entry for the same data month is appended with a `supersedes`
+field naming the `runAt` of the entry it replaces (audit-2026-07 finding 15) —
+the log itself records that the month's call changed. Consumers that want "the"
+monthly call should take the latest entry per data month; the timeline shows
+only that latest entry. It is the data source for the app's **Analyst Track
+Record** timeline, and each run receives the prior log (latest entry per month)
+so it can score whether last month's named confounder held up.
 
 ## Entry shape
 
@@ -22,7 +27,13 @@ confounder held up.
   "mechanicalState": "WATCH",        // the stoplight state (STEADY|WATCH|BREAK) the SAME
                                      //   inputs produced — lets next month note agree/disagree
   "breadth": 1,                      // # of confounder-robust labor differentials firing (0..3)
-  "analysis": "..."                  // the plain-text paragraph(s) the model wrote
+  "analysis": "...",                 // the plain-text paragraph(s) the model wrote
+  "keyNumbers": {                    // the differentials as read this run — a later run
+    "jobsDiffPp": -2.54,             //   re-reads these months and diffs against them for
+    "wagesDiffPp": 1.11              //   heavy-revision detection (audit-2026-07 finding 10)
+  },
+  "supersedes": "2026-08-07T13:05:00Z" // present only on a same-month revision entry:
+                                     //   the runAt of the entry it supersedes (finding 15)
 }
 ```
 

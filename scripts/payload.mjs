@@ -187,6 +187,20 @@ export function votingPanelStates(pool, extras = {}) {
   };
 }
 
+/**
+ * The two BLS-revisable voting differentials as full monthly series
+ * ({month, diff} in pp). Used by heavy-revision detection (audit-2026-07
+ * finding 10): a logged month's differential moving on a later re-read of the
+ * same reference month means the inputs were revised.
+ */
+export function votingDifferentialSeries(pool) {
+  const series = pool.fred.series ?? {};
+  return {
+    jobs: avgYoyDiffSeries(DIFFERENTIALS.jobs.exposed, DIFFERENTIALS.jobs.control, series),
+    wages: avgYoyDiffSeries(DIFFERENTIALS.wages.exposed, DIFFERENTIALS.wages.control, series),
+  };
+}
+
 export function buildAnalysisPayload(pool, extras = {}) {
   const series = pool.fred.series ?? {};
   const panels = [];

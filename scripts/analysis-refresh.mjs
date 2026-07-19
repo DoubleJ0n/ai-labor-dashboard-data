@@ -19,9 +19,9 @@ import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import { computeDashboardSummary } from "./metrics.mjs";
-import { buildAnalysisPayload, votingPanelStates } from "./payload.mjs";
+import { buildAnalysisPayload, votingPanelStates, votingDifferentialSeries } from "./payload.mjs";
 import { deriveVerdict, DIRECTIONAL } from "./analyst/verdict.mjs";
-import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES } from "./config.mjs";
+import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES, HEAVY_REVISION_MAX_PP } from "./config.mjs";
 import { assembleNews } from "./analyst/news.mjs";
 import { SYSTEM_PROMPT, buildUserMessage } from "./analyst/prompt.mjs";
 
@@ -79,10 +79,49 @@ const votes = votingPanelStates(pool, extras);
 const jobsPanel = payload.find((p) => p.panel === "exposed_vs_control_jobs");
 const latestLaborMonth = jobsPanel?.latest_date ?? null;
 
+// Dissent log — read before the verdict derivation because heavy-revision
+// detection diffs this run's differentials against the log's stored numbers.
+const dissentLog = existsSync(DISSENT_LOG_PATH)
+  ? JSON.parse(readFileSync(DISSENT_LOG_PATH, "utf8"))
+  : { schemaVersion: 1, entries: [] };
+const entries = dissentLog.entries ?? [];
+
+/** Latest entry per data month (entries are sorted by date then runAt). */
+function latestPerMonth(list) {
+  const m = new Map();
+  for (const e of list) m.set(e.date, e);
+  return [...m.values()];
+}
+
+const diffSeries = votingDifferentialSeries(pool);
+
+// Heavy-revision detection (audit-2026-07 finding 10 / D-1): re-read the last
+// two logged data months' jobs/wages differentials from TODAY's pool and diff
+// them against the numbers stored when those months were logged. A move
+// beyond HEAVY_REVISION_MAX_PP means the BLS inputs were heavily revised —
+// the "heavily revised" clause of CONFOUNDED pathway (b), now implemented.
+function detectHeavyRevision() {
+  const logged = latestPerMonth(entries).slice(-2);
+  for (const e of logged) {
+    if (!e.keyNumbers) continue; // entries logged before keyNumbers existed
+    const stored = [["jobs", e.keyNumbers.jobsDiffPp], ["wages", e.keyNumbers.wagesDiffPp]];
+    for (const [channel, was] of stored) {
+      if (was == null) continue;
+      const now = diffSeries[channel].find((p) => p.month === e.date)?.diff;
+      if (now == null) continue;
+      if (Math.abs(now - was) > HEAVY_REVISION_MAX_PP) {
+        return `the ${e.date} exposed-vs-control ${channel} differential was revised from ${was.toFixed(2)} to ${now.toFixed(2)} percentage points — this month's BLS inputs are heavily revised`;
+      }
+    }
+  }
+  return null;
+}
+
 function computeDataIntegrity() {
-  // Pathway (b): the month's BLS inputs are shifted/incomplete. Conservative
-  // staleness check — if the labor series is missing or >3 months stale, this
-  // month's Employment Situation is not yet reflected, so the inputs are unstable.
+  // Pathway (b): the month's BLS inputs are shifted/incomplete/heavily
+  // revised. Conservative staleness check — if the labor series is missing or
+  // >3 months stale, this month's Employment Situation is not yet reflected,
+  // so the inputs are unstable.
   //
   // Verdict-critical presence (audit-2026-07 finding 2 / C-2): a series the
   // verdict depends on that is absent from the pool — a vanished macro spread
@@ -100,6 +139,10 @@ function computeDataIntegrity() {
   const monthsStale = (now.getUTCFullYear() * 12 + now.getUTCMonth()) - (y * 12 + (m - 1));
   if (monthsStale > DATA_INTEGRITY_MAX_STALE_MONTHS) {
     return { ok: false, reason: `the latest labor data is ${latestLaborMonth}, more than three months stale — this month's Employment Situation is not yet reflected` };
+  }
+  const revision = detectHeavyRevision();
+  if (revision) {
+    return { ok: false, reason: revision };
   }
   return { ok: true, reason: null };
 }
@@ -120,24 +163,22 @@ const derived = deriveVerdict({
   dataIntegrity: computeDataIntegrity(),
 });
 
-// --- Dissent log + news package ---
-const dissentLog = existsSync(DISSENT_LOG_PATH)
-  ? JSON.parse(readFileSync(DISSENT_LOG_PATH, "utf8"))
-  : { schemaVersion: 1, entries: [] };
-const entries = dissentLog.entries ?? [];
-
+// --- News package ---
 const nowMs = Date.now();
 const news = await assembleNews(pool, nowMs);
 const dataMonth = news.dataMonth ?? latestLaborMonth ?? nowIso().slice(0, 7);
 
-// Idempotency: one entry per data month. Re-running the same month with unchanged
-// inputs is a no-op; changed inputs (e.g. a revision) replace that month's entry.
+// Idempotency: re-running the same month with unchanged inputs is a no-op;
+// changed inputs (e.g. a revision) APPEND a new entry that supersedes the
+// month's prior one (audit-2026-07 finding 15 / C-4) — the log itself records
+// that the month's call changed; nothing is deleted.
 const round = (v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v);
 const fingerprint = createHash("sha256")
   .update(JSON.stringify({ verdict: derived.verdict, payload, dataMonth }, (k, v) => round(v)))
   .digest("hex");
-const lastEntry = entries[entries.length - 1];
-if (lastEntry && lastEntry.date === dataMonth && lastEntry.inputsFingerprint === fingerprint && pool.analysis?.text) {
+const monthEntries = entries.filter((e) => e.date === dataMonth);
+const priorForMonth = monthEntries[monthEntries.length - 1] ?? null;
+if (priorForMonth && priorForMonth.inputsFingerprint === fingerprint && pool.analysis?.text) {
   bumpTimestampOnly(`already logged the ${dataMonth} verdict with unchanged inputs`);
   process.exit(0);
 }
@@ -147,7 +188,7 @@ const requestBody = {
   model: MODEL,
   max_tokens: 1500,
   system: SYSTEM_PROMPT,
-  messages: [{ role: "user", content: buildUserMessage(derived, payload, entries, news.text) }],
+  messages: [{ role: "user", content: buildUserMessage(derived, payload, latestPerMonth(entries), news.text) }],
 };
 
 // Dry run: print the derivation + news status + request body, make NO model call
@@ -236,7 +277,8 @@ saveSection("analysis", {
   inputsFingerprint: fingerprint,
 });
 
-// --- Append the dissent-log entry (one per data month) ---
+// --- Append the dissent-log entry (append-only; a same-month revision
+// --- supersedes, never deletes — finding 15) ---
 const entry = {
   date: dataMonth,
   runAt,
@@ -248,10 +290,16 @@ const entry = {
   breadth: derived.breadth,
   analysis: analysisText,
   inputsFingerprint: fingerprint,
+  // The differentials as read this run, for heavy-revision detection
+  // (finding 10): a later run re-reads these months and diffs.
+  keyNumbers: {
+    jobsDiffPp: diffSeries.jobs.find((p) => p.month === dataMonth)?.diff ?? null,
+    wagesDiffPp: diffSeries.wages.find((p) => p.month === dataMonth)?.diff ?? null,
+  },
+  ...(priorForMonth ? { supersedes: priorForMonth.runAt } : {}),
 };
-const newEntries = entries.filter((e) => e.date !== dataMonth);
-newEntries.push(entry);
-newEntries.sort((a, b) => a.date.localeCompare(b.date));
+const newEntries = [...entries, entry];
+newEntries.sort((a, b) => a.date.localeCompare(b.date) || String(a.runAt ?? "").localeCompare(String(b.runAt ?? "")));
 writeFileSync(
   DISSENT_LOG_PATH,
   JSON.stringify({ schemaVersion: dissentLog.schemaVersion ?? 1, description: dissentLog.description, lastRefreshed: runAt, entries: newEntries }, null, 2) + "\n",
