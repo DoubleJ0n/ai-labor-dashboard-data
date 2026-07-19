@@ -18,14 +18,14 @@
 // the payload — the analysis is an independent read of the same numbers, not a
 // paraphrase of the stoplight. Streaks are worded as conditions, not verdicts.
 
-const COVID_START = "2020-01";
-const COVID_END = "2021-12";
-const WATCH_MIN_HISTORY = 36; // readings before a z-score is trustworthy
-const TRAILING_WINDOW = 120;  // trailing 10-year window
-const WATCH_Z = 1.0;
-const BREAK_Z = 2.0;
-const PROD_BAND_LOW = 2.7;
-const PROD_BAND_HIGH = 3.4;
+// All registered values come from config.mjs — one home, no per-file copies
+// (audit-2026-07 findings 5, 6, 7, 9, 21).
+import {
+  COVID_START, COVID_END, WATCH_MIN_HISTORY, TRAILING_WINDOW, WATCH_Z, BREAK_Z,
+  PROD_BAND_LOW, PROD_BAND_HIGH, PROD_BREAK_RUN_QUARTERS,
+  ADOPTION_RISING_LOOKBACK, TREND_DRIFT_Z, TREND_LOOKBACK_READINGS,
+  DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS, LABOR_SHARE_BASELINE_QUARTERS,
+} from "./config.mjs";
 
 const sorted = (obs) => [...(obs ?? [])].sort((a, b) => a.date.localeCompare(b.date));
 const ymOf = (d) => d.slice(0, 7);
@@ -124,16 +124,28 @@ function streakString(oriented, cadence) {
   const [ey, em] = states[states.length - 1][0].split("-").map(Number);
   const months = (ey * 12 + em) - (sy * 12 + sm);
   let drift = "holding roughly flat";
-  if (zs.length >= 4) {
-    const d = zs[zs.length - 1] - zs[zs.length - 4];
-    if (d > 0.3) drift = "drifting further toward weakness";
-    else if (d < -0.3) drift = "recovering";
+  if (zs.length >= TREND_LOOKBACK_READINGS) {
+    const d = zs[zs.length - 1] - zs[zs.length - TREND_LOOKBACK_READINGS];
+    if (d > TREND_DRIFT_Z) drift = "drifting further toward weakness";
+    else if (d < -TREND_DRIFT_Z) drift = "recovering";
   }
   const condition = current === "steady"
     ? "inside its normal range"
     : current === "watch" ? "modestly past its alarm line" : "well past its alarm line";
   const noun = consecutive === 1 ? "reading" : "readings";
   return `${consecutive} consecutive ${cadence} ${noun} ${condition} (${elapsed(months)}), ${drift}`;
+}
+
+/**
+ * Worker share of national income: 100 * GDICOMP / GDI per quarter — the ONE
+ * place the data repo computes the share (audit-2026-07 finding 1; the ratio,
+ * not the raw series, is the panel input).
+ */
+function laborShareSeries(series) {
+  const gdi = new Map(sorted(series.GDI).map((o) => [o.date, o.value]));
+  return sorted(series.GDICOMP)
+    .filter((o) => (gdi.get(o.date) ?? 0) !== 0)
+    .map((o) => ({ date: o.date, value: (o.value / gdi.get(o.date)) * 100 }));
 }
 
 /** Consecutive trailing quarters the series has fallen vs the prior quarter. */
@@ -165,11 +177,8 @@ function currentDisplacementState(oriented) {
  */
 export function votingPanelStates(pool, extras = {}) {
   const series = pool.fred.series ?? {};
-  const jobs = avgYoyDiffSeries(["USINFO", "USPBS", "USFIRE"], ["USCONS", "USLAH", "USEHS"], series);
-  const wages = avgYoyDiffSeries(
-    ["CES5000000003", "CES6000000003", "CES5500000003"],
-    ["CES2000000003", "CES7000000003", "CES6500000003"], series,
-  );
+  const jobs = avgYoyDiffSeries(DIFFERENTIALS.jobs.exposed, DIFFERENTIALS.jobs.control, series);
+  const wages = avgYoyDiffSeries(DIFFERENTIALS.wages.exposed, DIFFERENTIALS.wages.control, series);
   const postings = extras.postingsPoints ?? [];
   return {
     jobs: currentDisplacementState(jobs.map((p) => [p.month, -p.diff])),
@@ -193,8 +202,8 @@ export function buildAnalysisPayload(pool, extras = {}) {
       const cur = bucket(last.value);
       for (let i = s.length - 1; i >= 0; i--) { if (bucket(s[i].value) === cur) run++; else break; }
     }
-    const where = last ? (last.value >= PROD_BAND_HIGH ? "above the 3.4 upper line"
-      : last.value >= PROD_BAND_LOW ? "inside the 2.7 to 3.4 band" : "below the 2.7 lower line") : null;
+    const where = last ? (last.value >= PROD_BAND_HIGH ? `above the ${PROD_BAND_HIGH} upper line`
+      : last.value >= PROD_BAND_LOW ? `inside the ${PROD_BAND_LOW} to ${PROD_BAND_HIGH} band` : `below the ${PROD_BAND_LOW} lower line`) : null;
     panels.push({
       panel: "labor_productivity",
       series_id: "PRS85006091",
@@ -203,13 +212,13 @@ export function buildAnalysisPayload(pool, extras = {}) {
       latest_value: round1(last?.value),
       latest_date: last ? quarterEndMonth(last.date) : null,
       streak: last ? `${run} consecutive quarterly ${run === 1 ? "reading" : "readings"} ${where}` : null,
-      threshold: { band_low: PROD_BAND_LOW, band_high: PROD_BAND_HIGH, rule: "output per hour above 3.4 percent for two straight quarters is the break; the 2.7 to 3.4 band is the internet-boom pace" },
+      threshold: { band_low: PROD_BAND_LOW, band_high: PROD_BAND_HIGH, rule: `output per hour above ${PROD_BAND_HIGH} percent for ${PROD_BREAK_RUN_QUARTERS === 2 ? "two" : PROD_BREAK_RUN_QUARTERS} straight quarters is the break; the ${PROD_BAND_LOW} to ${PROD_BAND_HIGH} band is the internet-boom pace` },
     });
   }
 
   // --- Exposed vs control JOBS (Type D differential; both sides) ---
   {
-    const pts = avgYoyDiffSeries(["USINFO", "USPBS", "USFIRE"], ["USCONS", "USLAH", "USEHS"], series);
+    const pts = avgYoyDiffSeries(DIFFERENTIALS.jobs.exposed, DIFFERENTIALS.jobs.control, series);
     const last = pts[pts.length - 1] ?? null;
     const trigger = twoSigmaTrigger(pts.map((p) => [p.month, p.diff]), false);
     panels.push({
@@ -228,10 +237,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
 
   // --- Exposed vs control WAGES (Type D differential; both sides) ---
   {
-    const pts = avgYoyDiffSeries(
-      ["CES5000000003", "CES6000000003", "CES5500000003"],
-      ["CES2000000003", "CES7000000003", "CES6500000003"], series,
-    );
+    const pts = avgYoyDiffSeries(DIFFERENTIALS.wages.exposed, DIFFERENTIALS.wages.control, series);
     const last = pts[pts.length - 1] ?? null;
     const trigger = twoSigmaTrigger(pts.map((p) => [p.month, p.diff]), false);
     panels.push({
@@ -268,22 +274,33 @@ export function buildAnalysisPayload(pool, extras = {}) {
     });
   }
 
-  // --- Worker share of income ---
+  // --- Worker share of income (Card 2; audit-2026-07 finding 1 re-registration) ---
+  // GDICOMP/GDI, a true percent of national income, quarterly back to 1947.
+  // Registered rule: the change over LABOR_SHARE_CHANGE_QUARTERS quarters,
+  // z-scored against its own trailing LABOR_SHARE_BASELINE_QUARTERS history of
+  // such changes, COVID-excluded, latest excluded — acceleration, not level,
+  // with no fitted trend line (the old post-1980 detrend on PRS85006173 is
+  // retired; its reading depended on the fit window).
   {
-    const s = sorted(series.PRS85006173);
-    const last = s.length ? s[s.length - 1] : null;
-    const yoy = s.length > 4 ? last.value - s[s.length - 5].value : null;
-    const decl = declineStreakQuarters(series.PRS85006173);
+    const share = laborShareSeries(series);
+    const last = share.length ? share[share.length - 1] : null;
+    const changes = [];
+    for (let i = LABOR_SHARE_CHANGE_QUARTERS; i < share.length; i++) {
+      changes.push([quarterEndMonth(share[i].date), share[i].value - share[i - LABOR_SHARE_CHANGE_QUARTERS].value]);
+    }
+    const latestChange = changes.length ? changes[changes.length - 1][1] : null;
+    const trigger = twoSigmaTrigger(changes.slice(0, -1).slice(-LABOR_SHARE_BASELINE_QUARTERS), false);
+    const decl = declineStreakQuarters(share);
     panels.push({
       panel: "worker_share_of_income",
-      series_id: "PRS85006173",
+      series_id: "GDICOMP/GDI",
       display_label: "Worker share of national income",
-      unit: "index points (2017 = 100)",
+      unit: "percent (of gross domestic income)",
       latest_value: round1(last?.value),
       latest_date: last ? quarterEndMonth(last.date) : null,
-      yoy_change: round1(yoy),
+      change_over_4_quarters: round1(latestChange),
       streak: last ? `${decl} consecutive quarterly ${decl === 1 ? "decline" : "declines"}` : null,
-      threshold: { rule: "displacement theory expects the worker share pushed below its decades-long downward trend; what matters is acceleration away from trend, not the raw level" },
+      threshold: { change_trigger: round1(trigger), rule: `the alarm is the share falling over ${LABOR_SHARE_CHANGE_QUARTERS} quarters ${BREAK_Z} standard deviations faster than its trailing thirty-year norm of such changes (pandemic years excluded); acceleration, not level, is the tell` },
     });
   }
 
@@ -307,7 +324,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
   {
     const ap = extras.adoptionPoints ?? [];
     const last = ap[ap.length - 1] ?? null;
-    const rising = ap.length >= 2 && last.pct > ap[Math.max(0, ap.length - 4)].pct;
+    const rising = ap.length >= 2 && last.pct > ap[Math.max(0, ap.length - ADOPTION_RISING_LOOKBACK)].pct;
     panels.push({
       panel: "ai_adoption",
       series_id: "US Census Bureau Business Trends and Outlook Survey, share of firms using AI",

@@ -3,6 +3,7 @@
 // years) and rewrites ONLY the "fred" section of dashboard-data.json.
 // Free API; runs weekly via GitHub Actions. Key from FRED_API_KEY.
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
+import { DIFFERENTIALS, MACRO_SPREAD_IDS } from "./config.mjs";
 
 // Core series the original panels depend on (mirrors SeriesIds.ALL) — a
 // missing one FAILS the run loudly.
@@ -17,21 +18,29 @@ const REQUIRED_IDS = [
   "PRS85006091",
   // OPHNFB is the index behind PRS85006091, pulled ONLY to cross-check it.
   "OPHNFB",
+  // Worker share of income, Card 2 (audit-2026-07 finding 1 re-registration):
+  // compensation of employees / gross domestic income — a true percent of
+  // national income, quarterly, 1947-Q1+. REQUIRED because Card 2 is a
+  // headline card: a missing input must fail loud, never render as benign.
+  // The retired PRS85006173 (nonfarm-business labor share index) is gone
+  // from every fetch list — the index and its display anchor no longer exist.
+  "GDICOMP", "GDI",
 ];
 
 // v9.2 additions for the recession-robust indicator. OPTIONAL: a bad/renamed
-// id is skipped with a warning and never breaks the core pool.
+// id is skipped with a warning and never breaks the core pool. The
+// differential taxonomy comes from config.mjs (audit-2026-07 finding 5) so
+// the fetch list can never drift from the lists the verdict votes on.
+// USINFO already sits in REQUIRED_IDS, so it is excluded here.
 const OPTIONAL_IDS = [
   // exposed-vs-control industry employment (CES, SA, thousands)
-  "USPBS", "USFIRE",              // exposed: professional & business svcs, finance
-  "USCONS", "USLAH", "USEHS",     // control: construction, leisure/hosp, edu/health
+  ...DIFFERENTIALS.jobs.exposed.filter((id) => !REQUIRED_IDS.includes(id)),
+  ...DIFFERENTIALS.jobs.control,
   // exposed-vs-control WAGES: avg hourly earnings, all employees (CES, SA, $), same industries
-  "CES5000000003", "CES6000000003", "CES5500000003", // exposed: information, prof&business, financial
-  "CES2000000003", "CES7000000003", "CES6500000003", // control: construction, leisure/hosp, edu/health
-  // distributional
-  "PRS85006173",                  // nonfarm business labor share INDEX (2017=100), quarterly, 1947+
+  ...DIFFERENTIALS.wages.exposed,
+  ...DIFFERENTIALS.wages.control,
   // macro-regime gate (daily)
-  "DFII10", "T10Y2Y", "T10Y3M", "T10YIE",
+  "DFII10", ...MACRO_SPREAD_IDS, "T10YIE",
 ];
 
 const apiKey = process.env.FRED_API_KEY;
@@ -45,10 +54,9 @@ start.setFullYear(start.getFullYear() - 10);
 const observationStart = start.toISOString().slice(0, 10);
 
 // A few series need a long history rather than the default 10-year window.
-// Labor share: pull the FULL series back to 1947 — the multi-decade decline is
-// itself the story (the detrend still works; it just has more history). MPU4910141
-// gets the same long window (FRED will return whatever it actually has).
-const LONG_HISTORY = { PRS85006173: "1947-01-01" };
+// Worker share: pull the FULL series back to 1947 — the multi-decade decline
+// is itself the story, and the 4-quarter-change baseline wants the depth.
+const LONG_HISTORY = { GDICOMP: "1947-01-01", GDI: "1947-01-01" };
 
 async function fetchSeries(seriesId) {
   const url = new URL("https://api.stlouisfed.org/fred/series/observations");
