@@ -4,11 +4,15 @@
 // The Android app still does its own on-device computation; keep the two in
 // sync if the app's rules ever change.
 
-const PRODUCTIVITY_BAND_LOW_PCT = 2.7;
-const PRODUCTIVITY_BAND_HIGH_PCT = 3.4;
-const INVERSION_TRAILING_WINDOW_MONTHS = 120;
-const INVERSION_MIN_HISTORY_MONTHS = 36;
-const SECTOR_PEAK_WINDOW_START = "2021-01-01";
+// Registered values come from config.mjs — one home, no per-file copies
+// (audit-2026-07 findings 5, 6, 7, 9).
+import {
+  PROD_BAND_LOW as PRODUCTIVITY_BAND_LOW_PCT,
+  PROD_BAND_HIGH as PRODUCTIVITY_BAND_HIGH_PCT,
+  INVERSION_TRAILING_WINDOW_MONTHS, INVERSION_MIN_HISTORY_MONTHS,
+  SECTOR_PEAK_WINDOW_START, COVID_START, COVID_END,
+  ADOPTION_RISING_LOOKBACK, DIFFERENTIALS,
+} from "./config.mjs";
 
 // Labels must match the app's Method tab 1:1 — this map is what the analyst
 // model sees, and a wrong name here becomes a wrong claim in the prose.
@@ -145,12 +149,18 @@ function computeInversion(grad, unrate) {
       : i > 0 && run > 0 && ymAdd(joined[i - 1].month, 1) === joined[i].month ? run + 1
       : 1;
   }
-  // Anomalous: latest gap exceeds its own trailing 10-year average.
+  // Anomalous: latest gap exceeds its own trailing 10-year average,
+  // COVID-excluded like every other statistical baseline (audit-2026-07
+  // finding 9 / B-3: this path was missing the registered exclusion the
+  // app applies, so the analyst could be told the gap is anomalous while
+  // the app's shading disagreed).
   let anomalous = false;
   const idx = joined.length - 1;
   if (idx >= 0) {
     const start = Math.max(0, idx - INVERSION_TRAILING_WINDOW_MONTHS);
-    const window = joined.slice(start, idx).map((j) => j.gap);
+    const window = joined.slice(start, idx)
+      .filter((j) => j.month < COVID_START || j.month > COVID_END)
+      .map((j) => j.gap);
     if (window.length >= INVERSION_MIN_HISTORY_MONTHS) {
       anomalous = joined[idx].gap > window.reduce((a, b) => a + b, 0) / window.length;
     }
@@ -159,13 +169,11 @@ function computeInversion(grad, unrate) {
 }
 
 // v9.2/v9.3 panels (simplified latest-value reads for the analysis prompt).
-const EXPOSED_IND = ["USINFO", "USPBS", "USFIRE"];
-const CONTROL_IND = ["USCONS", "USLAH", "USEHS"];
-
-// v9.7 Phase 5: exposed-vs-control WAGES (average hourly earnings, CES),
-// same taxonomy as the jobs differential. YoY growth %, then exposed minus control.
-const WAGE_EXPOSED_IDS = ["CES5000000003", "CES6000000003", "CES5500000003"];
-const WAGE_CONTROL_IDS = ["CES2000000003", "CES7000000003", "CES6500000003"];
+// Taxonomy registered once in config.mjs (audit-2026-07 finding 5).
+const EXPOSED_IND = DIFFERENTIALS.jobs.exposed;
+const CONTROL_IND = DIFFERENTIALS.jobs.control;
+const WAGE_EXPOSED_IDS = DIFFERENTIALS.wages.exposed;
+const WAGE_CONTROL_IDS = DIFFERENTIALS.wages.control;
 
 function yoyLatestAvg(ids, series) {
   const vals = ids.map((id) => {
@@ -238,7 +246,7 @@ export function computeDashboardSummary(pool, extras = {}) {
 
   // Type B: adoption (extras).
   const ap = extras.adoptionPoints ?? [];
-  const adoption = ap.length ? { latestPct: ap[ap.length - 1].pct, rising: ap.length >= 2 && ap[ap.length - 1].pct > ap[Math.max(0, ap.length - 4)].pct } : null;
+  const adoption = ap.length ? { latestPct: ap[ap.length - 1].pct, rising: ap.length >= 2 && ap[ap.length - 1].pct > ap[Math.max(0, ap.length - ADOPTION_RISING_LOOKBACK)].pct } : null;
 
   // AEI: how AI is used — automation (task offload) vs augmentation (collaboration).
   // Soft Type-B modifier: a rising automation share means the AI that IS being

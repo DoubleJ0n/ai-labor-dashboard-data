@@ -14,12 +14,10 @@
 // step — deriveVerdict() only produces the deterministic verdict + the two
 // deterministic CONFOUNDED pathways (recession_veto, data_integrity).
 
-// Thresholds — mirror Watch.kt (WATCH_Z_THRESHOLD / BREAK_Z_THRESHOLD) and the
-// productivity calibration band. Pre-registered, do-not-move.
-export const WATCH_Z = 1.0;
-export const BREAK_Z = 2.0;
-export const PROD_BAND_LOW = 2.7; // %/yr — above long baseline
-export const PROD_BAND_HIGH = 3.4; // %/yr — the displacement tripwire
+// Thresholds — registered once in config.mjs (audit-2026-07 finding 6);
+// re-exported here for existing importers. Pre-registered, do-not-move.
+import { CHAIN_BREADTH_MIN, PROD_BAND_LOW, PROD_BAND_HIGH } from "../config.mjs";
+export { WATCH_Z, BREAK_Z, PROD_BAND_LOW, PROD_BAND_HIGH } from "../config.mjs";
 
 export const VERDICTS = {
   AUGMENTATION_HOLDING: { ordinal: 0, directional: true },
@@ -27,6 +25,12 @@ export const VERDICTS = {
   DISPLACEMENT_EMERGING: { ordinal: 2, directional: true },
   CONFOUNDED: { ordinal: null, directional: false }, // off-axis on the timeline
 };
+
+// The directional set, derived from VERDICTS (was re-declared inline in
+// analysis-refresh.mjs — audit-2026-07 finding 9).
+export const DIRECTIONAL = new Set(
+  Object.entries(VERDICTS).filter(([, v]) => v.directional).map(([k]) => k),
+);
 
 /**
  * Port of computeDisplacementChain's verdict: the mechanical stoplight state.
@@ -42,7 +46,7 @@ export function chainState({ laborVoteStates, recessionVeto, capabilityOpen, ado
   let state;
   if (breadth === 0) state = "STEADY";
   else if (!adoptionRising) state = "WATCH"; // hard gate: no BREAK without deployment
-  else if (breadth >= 2 && capabilityOpen && !recessionVeto) state = "BREAK";
+  else if (breadth >= CHAIN_BREADTH_MIN && capabilityOpen && !recessionVeto) state = "BREAK";
   else state = "WATCH"; // one signal, or a gate/veto holds it back
   return { state, breadth };
 }

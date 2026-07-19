@@ -41,8 +41,8 @@ jobs:
         with:
           node-version: 22
       - run: npm install --no-audit --no-fund
-      - name: Verify verdict derivation (unit tests)
-        run: node --test scripts/analyst/*.test.mjs
+      - name: Verify verdict derivation + registered-values parity (unit tests)
+        run: node --test scripts/config.test.mjs scripts/analyst/*.test.mjs
       - name: Dry run (derive + assemble news + print request body, no model call)
         if: ${{ github.event.inputs.dry_run == 'true' }}
         run: node scripts/analysis-refresh.mjs --dry-run

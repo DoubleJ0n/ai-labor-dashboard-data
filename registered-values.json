@@ -1,0 +1,34 @@
+{
+  "description": "Cross-repo registration record for pre-registered values (audit-2026-07 finding 9). scripts/config.test.mjs asserts scripts/config.mjs against this file; the app repo mirrors these values in its registered constants (Metrics.kt, Watch.kt, Verdicts.kt, Calibration.kt). Changing a value here is a public re-registration.",
+  "watchZ": 1.0,
+  "breakZ": 2.0,
+  "trailingWindow": 120,
+  "watchMinHistory": 36,
+  "covidStart": "2020-01",
+  "covidEnd": "2021-12",
+  "prodBandLowPct": 2.7,
+  "prodBandHighPct": 3.4,
+  "prodBreakRunQuarters": 2,
+  "chainBreadthMin": 2,
+  "adoptionRisingLookback": 4,
+  "dataIntegrityMaxStaleMonths": 3,
+  "heavyRevisionMaxPp": 0.5,
+  "laborShareChangeQuarters": 4,
+  "laborShareBaselineQuarters": 120,
+  "trendDriftZ": 0.3,
+  "trendLookbackReadings": 4,
+  "inversionTrailingWindowMonths": 120,
+  "inversionMinHistoryMonths": 36,
+  "sectorPeakWindowStart": "2021-01-01",
+  "differentials": {
+    "jobs": {
+      "exposed": ["USINFO", "USPBS", "USFIRE"],
+      "control": ["USCONS", "USLAH", "USEHS"]
+    },
+    "wages": {
+      "exposed": ["CES5000000003", "CES6000000003", "CES5500000003"],
+      "control": ["CES2000000003", "CES7000000003", "CES6500000003"]
+    }
+  },
+  "macroSpreadIds": ["T10Y2Y", "T10Y3M"]
+}

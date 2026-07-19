@@ -20,7 +20,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import { computeDashboardSummary } from "./metrics.mjs";
 import { buildAnalysisPayload, votingPanelStates } from "./payload.mjs";
-import { deriveVerdict } from "./analyst/verdict.mjs";
+import { deriveVerdict, DIRECTIONAL } from "./analyst/verdict.mjs";
+import { DATA_INTEGRITY_MAX_STALE_MONTHS } from "./config.mjs";
 import { assembleNews } from "./analyst/news.mjs";
 import { SYSTEM_PROMPT, buildUserMessage } from "./analyst/prompt.mjs";
 
@@ -33,7 +34,6 @@ function readJson(rel) {
 const MODEL = "claude-sonnet-5";
 const INPUT_USD_PER_TOKEN = 3 / 1_000_000;
 const OUTPUT_USD_PER_TOKEN = 15 / 1_000_000;
-const DIRECTIONAL = new Set(["AUGMENTATION_HOLDING", "MIXED_TRANSITIONING", "DISPLACEMENT_EMERGING"]);
 
 const pool = loadPool();
 
@@ -82,7 +82,7 @@ function computeDataIntegrity() {
   const [y, m] = latestLaborMonth.split("-").map(Number);
   const now = new Date();
   const monthsStale = (now.getUTCFullYear() * 12 + now.getUTCMonth()) - (y * 12 + (m - 1));
-  if (monthsStale > 3) {
+  if (monthsStale > DATA_INTEGRITY_MAX_STALE_MONTHS) {
     return { ok: false, reason: `the latest labor data is ${latestLaborMonth}, more than three months stale — this month's Employment Situation is not yet reflected` };
   }
   return { ok: true, reason: null };
