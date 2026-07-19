@@ -22,14 +22,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - id: metr
         name: Fetch + diff METR feed
         run: node scripts/metr-fetch.mjs
 
       - name: Open PR for new models / revisions
         if: steps.metr.outputs.status == 'changes'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6
         with:
           branch: metr-update
           base: main

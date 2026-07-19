@@ -199,7 +199,12 @@ for (const metrKey of feedKeys) {
   if (!existing) {
     newModels.push(mapped);
   } else if (changed(existing, mapped)) {
-    revisions.push({ old: existing, next: mapped });
+    // Supersession mark (audit-2026-07 finding 18 / C-5): the snapshot itself
+    // records that this point was revised, not just the PR that carried it.
+    revisions.push({
+      old: existing,
+      next: { ...mapped, flags: [...new Set([...(mapped.flags ?? []), `revised_${today}`])] },
+    });
   }
 }
 
