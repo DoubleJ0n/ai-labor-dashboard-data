@@ -12,11 +12,30 @@
 // MODEL: Haiku 4.5 (claude-haiku-4-5-20251001) — this is data extraction;
 // deliberately not a bigger model. Haiku 4.5 uses the basic
 // web_search_20250305 server tool (the _20260209 variant needs newer models).
+//
+// GOVERNANCE (audit-2026-07 finding 4 / C-3): model-authored benchmark points
+// are PROPOSED as a pull request for human review — the same path as
+// METR/adoption/AEI — never auto-committed. Points are validated (0-100
+// range, date sanity, source required) and APPENDED with supersession marks;
+// the published history is never replaced wholesale.
+import { appendFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { loadPool, saveSection, nowIso, todayIsoDate, extractFencedJson } from "./lib.mjs";
 
 const MODEL = "claude-haiku-4-5-20251001";
 const MAX_PAUSE_CONTINUATIONS = 5;
+const EARLIEST_POINT_DATE = "2015-01-01"; // sanity floor for model-supplied dates
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const REPORT_PATH = path.join(repoRoot, "discovery-report.md");
+
+function setOutput(key, value) {
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `${key}<<EOF\n${value}\nEOF\n`);
+  }
+}
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY
 
@@ -77,70 +96,113 @@ function pushLog(cap, foundNew, summary) {
   cap.log = [{ runDate: today, foundNew, summary }, ...(cap.log ?? [])].slice(0, 20);
 }
 
+function nochange(reason) {
+  // No PR, no pool write: a failed or empty discovery run must not touch the
+  // published data (the log entry rides in the next real change's PR).
+  console.log(`discovery: ${reason} — nothing proposed`);
+  setOutput("status", "nochange");
+  process.exit(0);
+}
+
 let response;
 try {
   response = await runWithWebSearch(buildPrompt(currentSlots));
 } catch (err) {
-  // Keep existing data valid; record the failure and exit 0 so the commit
-  // step still bumps nothing destructive. Retry happens next week.
-  console.error("discovery call failed:", err.message ?? err);
-  pushLog(capability, false, `failed: ${String(err.message ?? err).slice(0, 200)}`);
-  capability.lastRefreshed = nowIso();
-  saveSection("capability", capability);
-  process.exit(0);
+  nochange(`call failed: ${String(err.message ?? err).slice(0, 200)}`);
 }
 
 const text = response.content.filter((b) => b.type === "text").map((b) => b.text).join("\n");
 const parsed = extractFencedJson(text);
 
-if (!parsed) {
-  console.log("no parseable JSON in discovery response; leaving data unchanged");
-  pushLog(capability, false, "no parseable JSON in discovery response");
-} else if (!parsed.changed) {
-  console.log("discovery: nothing new found");
-  pushLog(capability, false, "nothing new found");
-} else {
-  const summaryParts = [];
+if (!parsed) nochange("no parseable JSON in discovery response");
+if (!parsed.changed) nochange("nothing new found");
 
-  // Benchmark slots + normalized points — full replacement when provided.
-  const slots = parsed.slots ?? [];
-  if (slots.length > 0) {
-    const slotEntities = [];
-    const pts = [];
-    for (const s of slots) {
-      if (!s.slot || !s.benchmark) continue;
-      const src = s.source_url || "";
-      slotEntities.push({
-        slot: s.slot,
-        benchmarkName: s.benchmark,
-        sourceUrl: src,
-        fetchDate: today,
-        saturated: Boolean(s.saturated),
-        note: s.note || "",
-      });
-      for (const p of s.points ?? []) {
-        if (!p.label || !p.date || typeof p.score !== "number") continue;
-        pts.push({ metricId: "normalized", seriesKey: s.slot, pointDate: p.date, label: p.label, value: p.score, sourceUrl: src, fetchDate: today });
-      }
-    }
-    if (slotEntities.length > 0) {
-      const bySlot = Object.fromEntries(slotEntities.map((s) => [s.slot, s]));
-      capability.slots = capability.slots.map((s) => bySlot[s.slot] ?? s);
-      for (const s of slotEntities) {
-        if (!capability.slots.some((x) => x.slot === s.slot)) capability.slots.push(s);
-      }
-    }
-    if (pts.length > 0) {
-      capability.points = capability.points.filter((p) => p.metricId !== "normalized").concat(pts);
-      summaryParts.push(`slots: ${slotEntities.length}, ${pts.length} points`);
-    }
+// --- Validate the model-authored data (finding 4: shape-only checks let a
+// --- mis-scaled score, absurd date, or sourceless point publish). ---
+const dropped = [];
+const validPoint = (p, slot) => {
+  if (!p.label || typeof p.score !== "number" || !Number.isFinite(p.score)) return "malformed";
+  if (p.score < 0 || p.score > 100) return `score ${p.score} outside 0-100`;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(p.date ?? "")) return `bad date ${p.date}`;
+  if (p.date < EARLIEST_POINT_DATE || p.date > today) return `implausible date ${p.date}`;
+  if (!slot.source_url || !/^https?:\/\//.test(slot.source_url)) return "no source URL";
+  return null;
+};
+
+const slotEntities = [];
+const pts = [];
+for (const s of parsed.slots ?? []) {
+  if (!s.slot || !s.benchmark) continue;
+  const src = s.source_url || "";
+  slotEntities.push({
+    slot: s.slot,
+    benchmarkName: s.benchmark,
+    sourceUrl: src,
+    fetchDate: today,
+    saturated: Boolean(s.saturated),
+    note: s.note || "",
+  });
+  for (const p of s.points ?? []) {
+    const bad = validPoint(p, s);
+    if (bad) { dropped.push(`${s.slot} / ${p.label ?? "?"} (${p.date ?? "?"}): ${bad}`); continue; }
+    pts.push({ metricId: "normalized", seriesKey: s.slot, pointDate: p.date, label: p.label, value: p.score, sourceUrl: src, fetchDate: today });
   }
-
-  const summary = summaryParts.join("; ") || "changed=true but no usable data";
-  console.log("discovery applied:", summary);
-  pushLog(capability, summaryParts.length > 0, summary);
 }
 
+// --- Append with supersession — never replace the published history. ---
+const existingNorm = capability.points.filter((p) => p.metricId === "normalized");
+const keyOf = (p) => `${p.seriesKey}|${p.pointDate}|${p.label}`;
+const byKey = new Map(existingNorm.map((p) => [keyOf(p), p]));
+const added = [];
+let supersededCount = 0;
+for (const p of pts) {
+  const existing = byKey.get(keyOf(p));
+  if (existing && Math.abs(existing.value - p.value) < 1e-9) continue; // already published
+  if (existing) { existing.superseded = true; supersededCount++; }
+  added.push(p);
+}
+
+const benchmarkSwaps = slotEntities
+  .filter((s) => capability.slots.some((x) => x.slot === s.slot && x.benchmarkName !== s.benchmarkName))
+  .map((s) => `${s.slot}: ${capability.slots.find((x) => x.slot === s.slot).benchmarkName} -> ${s.benchmarkName}`);
+
+if (added.length === 0 && benchmarkSwaps.length === 0) {
+  nochange(`no new data after validation${dropped.length ? ` (${dropped.length} points dropped: ${dropped.join("; ")})` : ""}`);
+}
+
+const bySlot = Object.fromEntries(slotEntities.map((s) => [s.slot, s]));
+capability.slots = capability.slots.map((s) => bySlot[s.slot] ?? s);
+for (const s of slotEntities) {
+  if (!capability.slots.some((x) => x.slot === s.slot)) capability.slots.push(s);
+}
+// existingNorm entries carry their supersession marks (mutated in place);
+// the full normalized history is kept and the validated points appended.
+capability.points = capability.points
+  .filter((p) => p.metricId !== "normalized")
+  .concat(existingNorm, added);
+
+const summary = `+${added.length} points (${supersededCount} superseded${dropped.length ? `, ${dropped.length} dropped invalid` : ""})` +
+  (benchmarkSwaps.length ? `; benchmark change: ${benchmarkSwaps.join(", ")}` : "");
+pushLog(capability, true, summary);
 capability.lastRefreshed = nowIso();
 saveSection("capability", capability);
-console.log("capability section updated");
+
+// --- PR report (reviewed by a human; the workflow never commits to main) ---
+const title = `discovery: ${summary.slice(0, 80)}`;
+const body = [
+  `# Discovery proposal — ${today}`,
+  "",
+  "Model-authored benchmark data (Haiku 4.5 + web search). Review before merging:",
+  "check each point against its source URL, and treat any benchmark-identity",
+  "change as a re-registration of that slot.",
+  "",
+  `- Points added: ${added.length}`,
+  ...added.map((p) => `  - ${p.seriesKey} | ${p.pointDate} | ${p.label} | ${p.value} | ${p.sourceUrl}`),
+  `- Prior points marked superseded: ${supersededCount}`,
+  ...(benchmarkSwaps.length ? ["", "## BENCHMARK IDENTITY CHANGES (extra scrutiny)", ...benchmarkSwaps.map((s) => `- ${s}`)] : []),
+  ...(dropped.length ? ["", "## Dropped by validation", ...dropped.map((d) => `- ${d}`)] : []),
+].join("\n");
+writeFileSync(REPORT_PATH, body + "\n");
+setOutput("status", "changes");
+setOutput("title", title);
+console.log(`discovery proposed: ${summary}`);
