@@ -35,6 +35,15 @@ const MODEL = "claude-sonnet-5";
 const INPUT_USD_PER_TOKEN = 3 / 1_000_000;
 const OUTPUT_USD_PER_TOKEN = 15 / 1_000_000;
 
+// Cron day-of-month + day-of-week are OR'd, so "first Friday" must be enforced
+// here (audit-2026-07 finding 3 / C-1): the workflow fires every Friday, and a
+// scheduled run outside days 1-7 is not the month's first Friday. Guarded to
+// scheduled runs so workflow_dispatch still works any day.
+if (process.env.GITHUB_EVENT_NAME === "schedule" && new Date().getUTCDate() > 7) {
+  console.log("analyst: not the first Friday of the month; exiting");
+  process.exit(0);
+}
+
 const pool = loadPool();
 
 function bumpTimestampOnly(reason) {

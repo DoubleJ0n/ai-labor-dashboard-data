@@ -13,7 +13,11 @@ name: analysis-refresh
 # release date harmless.
 on:
   schedule:
-    - cron: "0 13 1-7 * 5"  # 13:00 UTC on the FIRST Friday of the month (post-BLS 08:30 ET)
+    # POSIX cron ORs a restricted day-of-month with a restricted day-of-week,
+    # so "1-7 * 5" fires ~11x/month (audit-2026-07 finding 3 / C-1). Fire
+    # weekly on Fridays; the script exits unless it is the month's first
+    # Friday, where AND-logic is expressible.
+    - cron: "0 13 * * 5"  # 13:00 UTC Fridays (post-BLS 08:30 ET); first-Friday gate is in the script
   workflow_dispatch:
     inputs:
       dry_run:
