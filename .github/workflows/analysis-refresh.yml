@@ -86,15 +86,19 @@ jobs:
           name: analyst-ab-report
           path: analyst-ab-report.json
 
+      # THIS STEP SPENDS MONEY. Every side mode has to be excluded here, and the
+      # list must grow whenever a new one is added. A verify-only dispatch fired a
+      # real paid run once because this condition named two of the three modes:
+      # the missing one silently inherited "yes, also spend money".
       - name: Analyst (two-pass, high effort)
         id: analyst
-        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' && github.event.inputs.verify_series == '' }}
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/analysis-refresh.mjs
 
       - name: Commit the pool + both append-only logs
-        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' }}
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' && github.event.inputs.verify_series == '' }}
         run: |
           git config user.name "pool-refresh-bot"
           git config user.email "actions@github.com"
