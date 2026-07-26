@@ -15,12 +15,42 @@
 // --- Statistical thresholds and windows (mirror Watch.kt) ---
 export const WATCH_Z = 1.0; // amber: attention, not alarm
 export const BREAK_Z = 2.0; // the one-in-twenty alarm line
-export const TRAILING_WINDOW = 120; // trailing 10-year baseline (readings)
 export const WATCH_MIN_HISTORY = 36; // readings before a z-score is trustworthy
 
-// --- COVID exclusion (mirrors Calibration.DEFAULT) — the ONE exclusion ---
-export const COVID_START = "2020-01";
-export const COVID_END = "2021-12";
+// --- The baseline window (re-registered 2026-07: FIXED, was rolling) ---
+//
+// This replaces the rolling TRAILING_WINDOW = 120 that every panel used to
+// z-score against. The old window was not merely arbitrary, it was circular: on
+// a pool holding exactly 120 monthly readings the "trailing 10-year baseline"
+// WAS the entire dataset, and a majority of it sat inside the period the
+// dashboard exists to evaluate. Post-treatment data was defining the control,
+// so "inside its normal range" partly meant "consistent with the AI era."
+//
+// A rolling window also chases the trend it is supposed to detect: five years of
+// steady deterioration re-centres the mean every month and reads as normal the
+// whole way down. A displacement episode would be normalised as it happened.
+//
+// So the baseline is fixed and pre-treatment, and it never moves:
+export const BASELINE_START = "2010-01"; // fixed baseline, never rolling
+export const BASELINE_END = "2019-12";
+export const OBSERVATION_START = "2023-01"; // what is being measured against it
+
+// The unusable middle. WIDENED from the old COVID window (2020-01..2021-12) by
+// twelve months, which is a public re-registration and not maintenance. 2022
+// belongs in the hole for a different reason than 2020-21: the pandemic whipsaw
+// inflated every standard deviation, while 2021-22 was the exposed-industry
+// hiring overshoot whose unwind is the standing non-AI explanation on this
+// dashboard. Leaving 2022 in a baseline lets the overshoot peak help define
+// "normal", which is the same post-treatment error in a different costume.
+export const UNUSABLE_START = "2020-01";
+export const UNUSABLE_END = "2022-12";
+
+// Minimum readings inside the FIXED window before its z is trustworthy. Monthly
+// series get 120 readings from 2010-2019 and quarterly ones get 40, so both
+// clear WATCH_MIN_HISTORY — but a series starting after 2010 (postings begins
+// 2020-02, adoption 2025-11) can fail this, and that failure must surface as
+// "no clean baseline exists" rather than as a quiet fallback to full history.
+export const BASELINE_MIN_READINGS = WATCH_MIN_HISTORY;
 
 // --- Productivity band (mirrors Metrics.kt; the 2.7/3.4 registration) ---
 export const PROD_BAND_LOW = 2.7; // %/yr — above long baseline
@@ -43,7 +73,12 @@ export const HEAVY_REVISION_MAX_PP = 0.5;
 // z-scored against its trailing LABOR_SHARE_BASELINE_QUARTERS history of such
 // changes, COVID-excluded, latest reading excluded from the baseline.
 export const LABOR_SHARE_CHANGE_QUARTERS = 4;
-export const LABOR_SHARE_BASELINE_QUARTERS = 120; // trailing 30 years
+// LABOR_SHARE_BASELINE_QUARTERS (trailing 30 years) is RETIRED 2026-07-26. Card 2
+// now scores its 4-quarter changes against the same fixed 2010-2019 window as
+// every other panel. Keeping a constant that promised a rolling thirty-year norm
+// while the code used a fixed decade is precisely the drift this file prevents.
+// For a quarterly series the fixed window is 40 readings, above the 36 minimum
+// but not comfortably, and the payload reports the count so the thinness shows.
 
 // --- Trend-direction parameters (finding 21: previously duplicated inline) ---
 export const TREND_DRIFT_Z = 0.3; // z-drift beyond which a streak is moving, not flat
@@ -80,6 +115,73 @@ export const DIFFERENTIALS = {
     control: ["CES2000000003", "CES7000000003", "CES6500000003"],
   },
 };
+
+// --- The reabsorption axis (new 2026-07) ---
+//
+// Why this exists: the exposed-vs-control gap cannot carry a displacement
+// verdict, because it measures REALLOCATION. Work the mechanics — if AI
+// eliminates 100 jobs in information and professional services and all 100 of
+// those workers are hired in construction and health care, exposed employment
+// falls, control employment rises, the gap widens from both ends at once, and
+// total employment is unchanged with every worker landing somewhere. Perfect
+// reallocation produces a maximally negative gap and zero net displacement.
+//
+// The gap is still necessary: it is the only thing on this dashboard that lets
+// anything be attributed to AI-exposed work rather than to the general economy.
+// But it is an ATTRIBUTION measure, and attribution is half the question. The
+// missing half is whether the outflow landed anywhere, which is what these
+// series ask. None of them requires knowing where any individual went.
+//
+// Every id below was verified against the FRED series endpoint in CI before
+// being wired (the standing rule: an unverified series id never gets wired).
+// Titles and ranges as returned 2026-07-26.
+export const REABSORPTION = {
+  // Employment-Population Ratio - 25-54 Yrs. (percent, SA, monthly, 1948-01+).
+  // THE HEADLINE. Restricting to 25-54 strips the demographic drift that
+  // contaminates the all-ages participation rate: retirements pull the headline
+  // down for reasons that have nothing to do with anyone being displaced.
+  primeAgeEpop: "LNS12300060",
+  // Of Total Unemployed, Percent Unemployed 27 Weeks & over (percent, SA,
+  // monthly, 1948-01+). Are exits failing to land.
+  longTermUnemployedShare: "LNS13025703",
+  // Hires: Total Nonfarm, rate (SA, monthly, 2000-12+). Absorption pace.
+  hiresRate: "JTSHIR",
+  // Quits: Total Nonfarm, rate (SA, monthly, 2000-12+). Shedding pace.
+  quitsRate: "JTSQUR",
+  // U-6 minus U-3: landing, but underemployed. UNRATE is already in the pool.
+  u6: "U6RATE",
+  u3: "UNRATE",
+};
+
+// The reabsorption axis reads the CHANGE in prime-age employment-population,
+// not its level, z-scored against the distribution of like changes in the fixed
+// window. This is not a stylistic choice. A level's 2010-2019 mean is
+// trend-contaminated in a way a differential's is not: that decade OPENS in the
+// post-financial-crisis hole and climbs for ten years, so its mean sits far
+// below its own 2019 endpoint. Scoring today's level against it would read as
+// "abnormally healthy" more or less permanently and the deterioration side of
+// the axis would be close to unfireable. Card 2 already z-scores the 4-quarter
+// CHANGE in the worker income share for exactly this reason; this follows it.
+export const REABSORPTION_CHANGE_MONTHS = 12;
+
+// --- The paired state (new 2026-07) ---
+//
+// Attribution and reabsorption are independent axes, and the pairing is the
+// discriminator neither one is on its own:
+//
+//   gap widening + aggregate holding      -> REALLOCATION
+//   gap widening + aggregate deteriorating -> DISPLACEMENT
+//   gap flat     + aggregate deteriorating -> NOT_AI
+//   gap flat     + aggregate holding       -> STABLE
+//
+// Both axis thresholds reuse the registered attention line rather than
+// introducing a new tunable: an axis is "moving" when its fixed-baseline z
+// reaches WATCH_Z in the displacement direction. One threshold, already
+// registered, already mirrored in the app.
+//
+// This state is COMPUTED AND STORED, and it is never sent to the analyst. See
+// analyst/pairedState.mjs for that boundary and why it is drawn there.
+export const PAIRED_STATE_AXIS_Z = WATCH_Z;
 
 // --- Macro-regime gate series (the recession-veto inputs) ---
 export const MACRO_SPREAD_IDS = ["T10Y2Y", "T10Y3M"];

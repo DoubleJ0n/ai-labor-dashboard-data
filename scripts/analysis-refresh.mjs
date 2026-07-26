@@ -28,6 +28,7 @@ import {
   panelHeadlines, changesSinceLastRun,
 } from "./payload.mjs";
 import { deriveVerdict } from "./analyst/verdict.mjs";
+import { pairedStateFromPool } from "./analyst/pairedState.mjs";
 import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES, HEAVY_REVISION_MAX_PP } from "./config.mjs";
 import { assembleNews } from "./analyst/news.mjs";
 import {
@@ -135,6 +136,14 @@ const payload = buildAnalysisPayload(pool, {
   slots: summary.slots,
 });
 const votes = votingPanelStates(pool, extras);
+
+// The paired state: computed every run, stored beside it, NEVER sent to the model.
+// The analyst gets the panels for both axes (attribution and reabsorption) and
+// reasons to its own conclusion; this is the mechanical check that conclusion is
+// measured against afterwards, the same way the existing stoplight is. Handing the
+// model its own answer would turn the analyst into a formatter for a rule engine.
+// payload.test.mjs asserts this value never reaches the request body.
+const paired = pairedStateFromPool(pool);
 
 const jobsPanel = payload.find((p) => p.panel === "exposed_vs_control_jobs");
 const latestLaborMonth = jobsPanel?.latest_date ?? null;
@@ -293,6 +302,10 @@ if (DRY_RUN) {
   console.log("=== DRY RUN (no model call, nothing written) ===");
   console.log(`mechanical state : ${mechanical.mechanicalState} | breadth ${mechanical.breadth} | gainsVisible ${mechanical.gainsVisible}`);
   console.log(`labor votes      : jobs=${votes.jobs} wages=${votes.wages} postings=${votes.postings}`);
+  console.log(`paired state     : ${paired.state} (${paired.attribution.label} + ${paired.reabsorption.label}) — NOT sent to the model`);
+  console.log(`  attribution z  : ${paired.attribution.z ?? "cannot be placed"}`);
+  console.log(`  reabsorption z : ${paired.reabsorption.z ?? "cannot be placed"}`);
+  console.log(`  path length    : ${paired.path.length} months`);
   console.log(`data integrity   : ${dataIntegrity.ok ? "ok" : `FAILED — ${dataIntegrity.reason}`}`);
   console.log(`data month       : ${dataMonth}`);
   console.log(`input hash       : ${inputHash.slice(0, 16)}…`);
@@ -423,6 +436,24 @@ console.log(
 );
 
 /**
+ * Whether the mechanical 2x2 lands in the same place the analyst did. Returns a
+ * string rather than a boolean because "cannot be compared" is a real third
+ * answer: CONFOUNDED is off the axis by design and INDETERMINATE means an axis
+ * had no clean baseline, and collapsing either into "disagrees" would manufacture
+ * a dissent that nobody asserted.
+ */
+function agreementWith(state, verdict) {
+  if (state === "INDETERMINATE" || verdict === "CONFOUNDED") return "not comparable";
+  const impliedByState = {
+    DISPLACEMENT: "DISPLACEMENT",
+    REALLOCATION: "AUGMENTATION",  // work moving, aggregate catching it
+    STABLE: "AUGMENTATION",        // nothing deteriorating anywhere
+    NOT_AI: "CONFOUNDED",          // weakness with no AI-exposed signature
+  }[state];
+  return impliedByState === verdict ? "agrees" : "diverges";
+}
+
+/**
  * Append to BOTH logs. The dissent log is the app's timeline (public, small); the
  * runs log is the audit record (both passes verbatim, usage, cost, input hash).
  * Append-only in both: a revised month adds an entry, it never edits one.
@@ -432,6 +463,21 @@ function appendEntry(entry, result) {
     ...entry,
     mechanicalState: mechanical.mechanicalState,
     breadth: mechanical.breadth,
+    // The paired state, stored with the run and never shown to the model. The
+    // path is kept out of the timeline entry (the app recomputes it from the pool
+    // for the 2x2 chart); only the placement is logged, so the log stays small
+    // while still recording what the mechanics said this month.
+    pairedState: {
+      state: paired.state,
+      attributionZ: paired.attribution.z,
+      attributionLabel: paired.attribution.label,
+      reabsorptionZ: paired.reabsorption.z,
+      reabsorptionLabel: paired.reabsorption.label,
+    },
+    // Divergence is the reviewable signal: the analyst reasoned over the same two
+    // axes without being told the answer, so a mismatch is worth looking at in
+    // either direction. Recorded as a flag rather than a judgement.
+    pairedStateAgreesWithVerdict: agreementWith(paired.state, entry.verdict),
     inputsFingerprint: inputHash,
     // For heavy-revision detection on a later run.
     keyNumbers: {
@@ -467,6 +513,10 @@ function appendEntry(entry, result) {
         `Model: ${result.model} | effort: ${result.effort} | verdict: ${entry.verdict}`,
         `Input snapshot: ${inputHash}`,
         `Mechanical indicator, never shown to the model: ${mechanical.mechanicalState}, breadth ${mechanical.breadth}`,
+        `Paired state, never shown to the model: ${paired.state} ` +
+          `(${paired.attribution.label} z=${paired.attribution.z ?? "n/a"} + ` +
+          `${paired.reabsorption.label} z=${paired.reabsorption.z ?? "n/a"}) ` +
+          `— ${agreementWith(paired.state, entry.verdict)} with the published verdict`,
         ``,
         `Stored, never published. Pass 1 full working.`,
         ``,
@@ -515,6 +565,12 @@ function appendEntry(entry, result) {
             mechanicalState: mechanical.mechanicalState,
             breadth: mechanical.breadth,
             gainsVisible: mechanical.gainsVisible,
+            // Full paired state INCLUDING the 24-month path in the audit record.
+            // The audit log is where a later reader reconstructs what the mechanics
+            // saw, and a path shows movement between quadrants that a single
+            // placement cannot.
+            pairedState: paired,
+            pairedStateAgreesWithVerdict: agreementWith(paired.state, entry.verdict),
             inputHash,
             // Oscillation is MEASURED, not suppressed. A two-consecutive-periods
             // confirmation rule would delay a real turn as readily as it damps a

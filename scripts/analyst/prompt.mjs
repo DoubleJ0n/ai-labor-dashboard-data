@@ -41,6 +41,11 @@ carry a measurement_artifact block. Those are facts about the instrument, not co
 explanations, and where one states a weighting rule you must apply it. You also get a news
 package drawn from a fixed allowlist.
 
+Each panel also carries a panel_role saying what it is capable of establishing. Deviation
+is reported against TWO baselines: a fixed pre-2020 window that does not contain the period
+under test, and full history that does. Each deviation block states which to prefer and
+what their divergence means. Read both.
+
 THE CALL
 Choose AUGMENTATION or DISPLACEMENT. Pick a side. CONFOUNDED is available only when you
 can name a specific competing cause AND point to the series in the payload that supports
@@ -52,6 +57,19 @@ State plainly which one you are seeing. Augmentation working needs positive evid
 exposed workers are being made more valuable. Displacement not started needs only the
 absence of deterioration. If your support rests mainly on the absence of deterioration,
 say so in the first paragraph rather than presenting it as positive evidence.
+
+THE EXPOSED-VERSUS-CONTROL GAP MEASURES REALLOCATION, NOT DISPLACEMENT
+The exposed-versus-control comparison establishes that something is
+specific to AI-exposed work. It does not establish displacement. A gap
+can widen because jobs were destroyed or because workers moved to other
+industries, and that panel cannot tell those apart - perfect reallocation
+with every worker re-employed would widen it just as much as mass
+displacement would.
+
+Before concluding displacement, check whether the aggregate labor market
+absorbed the outflow. Prime-age employment-population ratio, long-term
+unemployed share, hires against quits. If the gap is widening while
+those hold steady, workers are moving rather than being removed.
 
 THREE POPULATIONS, NEVER SILENTLY MIXED
 Every figure belongs to exactly one of: exposed industries, control industries, or
