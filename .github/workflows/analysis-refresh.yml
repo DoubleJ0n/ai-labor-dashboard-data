@@ -60,12 +60,6 @@ jobs:
       - name: Verify verdict derivation + registered-values parity (unit tests)
         run: node --test scripts/config.test.mjs scripts/analyst/*.test.mjs
 
-      - name: Verify candidate FRED series ids
-        if: ${{ github.event.inputs.verify_series != "" }}
-        env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
-        run: node scripts/verify-series.mjs ${{ github.event.inputs.verify_series }}
-
       # FRED is unreachable from the maintainer's machine, so candidate series ids
       # are checked here rather than guessed and wired.
       - name: Verify candidate FRED series ids
