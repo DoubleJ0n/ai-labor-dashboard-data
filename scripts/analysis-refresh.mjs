@@ -4,10 +4,10 @@
 //
 // PASS 1 is blind: current data, long-run history, what moved since last run, and
 // the news package. No prior verdict. It picks AUGMENTATION or DISPLACEMENT (or
-// CONFOUNDED with a named mechanism), states a confidence, and pre-registers a
-// falsifier. PASS 2 sees pass 1's output plus last run's verdict and numbers, and
-// writes the what-changed narrative and the notification line. Pass 2 cannot alter
-// the verdict; disagreement is logged instead.
+// CONFOUNDED with a named cause), inverts every panel it leans on, and pre-registers
+// a falsifier on a fixed 90-day horizon. Its reasoning log is uncapped and stored,
+// never shown. PASS 2 writes the 400-500 word published note and the notification
+// line. Pass 2 cannot alter the verdict; disagreement is logged instead.
 //
 // The mechanical stoplight is computed alongside and LOGGED, never sent to the
 // model: the rule-based lights have to be able to visibly disagree with the
@@ -32,7 +32,7 @@ import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES, HEAVY_REVISIO
 import { assembleNews } from "./analyst/news.mjs";
 import {
   PASS1_SYSTEM, PASS2_SYSTEM, buildPass1Message, buildPass2Message,
-  parsePass1, parsePass2, assembleText,
+  parsePass1, parsePass2, noteCompliance, FALSIFIER_HORIZON_DAYS,
 } from "./analyst/prompt.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -48,11 +48,15 @@ function readJson(rel) {
 // effort inside output_config. Effort already defaults to high on the Claude API;
 // it is set explicitly anyway so the run record can state what it ran at.
 //
-// max_tokens is a HARD cap on thinking + visible text together. The previous
-// 1500 was set when this call didn't think; at high effort it would truncate the
-// analysis mid-sentence, so it is generous now and the request streams.
-const DEFAULT_MODEL = "claude-sonnet-5";
+// Pinned exactly, not by a family alias. Model IDs from the 4.6 generation on are
+// dateless but are still pinned snapshots rather than evergreen pointers, so this
+// string cannot silently repoint mid-series and break the track record.
+const DEFAULT_MODEL = "claude-opus-5";
 const EFFORT = "high";
+// max_tokens is a HARD cap on thinking + visible text together. The previous
+// 1500 was set when this call didn't think; at high effort it would truncate
+// mid-sentence, so it is generous now and the request streams. Pass 1's reasoning
+// log is uncapped by design, which makes the headroom load-bearing.
 const MAX_TOKENS = 16000;
 
 // Per-million-token pricing. Sonnet 5's introductory rate ends 2026-08-31; both
@@ -223,13 +227,14 @@ if (dataIntegrity.ok === false && !AB_RUN && !DRY_RUN) {
   const runAt = nowIso();
   const text =
     `The inputs this run are not stable enough to read: ${dataIntegrity.reason}. ` +
-    `No directional call is being made on data this shaky — the previous reading stands until the next clean release.`;
+    `No directional call is being made on data this shaky; the previous reading stands until the next clean release.`;
   appendEntry({
-    date: dataMonth, runAt, verdict: "CONFOUNDED", confidence: "HIGH",
+    date: dataMonth, runAt, verdict: "CONFOUNDED",
     tagLine: "inputs unstable this run", notificationLine: "New results are in: confounded verdict, this run's data is unstable",
     confoundedPathway: "data_integrity", namedConfounder: dataIntegrity.reason,
-    falsifier: "a clean data release that restores the verdict-critical series and leaves prior months unrevised",
-    whatChanged: "", dissent: null, analysis: text,
+    falsifier: null,
+    falsifierPlain: "a clean data release that restores the missing series and leaves prior months unrevised",
+    dissent: null, analysis: text, compliance: null,
   }, null); // no model ran, so there are no passes and no usage to record
   console.log(`analyst: data integrity failed (${dataIntegrity.reason}); logged CONFOUNDED without a model call`);
   process.exit(0);
@@ -328,7 +333,8 @@ async function runAnalyst(model) {
       costUsd: costUsd(model, inTok, outTok, finishedAt),
       rate: rateFor(model, finishedAt),
     },
-    text: assembleText(pass1, pass2),
+    text: pass2.publishedNote,
+    compliance: noteCompliance(pass2.publishedNote),
   };
 }
 
@@ -341,10 +347,12 @@ if (AB_RUN) {
     try {
       const r = await runAnalyst(model);
       results.push(r);
-      console.log(`verdict     : ${r.pass1.verdict} (${r.pass1.confidence} confidence)`);
+      console.log(`verdict     : ${r.pass1.verdict}`);
       console.log(`tag line    : ${r.pass2.tagLine}`);
       console.log(`notification: ${r.pass2.notificationLine} (${r.pass2.notificationLine.length} chars)`);
       console.log(`pass 2 dissent: ${r.pass2.dissented ? r.pass2.dissentNote : "no"}`);
+      console.log(`note        : ${r.compliance.words} words, ${r.compliance.numbers} numbers` +
+        `${r.compliance.withinWordRange ? "" : " [OUTSIDE 400-500]"}${r.compliance.withinNumberCeiling ? "" : " [OVER 10 NUMBERS]"}`);
       console.log(`tokens      : ${r.usage.totalInputTokens} in / ${r.usage.totalOutputTokens} out` +
         ` (pass1 ${r.usage.pass1.inputTokens}/${r.usage.pass1.outputTokens}, pass2 ${r.usage.pass2.inputTokens}/${r.usage.pass2.outputTokens})`);
       console.log(`cost        : $${r.usage.costUsd.toFixed(4)} at $${r.usage.rate.input}/$${r.usage.rate.output} per MTok${r.usage.rate.intro ? " (introductory)" : ""}`);
@@ -376,23 +384,24 @@ appendEntry(
     date: dataMonth,
     runAt: result.finishedAt,
     verdict: result.pass1.verdict,
-    confidence: result.pass1.confidence,
     tagLine: result.pass2.tagLine,
     notificationLine: result.pass2.notificationLine,
     confoundedPathway: result.pass1.verdict === "CONFOUNDED" ? "analyst" : null,
     namedConfounder: result.pass1.confounder,
     falsifier: result.pass1.falsifier,
-    whatChanged: result.pass2.whatChanged,
+    falsifierPlain: result.pass1.falsifierPlain,
     dissent: result.pass2.dissented ? result.pass2.dissentNote : null,
     analysis: result.text,
+    compliance: result.compliance,
   },
   result,
 );
 
 console.log(
-  `analyst: ${result.pass1.verdict} (${result.pass1.confidence}) — "${result.pass2.tagLine}" (${dataMonth}); ` +
+  `analyst: ${result.pass1.verdict} "${result.pass2.tagLine}" (${dataMonth}); ` +
   `mechanical ${mechanical.mechanicalState}` +
   (result.pass2.dissented ? "; PASS 2 DISSENTED" : "") +
+  `; note ${result.compliance.words}w/${result.compliance.numbers}n` +
   ` — usage (log only): ${result.usage.totalInputTokens} in / ${result.usage.totalOutputTokens} out, ` +
   `est $${result.usage.costUsd.toFixed(4)}`,
 );
@@ -444,8 +453,10 @@ function appendEntry(entry, result) {
             model: result?.model ?? null,
             effort: result?.effort ?? null,
             verdict: entry.verdict,
-            confidence: entry.confidence,
             falsifier: entry.falsifier,
+            falsifierPlain: entry.falsifierPlain,
+            falsifierHorizonDays: FALSIFIER_HORIZON_DAYS,
+            publishedNoteCompliance: entry.compliance,
             namedConfounder: entry.namedConfounder,
             mechanicalState: mechanical.mechanicalState,
             breadth: mechanical.breadth,
@@ -462,8 +473,10 @@ function appendEntry(entry, result) {
             newsSources: news.sources,
             passes: result
               ? {
-                  pass1: { verdict: result.pass1.verdict, confidence: result.pass1.confidence, falsifier: result.pass1.falsifier, rationale: result.pass1.rationale, raw: result.rawPass1 },
-                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, whatChanged: result.pass2.whatChanged, raw: result.rawPass2 },
+                  // The reasoning log lives HERE and only here: stored for audit,
+                  // never published to the pool and never shown in the app.
+                  pass1: { verdict: result.pass1.verdict, falsifier: result.pass1.falsifier, falsifierPlain: result.pass1.falsifierPlain, reasoningLog: result.pass1.reasoningLog, raw: result.rawPass1 },
+                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, publishedNote: result.pass2.publishedNote, raw: result.rawPass2 },
                 }
               : null,
             usage: result?.usage ?? null,
@@ -480,10 +493,10 @@ function appendEntry(entry, result) {
     lastRefreshed: entry.runAt,
     dataMonth,
     verdict: entry.verdict,
-    confidence: entry.confidence,
+
     tagLine: entry.tagLine,
     notificationLine: entry.notificationLine,
-    falsifier: entry.falsifier,
+    falsifier: entry.falsifierPlain,
     confoundedPathway: entry.confoundedPathway,
     namedConfounder: entry.namedConfounder,
     mechanicalState: mechanical.mechanicalState,

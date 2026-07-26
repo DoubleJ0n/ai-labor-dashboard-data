@@ -52,6 +52,24 @@ function yoyByMonth(obs) {
   return out;
 }
 
+/**
+ * Latest year-over-year employment growth across the exposed industries, as a
+ * percent. This is the input to the wage panel's weighting rule: whether the
+ * exposed group is gaining or shedding workers decides whether a rising average
+ * wage is evidence of anything at all.
+ */
+function exposedEmploymentYoY(series) {
+  const maps = DIFFERENTIALS.jobs.exposed.map((id) => yoyByMonth(series[id]));
+  const months = new Set();
+  for (const m of maps) for (const k of m.keys()) months.add(k);
+  const sorted = [...months].sort();
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const vals = maps.map((m) => m.get(sorted[i])).filter((v) => v != null);
+    if (vals.length === maps.length) return vals.reduce((a, b) => a + b, 0) / vals.length;
+  }
+  return null;
+}
+
 /** Average of several ids' YoY-by-month, keeping only months where all are present. */
 function avgYoyDiffSeries(exposedIds, controlIds, series) {
   const ex = exposedIds.map((id) => yoyByMonth(series[id]));
@@ -433,6 +451,27 @@ export function buildAnalysisPayload(pool, extras = {}) {
       differential_exposed_minus_control: round1(last?.diff),
       latest_date: last?.month ?? null,
       prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
+      // A fact about the instrument, not a competing explanation, so it travels
+      // with every reading rather than being left for the model to rediscover.
+      // The weighting rule needs the sign of exposed EMPLOYMENT change, so that
+      // number is supplied here rather than requiring a cross-panel lookup.
+      measurement_artifact: {
+        text:
+          "This compares AVERAGE pay across a changing group of workers. When employment in a " +
+          "group is falling, the average can rise simply because lower-paid workers left, with " +
+          "nobody receiving a raise. Average hourly earnings jumped sharply in April 2020 for " +
+          "exactly this reason. The control group includes leisure and hospitality, which is " +
+          "low-wage and growing, pushing the control average down for the same mechanical reason.",
+        weighting_rule:
+          "Weight this panel by the sign of exposed employment change. If exposed employment is " +
+          "RISING, the composition story cannot explain rising pay and this is clean evidence. If " +
+          "exposed employment is FALLING, this panel cannot distinguish augmentation from " +
+          "displacement and must not be cited as strong support for either.",
+        exposed_employment_yoy_percent: round2(exposedEmploymentYoY(series)),
+        exposed_employment_direction:
+          exposedEmploymentYoY(series) == null ? "unknown"
+            : exposedEmploymentYoY(series) > 0 ? "rising" : "falling",
+      },
       // The template for the whole "send long-run context" rule: real pay growth
       // has been weak for a long stretch AND the latest move may or may not be
       // sharp against that history. Those are two different facts; send both.
@@ -534,7 +573,18 @@ export function buildAnalysisPayload(pool, extras = {}) {
       latest_date: last?.date ?? null,
       prior_reading: priorReading(ap.map((p) => [p.date.slice(0, 7), p.pct])),
       full_series: ap.map((p) => ({ date: p.date.slice(0, 7), value: round1(p.pct) })),
-      history_caveat: "this is the whole series — the survey only retains a handful of months for the AI question, so it is a level-and-direction reading, not a long history",
+      history_caveat: "this is the whole series: the survey only retains a handful of months for the AI question, so it is a level-and-direction reading, not a long history",
+      measurement_artifact: {
+        text:
+          "This is a share of SURVEYED FIRMS, counted one firm one vote, over a respondent panel " +
+          "that rotates between collections. A move in the share can therefore come from a change " +
+          "in who answered rather than a change in who adopted. It also counts firms, not workers: " +
+          "the same percentage means something very different if the adopters are large employers.",
+        weighting_rule:
+          "Treat small month-to-month moves as noise and read the direction over several " +
+          "collections. The size-class series below is the check: if adoption is concentrated in " +
+          "the largest firms, headcount exposure is far higher than the headline share implies.",
+      },
       direction: last ? (rising ? "rising" : "flat") : null,
       series_break_note: "the series starts November 2025, when the Census question changed from 'producing goods or services' to 'any business function'; earlier readings are not comparable",
       threshold: { rule: "a weak-form deployment gate: any real adoption permits a displacement reading but never causes one on its own" },
@@ -557,6 +607,17 @@ export function buildAnalysisPayload(pool, extras = {}) {
         date: p.date, automation: round1(p.automatePct), augmentation: round1(p.augmentPct),
       })),
       history_caveat: "one reading per dataset release, not a monthly series; the split has been close to stable across releases",
+      measurement_artifact: {
+        text:
+          "This is a share of SAMPLED CONVERSATIONS over a user base that changes between " +
+          "releases. If the mix of people using the product shifts, the augmentation share moves " +
+          "without any individual changing how they work. It measures one vendor's usage, not " +
+          "the economy's, and conversations are not jobs.",
+        weighting_rule:
+          "Read this as weak directional context on how AI is being used, never as a measure of " +
+          "how much work is being automated. A move here is only meaningful if it is large and " +
+          "sustained across several releases.",
+      },
       threshold: { rule: "a slow research series; a rising automation share only raises the displacement reading when adoption is also rising and exposed work is weakening" },
     });
   }

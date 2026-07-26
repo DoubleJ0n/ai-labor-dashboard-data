@@ -26,9 +26,13 @@ on:
         type: boolean
         default: false
       ab_run:
-        description: "A/B: run the analyst on Sonnet 5 AND Opus 5 on one snapshot, report only, publish nothing"
+        description: "A/B: run the analyst on two models on one snapshot, report only, publish nothing"
         type: boolean
         default: false
+      verify_series:
+        description: "Verify candidate FRED series ids exist (space-separated). Reports only, writes nothing."
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -55,6 +59,20 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Verify verdict derivation + registered-values parity (unit tests)
         run: node --test scripts/config.test.mjs scripts/analyst/*.test.mjs
+
+      - name: Verify candidate FRED series ids
+        if: ${{ github.event.inputs.verify_series != "" }}
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: node scripts/verify-series.mjs ${{ github.event.inputs.verify_series }}
+
+      # FRED is unreachable from the maintainer's machine, so candidate series ids
+      # are checked here rather than guessed and wired.
+      - name: Verify candidate FRED series ids
+        if: ${{ github.event.inputs.verify_series != '' }}
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: node scripts/verify-series.mjs ${{ github.event.inputs.verify_series }}
 
       - name: Dry run (assemble everything, no model call)
         if: ${{ github.event.inputs.dry_run == 'true' }}
