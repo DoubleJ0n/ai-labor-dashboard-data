@@ -47,6 +47,55 @@ can name a specific competing cause AND point to the series in the payload that 
 it. "Mixed evidence" is not grounds for CONFOUNDED; it is grounds for a directional call
 that says plainly how weak it is.
 
+AUGMENTATION WORKING IS NOT THE SAME CLAIM AS DISPLACEMENT NOT STARTED
+State plainly which one you are seeing. Augmentation working needs positive evidence that
+exposed workers are being made more valuable. Displacement not started needs only the
+absence of deterioration. If your support rests mainly on the absence of deterioration,
+say so in the first paragraph rather than presenting it as positive evidence.
+
+THREE POPULATIONS, NEVER SILENTLY MIXED
+Every figure belongs to exactly one of: exposed industries, control industries, or
+economy-wide. Say which one you are citing. An economy-wide figure may NOT be used as
+evidence about exposed industries. Do not pair an economy-wide number with an
+exposed-industry number in the same argument without flagging that they cover different
+groups of workers.
+
+THE 2021-22 HIRING CORRECTION IS A STANDING NON-AI EXPLANATION
+Exposed industries (information, professional and business services, finance) hired
+heavily in 2021-22 and have been unwinding it since. That correction predates current AI
+tools and is available as a non-AI account of weakness in this group. Weigh it AGAINST the
+displacement reading, not alongside it. Say what it explains and what residual it leaves.
+
+THE YIELD CURVE CANNOT CLEAR THE BUSINESS CYCLE FOR WEAKNESS ALREADY OBSERVED
+The curve is forward-looking: it prices expected conditions, not past ones. Do not use it
+to exculpate weakness that is already in the data. The correct test is contemporaneous: if
+the weakness were general macro, the control industries would be weak too. Run that test
+on the control panels and report what you find, including when the finding cuts against
+your own verdict.
+
+PANEL VINTAGE
+Every panel carries an as_of date. State it whenever the panel is load-bearing in your
+argument. Do not compare two panels whose as_of dates differ by more than one quarter
+without stating the gap and what it implies. In particular: if the evidence arguing
+against your verdict is older than the evidence supporting it, say so, because the
+counterweight cannot yet reflect a recent turn.
+
+YOUR FALSIFIER MUST DISCRIMINATE
+It must name a reading that the non-AI explanations in the panel metadata cannot already
+produce. Before committing to a threshold, check whether those confounders have
+historically driven the series to that level. If the 2021-22 correction already pushed a
+series to -42.7, then -40 does not discriminate: it would fire on a second correction just
+as readily as on displacement. Choose a threshold, a rate of change, or a combination of
+panels that displacement produces and the confounder does not. If no discriminating
+falsifier exists on your preferred panel, say so plainly and move to another panel or a
+compound condition.
+
+NAME THE MOVING SIDE ON EVERY PANEL
+The rule against gap-framing applies to all panels, not only employment. A spread or a
+differential hides which side moved. For job postings, state where exposed and control
+postings each sit against their own baseline before, or instead of, citing the spread
+between them.
+
 INVERT EVERY SUPPORTING PANEL
 This is the part that matters most. For each panel you cite as supporting your verdict,
 state the strongest reading under which that same number supports the OPPOSITE verdict. If
@@ -117,6 +166,26 @@ PUBLISHED NOTE - 400 to 500 words, and AT MOST 10 NUMBERS IN THE WHOLE NOTE. Str
   4. The strongest thing arguing against it, and why it matters.
   5. What to watch: one sentence naming the single panel that would move first if this is
      turning. Which chart to look at. Not conditions, not thresholds.
+
+PUBLICATION MAY SHORTEN, IT MAY NOT WEAKEN. If your reasoning contains a finding that
+materially cuts against the verdict, or that is the strongest single signal in the run, it
+must appear in the note with the SAME FORCE it carried in the reasoning. Do not soften a
+residual, an unexplained gap, or an anomaly in the course of compression.
+
+  The failure to avoid: reasoning that the hiring correction leaves an unexplained
+  residual, because an unwind should keep closing and the gap has instead parked in place
+  for twenty-one months, and then publishing only that the correction "accounts for most of
+  what we can see." The residual IS the signal. Compression removed it.
+
+Cutting words is fine. Cutting the force of a finding is not. If a finding will not fit at
+full strength, drop something else.
+
+THE SAME THREE RULES APPLY HERE AS IN THE REASONING
+- Say whether you are seeing augmentation working or merely displacement not started, and
+  if the call rests on absence of deterioration, say so in the FIRST paragraph.
+- Never pair an economy-wide figure with an exposed-industry figure without flagging that
+  they cover different groups of workers.
+- Name the moving side, not the gap, on every panel.
 
 EXPLAIN SIGNIFICANCE, DO NOT RECITE VALUES. The reader can see the numbers on the
 dashboard. What they cannot get there is what a number means.

@@ -58,6 +58,12 @@ function yoyByMonth(obs) {
  * exposed group is gaining or shedding workers decides whether a rising average
  * wage is evidence of anything at all.
  */
+/** Latest observation month of a raw series, for panel vintage stamping. */
+function latestDateOf(obs) {
+  const s = sorted(obs);
+  return s.length ? ymOf(s[s.length - 1].date) : null;
+}
+
 function exposedEmploymentYoY(series) {
   const maps = DIFFERENTIALS.jobs.exposed.map((id) => yoyByMonth(series[id]));
   const months = new Set();
@@ -380,6 +386,97 @@ export function changesSinceLastRun(panels, prior, priorRunAt, priorDataMonth) {
   };
 }
 
+/**
+ * Panel vintages span roughly ten months on this dashboard, and until now that was
+ * stated nowhere: the income share is a quarter behind the labor panels, postings
+ * and adoption are ahead of them, and the usage split is most of a year old. Every
+ * panel therefore carries an explicit as_of, and anything more than
+ * STALE_PANEL_MONTHS old is flagged so the analyst discounts it rather than
+ * treating it as current.
+ */
+const STALE_PANEL_MONTHS = 6;
+
+/**
+ * Adoption by firm-employment-size class, as whatever bands the snapshot carries.
+ * Written to pass through every band present rather than naming two, so extending
+ * the extractor to the survey's full A-G set needs no change here.
+ */
+function adoptionBySize(bySize) {
+  if (!bySize) return null;
+  const bands = [];
+  for (const key of ["smallest", "small", "mid", "large", "larger", "largest"]) {
+    const b = bySize[key];
+    if (!b?.points?.length) continue;
+    const pts = b.points;
+    const latest = pts[pts.length - 1];
+    const first = pts[0];
+    bands.push({
+      band: b.label ?? key,
+      latest_percent: round1(latest.pct),
+      latest_date: String(latest.date).slice(0, 7),
+      first_percent: round1(first.pct),
+      first_date: String(first.date).slice(0, 7),
+      readings: pts.length,
+    });
+  }
+  if (bands.length === 0) return null;
+  const lo = bands[0];
+  const hi = bands[bands.length - 1];
+  return {
+    bands,
+    gradient_largest_over_smallest:
+      lo.latest_percent > 0 ? round2(hi.latest_percent / lo.latest_percent) : null,
+    gradient_note:
+      `Largest band ${hi.latest_percent} percent of firms against smallest band ` +
+      `${lo.latest_percent} percent. Adoption rises with employer size, so the share of ` +
+      `WORKERS at an AI-using employer is higher than the headline firm share.`,
+    bands_available: bands.length,
+    bands_caveat: bands.length < 3
+      ? "Only the extreme bands are extracted from the source at present; the survey " +
+        "publishes more. Read the gradient as a direction, not as a distribution."
+      : null,
+  };
+}
+
+function monthsBetween(ymA, ymB) {
+  const [ay, am] = ymA.split("-").map(Number);
+  const [by, bm] = ymB.split("-").map(Number);
+  return (by * 12 + bm) - (ay * 12 + am);
+}
+
+/**
+ * Attach as_of (and a staleness flag) to every panel, derived from whatever date
+ * field that panel already carries. Done as a pass over the finished list so a new
+ * panel gets a vintage automatically rather than by remembering to add one.
+ */
+function attachVintage(panels, todayYm) {
+  for (const p of panels) {
+    const explicit = p.as_of ?? null;
+    const fromLatest = p.latest_date ?? null;
+    const fromSeries = (() => {
+      const s = p.full_series ?? p.rows ?? null;
+      if (!Array.isArray(s) || s.length === 0) return null;
+      const last = s[s.length - 1];
+      return last.date ?? last.released ?? null;
+    })();
+    const raw = explicit ?? fromLatest ?? fromSeries;
+    const ym = raw ? String(raw).slice(0, 7) : null;
+    p.as_of = ym;
+    if (ym) {
+      const age = monthsBetween(ym, todayYm);
+      p.as_of_months_old = age;
+      if (age > STALE_PANEL_MONTHS) {
+        p.stale = true;
+        p.stale_note =
+          `This reading is ${age} months old (${ym}). Treat it as historical context, ` +
+          `not as a current measurement, and do not compare it to this month's panels ` +
+          `without saying that it predates them.`;
+      }
+    }
+  }
+  return panels;
+}
+
 export function buildAnalysisPayload(pool, extras = {}) {
   const series = pool.fred.series ?? {};
   const panels = [];
@@ -491,9 +588,14 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "job_postings_spread",
       series_id: "Indeed Hiring Lab job postings, exposed knowledge-work occupations vs control hands-on occupations",
       display_label: "Job postings: exposed vs control occupations",
-      unit: "index points (Feb 2020 = 100)",
-      exposed_value: last ? Math.round(last.exposed) : null,
-      control_value: last ? Math.round(last.control) : null,
+      unit: "index points, each side against its OWN February 2020 level = 100",
+      // Both sides are sent as levels, not just the spread, and the baseline is
+      // stated per side: a spread of -28 is a very different fact when exposed
+      // sits a quarter below its pre-pandemic level while control sits above its own.
+      exposed_value: last ? round1(last.exposed) : null,
+      exposed_vs_own_prepandemic_baseline: last ? round1(last.exposed - 100) : null,
+      control_value: last ? round1(last.control) : null,
+      control_vs_own_prepandemic_baseline: last ? round1(last.control - 100) : null,
       spread_exposed_minus_control: last ? Math.round(last.spread) : null,
       spread_change_over_6_months: last && pp.length > 6 ? Math.round(last.spread - pp[pp.length - 7].spread) : null,
       latest_date: last ? last.date.slice(0, 7) : null,
@@ -548,6 +650,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
     const g = extras.inversion ?? null;
     panels.push({
       panel: "recent_grad_gap",
+      as_of: latestDateOf(series.CGBD2024),
       series_id: "CGBD2024 minus UNRATE (recent-college-graduate unemployment rate minus the general rate)",
       display_label: "Recent-graduate unemployment gap",
       unit: "percentage points",
@@ -573,6 +676,24 @@ export function buildAnalysisPayload(pool, extras = {}) {
       latest_date: last?.date ?? null,
       prior_reading: priorReading(ap.map((p) => [p.date.slice(0, 7), p.pct])),
       full_series: ap.map((p) => ({ date: p.date.slice(0, 7), value: round1(p.pct) })),
+      // The size-class cut. Previously the artifact told the analyst to check
+      // whether adoption concentrates in large employers and the series was not
+      // sent, so it correctly reported it could not do the check. An instruction to
+      // check something absent is worse than no instruction.
+      by_firm_size: adoptionBySize(extras.adoptionBySize),
+      by_firm_size_note:
+        "Share of firms using AI, split by employment-size class. This is the only cut " +
+        "that speaks to WORKER exposure: a firm-count share treats a four-person shop and " +
+        "a twenty-thousand-person employer as one vote each, so the headline understates " +
+        "how many people work somewhere that uses AI whenever adoption rises with size. " +
+        "It does rise with size here, and the gradient below is the measure of it.",
+      employment_weighted_adoption:
+        "NOT AVAILABLE. The survey publishes adoption by firm-size class but no " +
+        "employment weights, and the establishment counts that would supply them come " +
+        "from a different survey on a different unit (establishments, not firms), so " +
+        "combining them would be a cross-source estimate rather than a measurement. " +
+        "Reason from the size gradient instead, and do not state a worker-weighted " +
+        "percentage as if it were measured.",
       history_caveat: "this is the whole series: the survey only retains a handful of months for the AI question, so it is a level-and-direction reading, not a long history",
       measurement_artifact: {
         text:
@@ -607,6 +728,14 @@ export function buildAnalysisPayload(pool, extras = {}) {
         date: p.date, automation: round1(p.automatePct), augmentation: round1(p.augmentPct),
       })),
       history_caveat: "one reading per dataset release, not a monthly series; the split has been close to stable across releases",
+      // Flagged explicitly rather than left to the vintage pass: this is the
+      // fastest-moving variable on the dashboard and the most out of date, which is
+      // the worst combination and easy to miss.
+      staleness_warning:
+        "This is the STALEST panel here and it measures the fastest-moving thing on the " +
+        "dashboard. The reading predates the current labor months by most of a year, so it " +
+        "cannot describe how AI is being used now. Give it no weight in a current call " +
+        "beyond noting that the split was stable over the releases that exist.",
       measurement_artifact: {
         text:
           "This is a share of SAMPLED CONVERSATIONS over a user base that changes between " +
@@ -627,6 +756,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
     const macro = extras.macro ?? {};
     panels.push({
       panel: "macro_regime",
+      as_of: latestDateOf(series.T10Y2Y),
       series_id: "DFII10 (10-year real Treasury yield), T10Y2Y and T10Y3M (yield-curve spreads), T10YIE (10-year expected inflation)",
       display_label: "Macro regime",
       unit: "percent",
@@ -643,6 +773,10 @@ export function buildAnalysisPayload(pool, extras = {}) {
     const top = extras.metrTop5 ?? [];
     panels.push({
       panel: "ai_capability_metr",
+      as_of: (() => {
+        const ds = (extras.metrRecords ?? []).map((r) => r.releaseDate).filter(Boolean).sort();
+        return ds.length ? String(ds[ds.length - 1]).slice(0, 7) : null;
+      })(),
       series_id: "METR task-completion time horizons of frontier AI models",
       display_label: "AI capability: task-length horizon",
       unit: "minutes of human working time",
@@ -717,6 +851,10 @@ export function buildAnalysisPayload(pool, extras = {}) {
     const slots = extras.slots ?? [];
     panels.push({
       panel: "ai_capability_benchmarks",
+      as_of: (() => {
+        const ds = (extras.slots ?? []).map((x) => x.latestDate).filter(Boolean).sort();
+        return ds.length ? String(ds[ds.length - 1]).slice(0, 7) : null;
+      })(),
       series_id: "tracked capability benchmarks (reasoning, coding, biology)",
       display_label: "AI capability: benchmark tracks",
       unit: "index points (0 to 100)",
@@ -730,5 +868,6 @@ export function buildAnalysisPayload(pool, extras = {}) {
     });
   }
 
-  return panels;
+  // Vintage last, so it covers every panel above without each one remembering.
+  return attachVintage(panels, extras.todayYm ?? new Date().toISOString().slice(0, 7));
 }

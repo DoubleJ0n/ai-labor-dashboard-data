@@ -17,7 +17,7 @@
 // data/analyst/dissent_log.json (the app's timeline) and to data/analyst/runs.json
 // (the full audit record). Nothing is ever overwritten.
 import { createHash } from "node:crypto";
-import { readFileSync, writeFileSync, existsSync, appendFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
@@ -38,6 +38,11 @@ import {
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DISSENT_LOG_PATH = path.join(repoRoot, "data", "analyst", "dissent_log.json");
 const RUNS_PATH = path.join(repoRoot, "data", "analyst", "runs.json");
+// Per-run transcripts. The most useful diagnostic in review is the DIFFERENCE between
+// what a run concluded and what it published, and that is only visible with both in
+// hand, so both are kept as files per run rather than only inside runs.json where a
+// 3000-word log is unreadable.
+const TRANSCRIPT_DIR = path.join(repoRoot, "data", "analyst", "runs");
 function readJson(rel) {
   try { return JSON.parse(readFileSync(path.join(repoRoot, rel), "utf8")); } catch { return null; }
 }
@@ -118,6 +123,7 @@ const extras = {
   adoptionPoints: readJson("data/adoption/ai_adoption.json")?.points ?? [],
   aeiPoints: readJson("data/aei/augmentation.json")?.points ?? [],
   postingsPoints: readJson("data/postings/job_postings.json")?.points ?? [],
+  adoptionBySize: readJson("data/adoption/ai_adoption.json")?.bySize ?? null,
   gdpval: readJson("data/gdpval/leaderboard.json") ?? null,
 };
 const summary = computeDashboardSummary(pool, extras);
@@ -448,6 +454,44 @@ function appendEntry(entry, result) {
     "utf8",
   );
 
+  // Reasoning log and published note as files, per run. Both kept: the gap
+  // between them is the thing worth reviewing.
+  if (result) {
+    mkdirSync(TRANSCRIPT_DIR, { recursive: true });
+    const stem = `${dataMonth}_${String(entry.runAt).replace(/[:.]/g, "-")}`;
+    writeFileSync(
+      path.join(TRANSCRIPT_DIR, `${stem}.reasoning.md`),
+      [
+        `# Reasoning log ${dataMonth} (run ${entry.runAt})`,
+        ``,
+        `Model: ${result.model} | effort: ${result.effort} | verdict: ${entry.verdict}`,
+        `Input snapshot: ${inputHash}`,
+        `Mechanical indicator, never shown to the model: ${mechanical.mechanicalState}, breadth ${mechanical.breadth}`,
+        ``,
+        `Stored, never published. Pass 1 full working.`,
+        ``,
+        `---`,
+        ``,
+        result.pass1.reasoningLog,
+      ].join("\n") + "\n",
+      "utf8",
+    );
+    writeFileSync(
+      path.join(TRANSCRIPT_DIR, `${stem}.note.md`),
+      [
+        `# Published note ${dataMonth} (run ${entry.runAt})`,
+        ``,
+        `Verdict: ${entry.verdict} | ${entry.compliance?.words ?? "?"} words | ${entry.compliance?.numbers ?? "?"} numbers`,
+        `Notification: ${entry.notificationLine}`,
+        `Falsifier: ${entry.falsifierPlain ?? "(none)"}`,
+        ``,
+        `---`,
+        ``,
+        entry.analysis,
+      ].join("\n") + "\n",
+      "utf8",
+    );
+  }
   writeFileSync(
     RUNS_PATH,
     JSON.stringify(

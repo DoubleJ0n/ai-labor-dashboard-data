@@ -102,7 +102,7 @@ jobs:
         run: |
           git config user.name "pool-refresh-bot"
           git config user.email "actions@github.com"
-          git add dashboard-data.json data/analyst/dissent_log.json data/analyst/runs.json
+          git add dashboard-data.json data/analyst/dissent_log.json data/analyst/runs.json data/analyst/runs
           if git diff --cached --quiet; then
             echo "no changes"
           else
