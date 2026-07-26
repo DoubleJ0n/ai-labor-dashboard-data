@@ -4,7 +4,7 @@ Append-only record of the monthly Analyst verdict. `analyst-refresh` appends
 one entry per BLS Employment Situation release and never rewrites or deletes a
 prior entry. If a month's inputs change after its entry was written (a BLS
 revision), a NEW entry for the same data month is appended with a `supersedes`
-field naming the `runAt` of the entry it replaces (audit-2026-07 finding 15) —
+field naming the `runAt` of the entry it replaces (audit-2026-07 finding 15);
 the log itself records that the month's call changed. Consumers that want "the"
 monthly call should take the latest entry per data month; the timeline shows
 only that latest entry. It is the data source for the app's **Analyst Track
@@ -25,10 +25,10 @@ so it can score whether last month's named confounder held up.
   "namedConfounder": null,           // required (non-null) when verdict==CONFOUNDED;
                                      //   a SPECIFIC mechanism tied to THIS month's movement
   "mechanicalState": "WATCH",        // the stoplight state (STEADY|WATCH|BREAK) the SAME
-                                     //   inputs produced — lets next month note agree/disagree
+                                     //   inputs produced; lets next month note agree/disagree
   "breadth": 1,                      // # of confounder-robust labor differentials firing (0..3)
   "analysis": "...",                 // the plain-text paragraph(s) the model wrote
-  "keyNumbers": {                    // the differentials as read this run — a later run
+  "keyNumbers": {                    // the differentials as read this run; a later run
     "jobsDiffPp": -2.54,             //   re-reads these months and diffs against them for
     "wagesDiffPp": 1.11              //   heavy-revision detection (audit-2026-07 finding 10)
   },
@@ -37,21 +37,21 @@ so it can score whether last month's named confounder held up.
 }
 ```
 
-## The four verdicts (fixed — no additions, no free-form)
+## The four verdicts (fixed: no additions, no free-form)
 
-1. `AUGMENTATION_HOLDING` — gains visible, exposed jobs/wages not deteriorating.
-2. `MIXED_TRANSITIONING` — signals moving but not decisively either way.
-3. `DISPLACEMENT_EMERGING` — displacement signals firing, augmentation not showing up.
-4. `CONFOUNDED` — a specific named confounder dominates this month's data.
+1. `AUGMENTATION_HOLDING`: gains visible, exposed jobs/wages not deteriorating.
+2. `MIXED_TRANSITIONING`: signals moving but not decisively either way.
+3. `DISPLACEMENT_EMERGING`: displacement signals firing, augmentation not showing up.
+4. `CONFOUNDED`: a specific named confounder dominates this month's data.
 
 The first three are **directional**. `CONFOUNDED` is reached three ways, two
 deterministic (`recession_veto`, `data_integrity`) and one via the model
-(`analyst_veto`, DOWNGRADE-ONLY — news may never produce or strengthen a
+(`analyst_veto`, DOWNGRADE-ONLY: news may never produce or strengthen a
 directional verdict; it may only, through this logged pathway, downgrade to
 CONFOUNDED). Derivation lives in `scripts/analyst/verdict.mjs`.
 
 ## Timeline ordinal (for the track-record chart)
 
 `AUGMENTATION_HOLDING` low · `MIXED_TRANSITIONING` middle · `DISPLACEMENT_EMERGING`
-high. `CONFOUNDED` does **not** plot on the stepped line — it drops to a flagged
+high. `CONFOUNDED` does **not** plot on the stepped line; it drops to a flagged
 x-axis marker so a punting streak reads as its own pattern.

@@ -1,27 +1,32 @@
 name: analysis-refresh
 
-# The monthly Analyst (mini-economist). It reads the dashboard's panels, derives
-# one of four fixed verdicts from the SAME panel state + thresholds as the
-# stoplight, and writes a short plain-language read cached into the pool.
+# The Analyst: a two-pass read of the dashboard's panels.
 #
-# CADENCE: monthly, after the BLS Employment Situation release (first Friday). The
-# Phase-4 dry run + one real verdict were reviewed (AUGMENTATION_HOLDING, 2026-06),
-# so the monthly schedule is now live. The old weekly workflow_run chain off
-# fred/discovery is retired: the Analyst is monthly, not weekly. The in-script
-# data-availability gate no-ops when the new month's release isn't in the pool yet,
-# and the one-entry-per-month idempotency guard makes an extra fire on a shifted
-# release date harmless.
+# Pass 1 is blind (current data + long-run history + news, no prior verdict) and
+# picks AUGMENTATION or DISPLACEMENT — or CONFOUNDED with a named mechanism — plus a
+# confidence and a pre-registered falsifier. Pass 2 sees pass 1 plus last run's
+# verdict and numbers, and writes the what-changed narrative and the notification
+# line; it cannot change the verdict, and disagreement is logged instead.
+#
+# CADENCE: weekly, skipped when nothing moved. The first-Friday monthly gate is
+# retired — the run is now gated on the DATA rather than the calendar: the script
+# hashes the input snapshot and exits without a paid call when that hash matches the
+# last run's. Labor series only move monthly, but METR and GDPval move mid-month, so
+# a real weekly change gets a real weekly run and a quiet week costs nothing.
+#
+# Every run APPENDS: data/analyst/dissent_log.json (the app's timeline) and
+# data/analyst/runs.json (the audit record — both passes, usage, cost, input hash).
 on:
   schedule:
-    # POSIX cron ORs a restricted day-of-month with a restricted day-of-week,
-    # so "1-7 * 5" fires ~11x/month (audit-2026-07 finding 3 / C-1). Fire
-    # weekly on Fridays; the script exits unless it is the month's first
-    # Friday, where AND-logic is expressible.
-    - cron: "0 13 * * 5"  # 13:00 UTC Fridays (post-BLS 08:30 ET); first-Friday gate is in the script
+    - cron: "0 13 * * 5" # 13:00 UTC Fridays (after the 08:30 ET BLS release window)
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Derive the verdict + assemble news + print the request body, make NO model call"
+        description: "Assemble everything and print the request body; make NO model call"
+        type: boolean
+        default: false
+      ab_run:
+        description: "A/B: run the analyst on Sonnet 5 AND Opus 5 on one snapshot, report only, publish nothing"
         type: boolean
         default: false
 
@@ -35,6 +40,9 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    outputs:
+      notify: ${{ steps.analyst.outputs.notify }}
+      notification_line: ${{ steps.analyst.outputs.notification_line }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -47,24 +55,55 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Verify verdict derivation + registered-values parity (unit tests)
         run: node --test scripts/config.test.mjs scripts/analyst/*.test.mjs
-      - name: Dry run (derive + assemble news + print request body, no model call)
+
+      - name: Dry run (assemble everything, no model call)
         if: ${{ github.event.inputs.dry_run == 'true' }}
         run: node scripts/analysis-refresh.mjs --dry-run
-      - name: Analyst (Sonnet 5, monthly verdict)
-        if: ${{ github.event.inputs.dry_run != 'true' }}
+
+      # A/B: two models, one input snapshot, both at high effort. Publishes
+      # nothing — it writes analyst-ab-report.json and uploads it for review.
+      - name: A/B run (Sonnet 5 vs Opus 5)
+        if: ${{ github.event.inputs.ab_run == 'true' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node scripts/analysis-refresh.mjs --ab
+      - name: Upload the A/B report
+        if: ${{ github.event.inputs.ab_run == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: analyst-ab-report
+          path: analyst-ab-report.json
+
+      - name: Analyst (two-pass, high effort)
+        id: analyst
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' }}
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/analysis-refresh.mjs
-      - name: Commit updated pool + dissent log
-        if: ${{ github.event.inputs.dry_run != 'true' }}
+
+      - name: Commit the pool + both append-only logs
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' }}
         run: |
           git config user.name "pool-refresh-bot"
           git config user.email "actions@github.com"
-          git add dashboard-data.json data/analyst/dissent_log.json
+          git add dashboard-data.json data/analyst/dissent_log.json data/analyst/runs.json
           if git diff --cached --quiet; then
             echo "no changes"
           else
-            git commit -m "analyst-refresh: monthly verdict"
+            git commit -m "analyst-refresh: new verdict"
             git pull --rebase origin main
             git push
           fi
+
+  # Fires ONLY when the analyst actually appended a new verdict — the step output
+  # is set inside the append path, so a data refresh or a skipped (nothing-moved)
+  # run emits nothing.
+  notify:
+    needs: refresh
+    if: ${{ needs.refresh.outputs.notify == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: The notification line
+        run: |
+          echo "New analysis published."
+          echo "${{ needs.refresh.outputs.notification_line }}"

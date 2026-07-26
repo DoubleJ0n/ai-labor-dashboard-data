@@ -20,6 +20,10 @@
   "inversionTrailingWindowMonths": 120,
   "inversionMinHistoryMonths": 36,
   "sectorPeakWindowStart": "2021-01-01",
+  "gdpvalPoolVersion": "v2",
+  "gdpvalMinRecords": 50,
+  "gdpvalRequiredLabs": ["Anthropic", "OpenAI"],
+  "eloScale": 400,
   "differentials": {
     "jobs": {
       "exposed": ["USINFO", "USPBS", "USFIRE"],

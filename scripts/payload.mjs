@@ -25,11 +25,13 @@ import {
   PROD_BAND_LOW, PROD_BAND_HIGH, PROD_BREAK_RUN_QUARTERS,
   ADOPTION_RISING_LOOKBACK, TREND_DRIFT_Z, TREND_LOOKBACK_READINGS,
   DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS, LABOR_SHARE_BASELINE_QUARTERS,
+  ELO_SCALE,
 } from "./config.mjs";
 
 const sorted = (obs) => [...(obs ?? [])].sort((a, b) => a.date.localeCompare(b.date));
 const ymOf = (d) => d.slice(0, 7);
 const round1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
+const round2 = (v) => (v == null ? null : Math.round(v * 100) / 100);
 
 function ymAdd(ym, n) {
   const [y, m] = ym.split("-").map(Number);
@@ -88,6 +90,82 @@ function twoSigmaTrigger(dated, upperSide) {
   const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length);
   if (sd < 1e-9) return null;
   return upperSide ? mean + BREAK_Z * sd : mean - BREAK_Z * sd;
+}
+
+// --- Step 3: long-run context, deviation, and last month ----------------------
+//
+// The analyst gets MORE, not less. For every series: the current value and its
+// date, enough history to know what normal looks like, the deviation from normal
+// as a z-score where one is computed, the previous reading, and an explicit flag
+// for what moved since the last analysis run.
+//
+// The wage series was the template for this: sending only "exposed pay growth is
+// 4.6%" invites the model to invent context. Sending the same number alongside
+// its own calm-period distribution lets it say whether 4.6 is remarkable.
+//
+// Still NOT included, deliberately: the mechanical stoplight's verdict labels.
+// The analyst now owns its own verdict, and the rule-based lights have to be able
+// to visibly disagree with it — which they cannot do if the analyst was shown the
+// answer first.
+
+/**
+ * What normal looks like for this series: the calm-period (COVID-excluded)
+ * distribution, plus its range and how many readings back it goes.
+ * [dated] is [month, value] in the series' own units and orientation.
+ */
+function longRun(dated) {
+  const vals = keepExCovid(dated);
+  if (vals.length < WATCH_MIN_HISTORY) {
+    return {
+      readings_in_baseline: vals.length,
+      note: `only ${vals.length} readings outside the excluded pandemic window — too few for a baseline (${WATCH_MIN_HISTORY} needed), so treat any deviation language with caution`,
+    };
+  }
+  const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+  const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length);
+  const withDates = dated.filter(([m]) => m < COVID_START || m > COVID_END);
+  let lo = withDates[0], hi = withDates[0];
+  for (const p of withDates) {
+    if (p[1] < lo[1]) lo = p;
+    if (p[1] > hi[1]) hi = p;
+  }
+  return {
+    baseline_mean: round2(mean),
+    baseline_standard_deviation: round2(sd),
+    baseline_low: round2(lo[1]),
+    baseline_low_date: lo[0],
+    baseline_high: round2(hi[1]),
+    baseline_high_date: hi[0],
+    readings_in_baseline: vals.length,
+    first_reading_date: withDates[0]?.[0] ?? null,
+    baseline_window: `all readings from ${withDates[0]?.[0] ?? "?"} onward, with ${COVID_START} to ${COVID_END} excluded`,
+  };
+}
+
+/**
+ * Deviation from normal in standard deviations, on the same trailing window and
+ * COVID exclusion the panels use. [oriented] is [month, value] with higher =
+ * further toward displacement, so a positive number always means "more
+ * displacement-shaped", whatever the underlying series' sign convention is.
+ */
+function deviation(oriented) {
+  if (!oriented.length) return null;
+  const hist = oriented.slice(0, -1).slice(-TRAILING_WINDOW);
+  const z = zScore(oriented[oriented.length - 1][1], keepExCovid(hist));
+  if (z == null) return null;
+  return {
+    standard_deviations_from_normal: round2(z),
+    orientation: "positive means further toward displacement; negative means further away",
+    alarm_line: BREAK_Z,
+    attention_line: WATCH_Z,
+  };
+}
+
+/** The reading before the latest one, so a move can be read as a move. */
+function priorReading(dated) {
+  if (dated.length < 2) return null;
+  const [date, value] = dated[dated.length - 2];
+  return { value: round2(value), date };
 }
 
 function elapsed(months) {
@@ -201,6 +279,89 @@ export function votingDifferentialSeries(pool) {
   };
 }
 
+// --- Step 3, item 5: what changed since the last analysis run ----------------
+//
+// Each run stores a compact headline value per panel in its dissent-log entry;
+// the next run diffs against it. Without this the model has to infer "what's
+// new" from the numbers alone, which is exactly the kind of inference that
+// invents movement — and the spec asks for the news value to LEAD, so what
+// changed has to be a fact in the payload, not a guess.
+
+/** The one number per panel that a reader would notice moving. */
+const HEADLINE_FIELDS = [
+  "differential_exposed_minus_control",
+  "spread_exposed_minus_control",
+  "change_over_4_quarters",
+  "automation_value",
+  "yield_curve_10yr_minus_2yr",
+  "latest_value",
+];
+
+function headlineOf(panel) {
+  if (panel.panel === "ai_capability_gdpval_ratings") {
+    return { value: panel.top_matchup?.elo_a ?? null, date: panel.as_of ?? null };
+  }
+  if (panel.panel === "ai_capability_metr") {
+    const top = panel.top_models_by_80pct_horizon?.[0];
+    return { value: top?.horizon_80pct_minutes ?? null, date: top?.model ?? null };
+  }
+  for (const f of HEADLINE_FIELDS) {
+    if (panel[f] != null) return { value: panel[f], date: panel.latest_date ?? null };
+  }
+  return { value: null, date: panel.latest_date ?? null };
+}
+
+/** Stored in each run's log entry so the next run can diff against it. */
+export function panelHeadlines(panels) {
+  const out = {};
+  for (const p of panels) out[p.panel] = headlineOf(p);
+  return out;
+}
+
+/**
+ * Explicit what-changed block. [prior] is a previous run's panelHeadlines output.
+ * With no prior run this says so — never silently implies "nothing changed".
+ */
+export function changesSinceLastRun(panels, prior, priorRunAt, priorDataMonth) {
+  if (!prior) {
+    return {
+      previous_run: null,
+      note: "this is the first run under the current analysis format, so there is no previous run to compare against; do not describe anything as new or unchanged on this basis",
+    };
+  }
+  const moved = [];
+  const unchanged = [];
+  const isNew = [];
+  for (const p of panels) {
+    const now = headlineOf(p);
+    const was = prior[p.panel];
+    if (!was) { isNew.push(p.panel); continue; }
+    const valueMoved = was.value != null && now.value != null && round2(was.value) !== round2(now.value);
+    const dateMoved = was.date != null && now.date != null && was.date !== now.date;
+    if (valueMoved || dateMoved) {
+      moved.push({
+        panel: p.panel,
+        display_label: p.display_label,
+        was: was.value, now: now.value,
+        change: was.value != null && now.value != null ? round2(now.value - was.value) : null,
+        reading_date_was: was.date, reading_date_now: now.date,
+      });
+    } else {
+      unchanged.push(p.panel);
+    }
+  }
+  return {
+    previous_run: priorRunAt ?? null,
+    previous_data_month: priorDataMonth ?? null,
+    panels_that_moved: moved,
+    panels_unchanged: unchanged,
+    panels_new_to_the_dashboard: isNew,
+    note: moved.length === 0
+      ? "no panel's headline number moved since the last run; say so plainly rather than manufacturing a development"
+      : "these are the only panels whose headline number moved since the last run; anything else has not changed",
+  };
+}
+
 export function buildAnalysisPayload(pool, extras = {}) {
   const series = pool.fred.series ?? {};
   const panels = [];
@@ -218,6 +379,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
     }
     const where = last ? (last.value >= PROD_BAND_HIGH ? `above the ${PROD_BAND_HIGH} upper line`
       : last.value >= PROD_BAND_LOW ? `inside the ${PROD_BAND_LOW} to ${PROD_BAND_HIGH} band` : `below the ${PROD_BAND_LOW} lower line`) : null;
+    const dated = s.map((o) => [quarterEndMonth(o.date), o.value]);
     panels.push({
       panel: "labor_productivity",
       series_id: "PRS85006091",
@@ -225,6 +387,10 @@ export function buildAnalysisPayload(pool, extras = {}) {
       unit: "percent (change from a year earlier)",
       latest_value: round1(last?.value),
       latest_date: last ? quarterEndMonth(last.date) : null,
+      prior_reading: priorReading(dated),
+      long_run_context: longRun(dated),
+      // Judged against the registered band, not a z-score — so no deviation block
+      // here. The band IS this panel's normal (2.7 to 3.4 is the internet-boom pace).
       streak: last ? `${run} consecutive quarterly ${run === 1 ? "reading" : "readings"} ${where}` : null,
       threshold: { band_low: PROD_BAND_LOW, band_high: PROD_BAND_HIGH, rule: `output per hour above ${PROD_BAND_HIGH} percent for ${PROD_BREAK_RUN_QUARTERS === 2 ? "two" : PROD_BREAK_RUN_QUARTERS} straight quarters is the break; the ${PROD_BAND_LOW} to ${PROD_BAND_HIGH} band is the internet-boom pace` },
     });
@@ -244,6 +410,9 @@ export function buildAnalysisPayload(pool, extras = {}) {
       control_value: round1(last?.control),
       differential_exposed_minus_control: round1(last?.diff),
       latest_date: last?.month ?? null,
+      prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
+      long_run_context: longRun(pts.map((p) => [p.month, p.diff])),
+      deviation_from_normal: deviation(pts.map((p) => [p.month, -p.diff])),
       streak: streakString(pts.map((p) => [p.month, -p.diff]), "monthly"),
       threshold: { differential_trigger: round1(trigger), rule: "the alarm is the exposed-minus-control gap falling two standard deviations below its own calm-period average (a wide but steady gap is not the alarm; the gap widening is)" },
     });
@@ -263,6 +432,12 @@ export function buildAnalysisPayload(pool, extras = {}) {
       control_value: round1(last?.control),
       differential_exposed_minus_control: round1(last?.diff),
       latest_date: last?.month ?? null,
+      prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
+      // The template for the whole "send long-run context" rule: real pay growth
+      // has been weak for a long stretch AND the latest move may or may not be
+      // sharp against that history. Those are two different facts; send both.
+      long_run_context: longRun(pts.map((p) => [p.month, p.diff])),
+      deviation_from_normal: deviation(pts.map((p) => [p.month, -p.diff])),
       streak: streakString(pts.map((p) => [p.month, -p.diff]), "monthly"),
       threshold: { differential_trigger: round1(trigger), rule: "the alarm is exposed pay growth falling two standard deviations below control's, off the calm-period average" },
     });
@@ -283,6 +458,10 @@ export function buildAnalysisPayload(pool, extras = {}) {
       spread_exposed_minus_control: last ? Math.round(last.spread) : null,
       spread_change_over_6_months: last && pp.length > 6 ? Math.round(last.spread - pp[pp.length - 7].spread) : null,
       latest_date: last ? last.date.slice(0, 7) : null,
+      prior_reading: priorReading(pp.map((p) => [p.date.slice(0, 7), p.spread])),
+      long_run_context: longRun(pp.map((p) => [p.date.slice(0, 7), p.spread])),
+      deviation_from_normal: deviation(pp.map((p) => [p.date.slice(0, 7), -p.spread])),
+      history_caveat: "this series begins February 2020, so it has no pre-pandemic baseline and a shorter calm history than the other panels",
       streak: streakString(pp.map((p) => [p.date.slice(0, 7), -p.spread]), "monthly"),
       threshold: { spread_trigger: trigger == null ? null : Math.round(trigger), rule: "postings lead hiring, so a spread two standard deviations below its calm-period average is an early version of the jobs alarm" },
     });
@@ -313,6 +492,13 @@ export function buildAnalysisPayload(pool, extras = {}) {
       latest_value: round1(last?.value),
       latest_date: last ? quarterEndMonth(last.date) : null,
       change_over_4_quarters: round1(latestChange),
+      prior_reading: priorReading(share.map((p) => [quarterEndMonth(p.date), p.value])),
+      // Two different "normals" matter here, so both are sent: the level's own
+      // 79-year range (the level is at a record low) and the distribution of
+      // 4-quarter CHANGES (which is what the rule actually tests).
+      long_run_context_level: longRun(share.map((p) => [quarterEndMonth(p.date), p.value])),
+      long_run_context_4q_changes: longRun(changes),
+      deviation_from_normal: deviation(changes.map(([m, v]) => [m, -v])),
       streak: last ? `${decl} consecutive quarterly ${decl === 1 ? "decline" : "declines"}` : null,
       threshold: { change_trigger: round1(trigger), rule: `the alarm is the share falling over ${LABOR_SHARE_CHANGE_QUARTERS} quarters ${BREAK_Z} standard deviations faster than its trailing thirty-year norm of such changes (pandemic years excluded); acceleration, not level, is the tell` },
     });
@@ -346,6 +532,9 @@ export function buildAnalysisPayload(pool, extras = {}) {
       unit: "percent (of firms)",
       latest_value: last ? round1(last.pct) : null,
       latest_date: last?.date ?? null,
+      prior_reading: priorReading(ap.map((p) => [p.date.slice(0, 7), p.pct])),
+      full_series: ap.map((p) => ({ date: p.date.slice(0, 7), value: round1(p.pct) })),
+      history_caveat: "this is the whole series — the survey only retains a handful of months for the AI question, so it is a level-and-direction reading, not a long history",
       direction: last ? (rising ? "rising" : "flat") : null,
       series_break_note: "the series starts November 2025, when the Census question changed from 'producing goods or services' to 'any business function'; earlier readings are not comparable",
       threshold: { rule: "a weak-form deployment gate: any real adoption permits a displacement reading but never causes one on its own" },
@@ -364,6 +553,10 @@ export function buildAnalysisPayload(pool, extras = {}) {
       automation_value: last ? round1(last.automatePct) : null,
       augmentation_value: last ? round1(last.augmentPct) : null,
       latest_date: last?.date ?? null,
+      full_series: aei.map((p) => ({
+        date: p.date, automation: round1(p.automatePct), augmentation: round1(p.augmentPct),
+      })),
+      history_caveat: "one reading per dataset release, not a monthly series; the split has been close to stable across releases",
       threshold: { rule: "a slow research series; a rising automation share only raises the displacement reading when adoption is also rising and exposed work is weakening" },
     });
   }
@@ -397,7 +590,64 @@ export function buildAnalysisPayload(pool, extras = {}) {
         horizon_80pct_minutes: m.p80Min == null ? null : Math.round(m.p80Min),
         horizon_50pct_minutes: m.p50Min == null ? null : Math.round(m.p50Min),
       })),
-      threshold: { rule: "a capability gate: the 80 percent horizon is the level where a task can be handed off rather than checked; this permits but never causes a displacement reading" },
+      threshold: { rule: "descriptive context only. The 80 percent horizon is the level where a task can be handed off rather than checked. This was a capability gate until July 2026 and no longer conditions anything: a benchmark of clean, self-contained software tasks should not decide whether a real labor signal counts" },
+      caveat: "the tasks are clean, self-contained, auto-scorable software, machine-learning and cyber problems, not the messy parts of a job; the human baselines are contractors working without prior context; and horizons past roughly 16 hours are beyond what the task suite can measure reliably",
+    });
+  }
+
+  // --- AI capability: GDPval (model vs model, and model vs expert) ---
+  // Both descriptive. Sent because "can the models do the work" is context the
+  // labor read needs, not because either can move a verdict.
+  {
+    const board = extras.gdpval?.leaderboard ?? null;
+    const records = [...(board?.records ?? [])].sort((a, b) => b.elo - a.elo);
+    const family = (m) => String(m ?? "").replace(/\s*\([^()]*\)\s*$/, "").trim();
+    const first = records[0] ?? null;
+    const second = first ? (records.slice(1).find((r) => family(r.model) !== family(first.model)) ?? records[1] ?? null) : null;
+    const winProbability = (a, b) => 1 / (1 + 10 ** ((b - a) / ELO_SCALE));
+    const bestOf = (lab) => records.find((r) => r.lab === lab) ?? null;
+
+    panels.push({
+      panel: "ai_capability_gdpval_ratings",
+      series_id: "Artificial Analysis GDPval-AA leaderboard (Elo on OpenAI's GDPval dataset of real knowledge-work tasks)",
+      display_label: "GDPval head-to-head ratings",
+      unit: "Elo rating points (400 points = 10:1 odds)",
+      pool_version: board?.poolVersion ?? null,
+      as_of: board?.lastRefreshed ?? null,
+      top_matchup: first && second ? {
+        model_a: first.model, lab_a: first.lab, elo_a: round1(first.elo),
+        model_b: second.model, lab_b: second.lab, elo_b: round1(second.elo),
+        elo_difference: round1(first.elo - second.elo),
+        probability_a_beats_b_percent: round1(winProbability(first.elo, second.elo) * 100),
+      } : null,
+      leading_by_lab: ["Anthropic", "OpenAI", "Google"].map((lab) => {
+        const r = bestOf(lab);
+        return r ? { lab, model: r.model, elo: round1(r.elo), released: r.releaseDate } : { lab, model: null, elo: null, released: null };
+      }),
+      caveat: "these are model-versus-model comparisons with NO human in the pool, so the scale has no absolute anchor and a level means nothing on its own; only differences carry information. Ratings are frozen per pool version and must never be compared across versions. One model appears once per reasoning-effort setting",
+      threshold: { rule: "descriptive context only; this panel votes on nothing" },
+    });
+
+    const expert = extras.gdpval?.expertWinRate ?? null;
+    const rows = expert?.rows ?? [];
+    const latestExpert = rows.length ? rows[rows.length - 1] : null;
+    panels.push({
+      panel: "ai_capability_vs_human_experts",
+      series_id: "OpenAI GDPval, model wins plus ties against industry experts on the 220-task gold subset",
+      display_label: "Did it clear a human",
+      unit: "percent of tasks won or tied against an industry expert",
+      latest_value: latestExpert ? round1(latestExpert.winsPlusTiesPct) : null,
+      latest_model: latestExpert?.model ?? null,
+      latest_date: latestExpert?.released ?? null,
+      full_series: rows.map((r) => ({ model: r.model, released: r.released, wins_plus_ties_percent: round1(r.winsPlusTiesPct) })),
+      // The publication gap is a fact about the instrument and the analyst must be
+      // able to say so rather than treating the last reading as current.
+      measurement_gap_after: expert?.measurementGapAfter ?? null,
+      measurement_gap_note: expert?.measurementGapNote ?? null,
+      parity_caveat: expert?.parityNote ?? null,
+      true_parity_wins_only_percent: expert?.trueParityWinsOnlyPct ?? null,
+      self_reported_caveat: expert?.selfReportedNote ?? null,
+      threshold: { rule: "descriptive context only; this panel votes on nothing. This is the one capability measure with a human baseline, which is why it sits beside the rating comparison" },
     });
   }
 

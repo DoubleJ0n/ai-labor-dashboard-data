@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "description": "Append-only Analyst run history. Every run appends one record; nothing is ever overwritten or edited. Each record carries the timestamp, the model and effort level it ran at, both passes verbatim, the verdict, the confidence, the pre-registered falsifier, the input-snapshot hash, token counts and computed cost. The input hash is the load-bearing field: without it you cannot audit why a past verdict looked reasonable at the time. The app does not read this file - it reads dissent_log.json - so records here can be as detailed as the audit needs.",
+  "lastRefreshed": null,
+  "runs": []
+}

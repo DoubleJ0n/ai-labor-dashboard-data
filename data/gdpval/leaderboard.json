@@ -1,0 +1,1426 @@
+{
+  "schemaVersion": 1,
+  "leaderboard": {
+    "poolVersion": "v2",
+    "source": "Artificial Analysis - GDPval-AA leaderboard (Elo on OpenAI's GDPval dataset)",
+    "sourceUrl": "https://artificialanalysis.ai/evaluations/gdpval-aa",
+    "note": "Elo from blind pairwise comparisons of model outputs on GDPval knowledge-work tasks. Levels carry no information in isolation - only differences do - and the comparison pool contains no human, so the scale has no absolute anchor. Elo is frozen per pool version; records from different pool versions must never be compared. Entries are per effort setting: the same model at two reasoning efforts is two records with two Elos.",
+    "records": [
+      {
+        "slug": "claude-opus-5",
+        "model": "Claude Opus 5 (Adaptive Reasoning, Max Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-07-24",
+        "elo": 1860.57,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-opus-5-xhigh",
+        "model": "Claude Opus 5 (Adaptive Reasoning, Xhigh Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-07-24",
+        "elo": 1827.24,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-fable-5",
+        "model": "Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-09",
+        "elo": 1746.74,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-opus-5-high",
+        "model": "Claude Opus 5 (Adaptive Reasoning, High Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-07-24",
+        "elo": 1740.52,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol",
+        "model": "GPT-5.6 Sol (max)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1735.32,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol-xhigh",
+        "model": "GPT-5.6 Sol (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1690.15,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kimi-k3",
+        "model": "Kimi K3",
+        "lab": "Kimi",
+        "releaseDate": "2026-07-16",
+        "elo": 1685.84,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-opus-5-medium",
+        "model": "Claude Opus 5 (Adaptive Reasoning, Medium Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-07-24",
+        "elo": 1631.63,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol-high",
+        "model": "GPT-5.6 Sol (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1626.05,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-5",
+        "model": "Claude Sonnet 5 (Adaptive Reasoning, Max Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-30",
+        "elo": 1603.03,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-opus-4-8",
+        "model": "Claude Opus 4.8 (Adaptive Reasoning, Max Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-05-28",
+        "elo": 1592.75,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-terra",
+        "model": "GPT-5.6 Terra (max)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1582.7,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna",
+        "model": "GPT-5.6 Luna (max)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1581.94,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-terra-xhigh",
+        "model": "GPT-5.6 Terra (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1573.23,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol-medium",
+        "model": "GPT-5.6 Sol (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1553.66,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-xhigh",
+        "model": "GPT-5.6 Luna (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1529.73,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "grok-4-5",
+        "model": "Grok 4.5 (high)",
+        "lab": "SpaceXAI",
+        "releaseDate": "2026-07-08",
+        "elo": 1527.37,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-5-2",
+        "model": "GLM-5.2 (max)",
+        "lab": "Z AI",
+        "releaseDate": "2026-06-16",
+        "elo": 1510.27,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-terra-high",
+        "model": "GPT-5.6 Terra (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1509.82,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-5-xhigh",
+        "model": "Claude Sonnet 5 (Adaptive Reasoning, Xhigh Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-30",
+        "elo": 1507.52,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-opus-4-7",
+        "model": "Claude Opus 4.7 (Adaptive Reasoning, Max Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-04-16",
+        "elo": 1493.13,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-5",
+        "model": "GPT-5.5 (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-04-23",
+        "elo": 1491.08,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-high",
+        "model": "GPT-5.6 Luna (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1467.43,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-5-high",
+        "model": "GPT-5.5 (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-04-23",
+        "elo": 1467.2,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-opus-5-low",
+        "model": "Claude Opus 5 (Adaptive Reasoning, Low Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-07-24",
+        "elo": 1453.95,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol-low",
+        "model": "GPT-5.6 Sol (low)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1442.71,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-6-flash",
+        "model": "Gemini 3.6 Flash (high)",
+        "lab": "Google",
+        "releaseDate": "2026-07-21",
+        "elo": 1423.05,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-terra-medium",
+        "model": "GPT-5.6 Terra (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1402.75,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-5-high",
+        "model": "Claude Sonnet 5 (Adaptive Reasoning, High Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-30",
+        "elo": 1399.67,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-4",
+        "model": "GPT-5.4 (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-03-05",
+        "elo": 1392.29,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "minimax-m3",
+        "model": "MiniMax-M3",
+        "lab": "MiniMax",
+        "releaseDate": "2026-06-01",
+        "elo": 1390.68,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-5-2-non-reasoning",
+        "model": "GLM-5.2 (Non-reasoning)",
+        "lab": "Z AI",
+        "releaseDate": "2026-06-16",
+        "elo": 1387.58,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-4-6-adaptive",
+        "model": "Claude Sonnet 4.6 (Adaptive Reasoning, Max Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-02-17",
+        "elo": 1377,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol-non-reasoning",
+        "model": "GPT-5.6 Sol (Non-reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1375.59,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "muse-spark-1-1",
+        "model": "Muse Spark 1.1 (xhigh)",
+        "lab": "Meta",
+        "releaseDate": "2026-07-09",
+        "elo": 1375.06,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-5-medium",
+        "model": "GPT-5.5 (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-04-23",
+        "elo": 1372.92,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-5-non-reasoning",
+        "model": "Claude Sonnet 5 (Non-reasoning, High Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-30",
+        "elo": 1368.87,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-5-flash",
+        "model": "Gemini 3.5 Flash (high)",
+        "lab": "Google",
+        "releaseDate": "2026-05-19",
+        "elo": 1344.42,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v4-pro",
+        "model": "DeepSeek V4 Pro (Reasoning, Max Effort)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-04-24",
+        "elo": 1305.5,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-5-medium",
+        "model": "Claude Sonnet 5 (Adaptive Reasoning, Medium Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-30",
+        "elo": 1302.06,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v4-pro-high",
+        "model": "DeepSeek V4 Pro (Reasoning, High Effort)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-04-24",
+        "elo": 1299.39,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-medium",
+        "model": "GPT-5.6 Luna (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1274.09,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-7-max",
+        "model": "Qwen3.7 Max",
+        "lab": "Alibaba",
+        "releaseDate": "2026-05-19",
+        "elo": 1271.3,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "jt-4-1-flash-236b-a21b",
+        "model": "JT-4.1 Flash 236B A21B",
+        "lab": "China Mobile",
+        "releaseDate": "2026-07-09",
+        "elo": 1265.61,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mimo-v2-5-pro",
+        "model": "MiMo-V2.5-Pro",
+        "lab": "Xiaomi",
+        "releaseDate": "2026-04-22",
+        "elo": 1265.08,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "motif-0714",
+        "model": "Motif 3 (Beta)",
+        "lab": "Motif Technologies",
+        "releaseDate": "2026-07-14",
+        "elo": 1258.75,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-5-1",
+        "model": "GLM-5.1 (Reasoning)",
+        "lab": "Z AI",
+        "releaseDate": "2026-04-07",
+        "elo": 1256.06,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-terra-low",
+        "model": "GPT-5.6 Terra (low)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1253.23,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nex-n2-pro",
+        "model": "Nex-N2-Pro",
+        "lab": "Nex AGI",
+        "releaseDate": "2026-06-02",
+        "elo": 1250.29,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-terra-non-reasoning",
+        "model": "GPT-5.6 Terra (Non-reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1242.59,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "inkling",
+        "model": "Inkling (xhigh)",
+        "lab": "Thinking Machines",
+        "releaseDate": "2026-07-15",
+        "elo": 1236.75,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "hy3",
+        "model": "Hy3",
+        "lab": "Tencent",
+        "releaseDate": "2026-07-06",
+        "elo": 1215.36,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-5-low",
+        "model": "Claude Sonnet 5 (Adaptive Reasoning, Low Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-30",
+        "elo": 1214.07,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "grok-build-0-1-06-16",
+        "model": "Grok Build 0.1 0616",
+        "lab": "SpaceXAI",
+        "releaseDate": "2026-06-16",
+        "elo": 1213.62,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v4-flash",
+        "model": "DeepSeek V4 Flash (Reasoning, Max Effort)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-04-24",
+        "elo": 1188.82,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kimi-k2-6",
+        "model": "Kimi K2.6",
+        "lab": "Kimi",
+        "releaseDate": "2026-04-20",
+        "elo": 1188.33,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-5-low",
+        "model": "GPT-5.5 (low)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-04-23",
+        "elo": 1186.91,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kimi-k2-7-code",
+        "model": "Kimi K2.7 Code",
+        "lab": "Kimi",
+        "releaseDate": "2026-06-12",
+        "elo": 1185.77,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-4-mini",
+        "model": "GPT-5.4 mini (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-03-17",
+        "elo": 1169.01,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "agnes-2-5-pro-alpha",
+        "model": "Agnes 2.5 Pro Alpha",
+        "lab": "Sapiens AI",
+        "releaseDate": "2026-07-24",
+        "elo": 1168.24,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-4-7",
+        "model": "GLM-4.7 (Reasoning)",
+        "lab": "Z AI",
+        "releaseDate": "2025-12-22",
+        "elo": 1165.69,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nvidia-nemotron-3-ultra-550b-a55b",
+        "model": "Nemotron 3 Ultra 550B A55B (Reasoning)",
+        "lab": "NVIDIA",
+        "releaseDate": "2026-06-04",
+        "elo": 1162.14,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "minimax-m2-7",
+        "model": "MiniMax-M2.7",
+        "lab": "MiniMax",
+        "releaseDate": "2026-03-18",
+        "elo": 1158.88,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-low",
+        "model": "GPT-5.6 Luna (low)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1154.11,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v4-flash-high",
+        "model": "DeepSeek V4 Flash (Reasoning, High Effort)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-04-24",
+        "elo": 1147.34,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mimo-v2-5-0424",
+        "model": "MiMo-V2.5",
+        "lab": "Xiaomi",
+        "releaseDate": "2026-04-22",
+        "elo": 1144.67,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "muse-spark",
+        "model": "Muse Spark",
+        "lab": "Meta",
+        "releaseDate": "2026-04-08",
+        "elo": 1143.48,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-5-flash-lite",
+        "model": "Gemini 3.5 Flash-Lite",
+        "lab": "Google",
+        "releaseDate": "2026-07-21",
+        "elo": 1138.59,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-6-plus",
+        "model": "Qwen3.6 Plus",
+        "lab": "Alibaba",
+        "releaseDate": "2026-04-02",
+        "elo": 1138.52,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-6-27b",
+        "model": "Qwen3.6 27B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-04-22",
+        "elo": 1137.57,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-5-non-reasoning",
+        "model": "GPT-5.5 (Non-reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-04-23",
+        "elo": 1121,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-6-27b-non-reasoning",
+        "model": "Qwen3.6 27B (Non-reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-04-22",
+        "elo": 1109.84,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-4-nano",
+        "model": "GPT-5.4 nano (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-03-17",
+        "elo": 1101.03,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "grok-4-3-non-reasoning",
+        "model": "Grok 4.3 (Non-reasoning)",
+        "lab": "SpaceXAI",
+        "releaseDate": "2026-04-30",
+        "elo": 1097.65,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "grok-4-3",
+        "model": "Grok 4.3 (high)",
+        "lab": "SpaceXAI",
+        "releaseDate": "2026-04-30",
+        "elo": 1083.77,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5",
+        "model": "GPT-5 (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-08-07",
+        "elo": 1078.97,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-non-reasoning",
+        "model": "GPT-5.6 Luna (Non-reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1072.63,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-6-35b-a3b",
+        "model": "Qwen3.6 35B A3B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-04-16",
+        "elo": 1052.44,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-4-5-sonnet-thinking",
+        "model": "Claude 4.5 Sonnet (Reasoning)",
+        "lab": "Anthropic",
+        "releaseDate": "2025-09-29",
+        "elo": 1052.29,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "longcat-2-0",
+        "model": "LongCat 2.0",
+        "lab": "LongCat",
+        "releaseDate": "2026-06-29",
+        "elo": 1026.51,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-6-35b-a3b-non-reasoning",
+        "model": "Qwen3.6 35B A3B (Non-reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-04-16",
+        "elo": 1022.16,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "step-3-7-flash",
+        "model": "Step 3.7 Flash",
+        "lab": "StepFun",
+        "releaseDate": "2026-05-29",
+        "elo": 1016.79,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kimi-k2-5",
+        "model": "Kimi K2.5 (Reasoning)",
+        "lab": "Kimi",
+        "releaseDate": "2026-01-27",
+        "elo": 1002.64,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-1",
+        "model": "GPT-5.1 (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-11-13",
+        "elo": 987.86,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-5-122b-a10b",
+        "model": "Qwen3.5 122B A10B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-02-24",
+        "elo": 982.35,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-1-pro-preview",
+        "model": "Gemini 3.1 Pro Preview",
+        "lab": "Google",
+        "releaseDate": "2026-02-19",
+        "elo": 964.8,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-5-397b-a17b",
+        "model": "Qwen3.5 397B A17B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-02-16",
+        "elo": 962,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-7-plus",
+        "model": "Qwen3.7 Plus",
+        "lab": "Alibaba",
+        "releaseDate": "2026-06-01",
+        "elo": 942.55,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mistral-medium-3-5",
+        "model": "Mistral Medium 3.5",
+        "lab": "Mistral",
+        "releaseDate": "2026-04-29",
+        "elo": 932.64,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-mini",
+        "model": "GPT-5 mini (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-08-07",
+        "elo": 932.12,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-4-6-reasoning",
+        "model": "GLM-4.6 (Reasoning)",
+        "lab": "Z AI",
+        "releaseDate": "2025-09-30",
+        "elo": 930.48,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "ring-2-6-1t",
+        "model": "Ring-2.6-1T",
+        "lab": "InclusionAI",
+        "releaseDate": "2026-05-08",
+        "elo": 920.04,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-4-5-haiku-reasoning",
+        "model": "Claude 4.5 Haiku (Reasoning)",
+        "lab": "Anthropic",
+        "releaseDate": "2025-10-15",
+        "elo": 910.87,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kat-coder-pro-v2",
+        "model": "KAT Coder Pro V2",
+        "lab": "KwaiKAT",
+        "releaseDate": "2026-03-27",
+        "elo": 905.99,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kat-coder-pro-v1",
+        "model": "KAT-Coder-Pro V1",
+        "lab": "KwaiKAT",
+        "releaseDate": "2025-11-11",
+        "elo": 901.26,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-5-122b-a10b-non-reasoning",
+        "model": "Qwen3.5 122B A10B (Non-reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-02-24",
+        "elo": 885.85,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v3-1-terminus-reasoning",
+        "model": "DeepSeek V3.1 Terminus (Reasoning)",
+        "lab": "DeepSeek",
+        "releaseDate": "2025-09-22",
+        "elo": 882.88,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-4-sonnet-thinking",
+        "model": "Claude 4 Sonnet (Reasoning)",
+        "lab": "Anthropic",
+        "releaseDate": "2025-05-22",
+        "elo": 871.24,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v3-2-reasoning",
+        "model": "DeepSeek V3.2 (Reasoning)",
+        "lab": "DeepSeek",
+        "releaseDate": "2025-12-01",
+        "elo": 870.75,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "g9v3-3b",
+        "model": "G9v3-3B",
+        "lab": "AI9Stars",
+        "releaseDate": "2026-07-23",
+        "elo": 863.78,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mimo-v2-flash",
+        "model": "MiMo-V2-Flash (Non-reasoning)",
+        "lab": "Xiaomi",
+        "releaseDate": "2025-12-16",
+        "elo": 838.16,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemma-4-31b",
+        "model": "Gemma 4 31B (Reasoning)",
+        "lab": "Google",
+        "releaseDate": "2026-04-02",
+        "elo": 810.66,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-oss-120b",
+        "model": "gpt-oss-120b (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-08-05",
+        "elo": 801.68,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-5-35b-a3b-non-reasoning",
+        "model": "Qwen3.5 35B A3B (Non-reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-02-24",
+        "elo": 795.4,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-4-mini-non-reasoning",
+        "model": "GPT-5.4 mini (Non-Reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-03-17",
+        "elo": 787.5,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemma-4-26b-a4b",
+        "model": "Gemma 4 26B A4B (Reasoning)",
+        "lab": "Google",
+        "releaseDate": "2026-04-02",
+        "elo": 770.25,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemma-4-31b-non-reasoning",
+        "model": "Gemma 4 31B (Non-reasoning)",
+        "lab": "Google",
+        "releaseDate": "2026-04-02",
+        "elo": 753.55,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "devstral-2",
+        "model": "Devstral 2",
+        "lab": "Mistral",
+        "releaseDate": "2025-12-09",
+        "elo": 745.06,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "devstral-small-2",
+        "model": "Devstral Small 2",
+        "lab": "Mistral",
+        "releaseDate": "2025-12-09",
+        "elo": 733.52,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-5-instant-06-26",
+        "model": "GPT-5.5 Instant (June 2026)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-06-25",
+        "elo": 721.65,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-coder-next",
+        "model": "Qwen3 Coder Next",
+        "lab": "Alibaba",
+        "releaseDate": "2026-02-03",
+        "elo": 717.9,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "command-a-plus",
+        "model": "Command A+",
+        "lab": "Cohere",
+        "releaseDate": "2026-05-20",
+        "elo": 717.7,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nvidia-nemotron-3-super-120b-a12b",
+        "model": "NVIDIA Nemotron 3 Super 120B A12B (Reasoning)",
+        "lab": "NVIDIA",
+        "releaseDate": "2026-03-11",
+        "elo": 698.62,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mercury-2",
+        "model": "Mercury 2",
+        "lab": "Inception",
+        "releaseDate": "2026-02-20",
+        "elo": 697.86,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nova-2-0-pro-reasoning-medium",
+        "model": "Nova 2.0 Pro Preview (medium)",
+        "lab": "Amazon",
+        "releaseDate": "2025-11-27",
+        "elo": 681.23,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "exaone-4-5-33b",
+        "model": "EXAONE 4.5 33B",
+        "lab": "LG AI Research",
+        "releaseDate": "2026-04-09",
+        "elo": 680.45,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-2-5-pro",
+        "model": "Gemini 2.5 Pro",
+        "lab": "Google",
+        "releaseDate": "2025-06-05",
+        "elo": 671.7,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "hypernova-60b",
+        "model": "HyperNova 60B 2605",
+        "lab": "Multiverse Computing",
+        "releaseDate": "2026-05-26",
+        "elo": 661.93,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nova-2-0-pro-reasoning-low",
+        "model": "Nova 2.0 Pro Preview (low)",
+        "lab": "Amazon",
+        "releaseDate": "2025-11-27",
+        "elo": 655.53,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemma-4-12b",
+        "model": "Gemma 4 12B (Reasoning)",
+        "lab": "Google",
+        "releaseDate": "2026-06-03",
+        "elo": 651.09,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-5-9b",
+        "model": "Qwen3.5 9B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-03-02",
+        "elo": 649.12,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-1-flash-lite-preview",
+        "model": "Gemini 3.1 Flash-Lite",
+        "lab": "Google",
+        "releaseDate": "2026-03-03",
+        "elo": 646.79,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mistral-large-3",
+        "model": "Mistral Large 3",
+        "lab": "Mistral",
+        "releaseDate": "2025-12-02",
+        "elo": 639.98,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mistral-medium-3-1",
+        "model": "Mistral Medium 3.1",
+        "lab": "Mistral",
+        "releaseDate": "2025-08-12",
+        "elo": 609.06,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mistral-small-3-1",
+        "model": "Mistral Small 3.1",
+        "lab": "Mistral",
+        "releaseDate": "2025-03-17",
+        "elo": 602.12,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "k-exaone",
+        "model": "K-EXAONE (Reasoning)",
+        "lab": "LG AI Research",
+        "releaseDate": "2025-12-31",
+        "elo": 598.27,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nova-2-0-lite-reasoning",
+        "model": "Nova 2.0 Lite (high)",
+        "lab": "Amazon",
+        "releaseDate": "2025-10-29",
+        "elo": 592.16,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mistral-small-4",
+        "model": "Mistral Small 4 (Reasoning)",
+        "lab": "Mistral",
+        "releaseDate": "2026-03-16",
+        "elo": 592.08,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-oss-20b",
+        "model": "gpt-oss-20b (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-08-05",
+        "elo": 567.21,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "trinity-large-thinking",
+        "model": "Trinity Large Thinking",
+        "lab": "Arcee AI",
+        "releaseDate": "2026-04-01",
+        "elo": 563.66,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nova-2-0-pro",
+        "model": "Nova 2.0 Pro Preview (Non-reasoning)",
+        "lab": "Amazon",
+        "releaseDate": "2025-11-27",
+        "elo": 562.18,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "diffusiongemma-26b-a4b",
+        "model": "DiffusionGemma 26B A4B",
+        "lab": "Google",
+        "releaseDate": "2026-06-10",
+        "elo": 554.45,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "ling-2-6-flash",
+        "model": "Ling 2.6 Flash",
+        "lab": "InclusionAI",
+        "releaseDate": "2026-04-21",
+        "elo": 550.45,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-235b-a22b-instruct-2507-reasoning",
+        "model": "Qwen3 235B A22B 2507 (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2025-07-25",
+        "elo": 546.12,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "north-mini-code",
+        "model": "North Mini Code",
+        "lab": "Cohere",
+        "releaseDate": "2026-06-09",
+        "elo": 540.14,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-r1-0120",
+        "model": "DeepSeek R1 (Jan '25)",
+        "lab": "DeepSeek",
+        "releaseDate": "2025-01-20",
+        "elo": 533.03,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-4-1-mini",
+        "model": "GPT-4.1 mini",
+        "lab": "OpenAI",
+        "releaseDate": "2025-04-14",
+        "elo": 507.78,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nemotron-cascade-2-30b-a3b",
+        "model": "Nemotron Cascade 2 30B A3B",
+        "lab": "NVIDIA",
+        "releaseDate": "2026-03-19",
+        "elo": 507.52,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "solar-pro-3",
+        "model": "Solar Pro 3",
+        "lab": "Upstage",
+        "releaseDate": "2026-04-06",
+        "elo": 500.7,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nvidia-nemotron-3-nano-30b-a3b-reasoning",
+        "model": "NVIDIA Nemotron 3 Nano 30B A3B (Reasoning)",
+        "lab": "NVIDIA",
+        "releaseDate": "2025-12-15",
+        "elo": 491.64,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "ministral-3-14b",
+        "model": "Ministral 3 14B",
+        "lab": "Mistral",
+        "releaseDate": "2025-12-02",
+        "elo": 486.95,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "o3-mini-high",
+        "model": "o3-mini (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-01-31",
+        "elo": 473.88,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nemotron-3-nano-omni-30b-a3b",
+        "model": "Nemotron 3 Nano Omni 30B A3B Reasoning",
+        "lab": "NVIDIA",
+        "releaseDate": "2026-04-29",
+        "elo": 464.98,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "ministral-3-8b",
+        "model": "Ministral 3 8B",
+        "lab": "Mistral",
+        "releaseDate": "2025-12-02",
+        "elo": 456.19,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-3-5-haiku",
+        "model": "Claude 3.5 Haiku",
+        "lab": "Anthropic",
+        "releaseDate": "2024-10-22",
+        "elo": 456.15,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "granite-4-1-30b",
+        "model": "Granite 4.1 30B",
+        "lab": "IBM",
+        "releaseDate": "2026-04-29",
+        "elo": 433.02,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "magistral-medium-2509",
+        "model": "Magistral Medium 1.2",
+        "lab": "Mistral",
+        "releaseDate": "2025-09-18",
+        "elo": 414.47,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-oss-120b-low",
+        "model": "gpt-oss-120b (low)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-08-05",
+        "elo": 410.01,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "k2-think-v2",
+        "model": "K2 Think V2",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2025-12-15",
+        "elo": 380.77,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-next-80b-a3b-reasoning",
+        "model": "Qwen3 Next 80B A3B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2025-09-11",
+        "elo": 375.39,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v3-0324",
+        "model": "DeepSeek V3 0324",
+        "lab": "DeepSeek",
+        "releaseDate": "2025-03-25",
+        "elo": 326.25,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-30b-a3b-2507-reasoning",
+        "model": "Qwen3 30B A3B 2507 (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2025-07-30",
+        "elo": 321.3,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-32b-instruct-reasoning",
+        "model": "Qwen3 32B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2025-04-28",
+        "elo": 289.8,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "ministral-3-3b",
+        "model": "Ministral 3 3B",
+        "lab": "Mistral",
+        "releaseDate": "2025-12-02",
+        "elo": 285.93,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "magistral-small-2509",
+        "model": "Magistral Small 1.2",
+        "lab": "Mistral",
+        "releaseDate": "2025-09-17",
+        "elo": 261.97,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-4o-mini",
+        "model": "GPT-4o mini",
+        "lab": "OpenAI",
+        "releaseDate": "2024-07-18",
+        "elo": 241.03,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-4",
+        "model": "GPT-4",
+        "lab": "OpenAI",
+        "releaseDate": "2023-03-14",
+        "elo": 239.74,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-14b-instruct-reasoning",
+        "model": "Qwen3 14B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2025-04-28",
+        "elo": 235.19,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v3",
+        "model": "DeepSeek V3 (Dec '24)",
+        "lab": "DeepSeek",
+        "releaseDate": "2024-12-26",
+        "elo": 231.14,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemma-4-e4b",
+        "model": "Gemma 4 E4B (Reasoning)",
+        "lab": "Google",
+        "releaseDate": "2026-04-03",
+        "elo": 230.73,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-5-2b",
+        "model": "Qwen3.5 2B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-03-02",
+        "elo": 219.82,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-8b-instruct-reasoning",
+        "model": "Qwen3 8B (Reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2025-04-28",
+        "elo": 214.73,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "nvidia-nemotron-3-nano-4b",
+        "model": "NVIDIA Nemotron 3 Nano 4B",
+        "lab": "NVIDIA",
+        "releaseDate": "2026-03-16",
+        "elo": 204.03,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "granite-4-1-3b",
+        "model": "Granite 4.1 3B",
+        "lab": "IBM",
+        "releaseDate": "2026-04-29",
+        "elo": 126.74,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "llama-4-scout",
+        "model": "Llama 4 Scout",
+        "lab": "Meta",
+        "releaseDate": "2025-04-05",
+        "elo": 110.85,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "llama-3-3-instruct-70b",
+        "model": "Llama 3.3 Instruct 70B",
+        "lab": "Meta",
+        "releaseDate": "2024-12-06",
+        "elo": 98.59,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemma-4-e2b",
+        "model": "Gemma 4 E2B (Reasoning)",
+        "lab": "Google",
+        "releaseDate": "2026-04-02",
+        "elo": 88.41,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mistral-small-3-2",
+        "model": "Mistral Small 3.2",
+        "lab": "Mistral",
+        "releaseDate": "2025-06-20",
+        "elo": 79.1,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-4-1-nano",
+        "model": "GPT-4.1 nano",
+        "lab": "OpenAI",
+        "releaseDate": "2025-04-14",
+        "elo": 63.19,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "llama-4-maverick",
+        "model": "Llama 4 Maverick",
+        "lab": "Meta",
+        "releaseDate": "2025-04-05",
+        "elo": 6.64,
+        "poolVersion": "v2"
+      }
+    ],
+    "lastRefreshed": "2026-07-26"
+  },
+  "expertWinRate": {
+    "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
+    "metric": "wins+ties vs industry experts, percent of tasks",
+    "goldSubsetTasks": 220,
+    "parityNote": "The 50% line is NOT parity on this axis. These are wins PLUS ties, so a tie counts for the model. True parity is 50% wins-only, where GPT-5.2 Thinking sits at 49.7%.",
+    "selfReportedNote": "GPT-5.2 Thinking's figure is OpenAI reporting on OpenAI's own benchmark.",
+    "selfReportedModel": "GPT-5.2 Thinking",
+    "trueParityWinsOnlyPct": 49.7,
+    "measurementGapAfter": "2025-12",
+    "measurementGapNote": "Nothing has been published since December 2025. The shaded region is a gap in the instrument, not a statement about capability, and no trend is extended into it.",
+    "lastRefreshed": "2026-07-26",
+    "rows": [
+      {
+        "model": "GPT-4o",
+        "released": "2024-08",
+        "winsPlusTiesPct": 12.4
+      },
+      {
+        "model": "o4-mini",
+        "released": "2025-04",
+        "winsPlusTiesPct": 27.9
+      },
+      {
+        "model": "o3",
+        "released": "2025-04",
+        "winsPlusTiesPct": 34.1
+      },
+      {
+        "model": "Gemini 2.5 Pro",
+        "released": "2025-06",
+        "winsPlusTiesPct": 25.5
+      },
+      {
+        "model": "Grok 4",
+        "released": "2025-07",
+        "winsPlusTiesPct": 24.3
+      },
+      {
+        "model": "GPT-5 (high)",
+        "released": "2025-08",
+        "winsPlusTiesPct": 38.8
+      },
+      {
+        "model": "Claude Opus 4.1",
+        "released": "2025-08",
+        "winsPlusTiesPct": 47.6
+      },
+      {
+        "model": "GPT-5.2 Thinking",
+        "released": "2025-12",
+        "winsPlusTiesPct": 70.9
+      }
+    ]
+  }
+}

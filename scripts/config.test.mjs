@@ -33,6 +33,10 @@ test("config.mjs matches registered-values.json", () => {
   assert.equal(config.INVERSION_TRAILING_WINDOW_MONTHS, registered.inversionTrailingWindowMonths);
   assert.equal(config.INVERSION_MIN_HISTORY_MONTHS, registered.inversionMinHistoryMonths);
   assert.equal(config.SECTOR_PEAK_WINDOW_START, registered.sectorPeakWindowStart);
+  assert.equal(config.GDPVAL_POOL_VERSION, registered.gdpvalPoolVersion);
+  assert.equal(config.GDPVAL_MIN_RECORDS, registered.gdpvalMinRecords);
+  assert.deepEqual(config.GDPVAL_REQUIRED_LABS, registered.gdpvalRequiredLabs);
+  assert.equal(config.ELO_SCALE, registered.eloScale);
   assert.deepEqual(config.DIFFERENTIALS, registered.differentials);
   assert.deepEqual(config.MACRO_SPREAD_IDS, registered.macroSpreadIds);
 });

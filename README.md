@@ -18,9 +18,10 @@ https://raw.githubusercontent.com/DoubleJ0n/ai-labor-dashboard-data/main/dashboa
 | discovery-refresh | `scripts/discovery-refresh.mjs` | Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) + web search | Mon 06:20 | `dashboard-data.json` → `capability` (normalized benchmark slots only) |
 | metr-fetch | `scripts/metr-fetch.mjs` | METR YAML feed (free) | Mon 06:40 | **PR** proposing `data/metr/time_horizons.json` |
 | postings-refresh | `scripts/postings-refresh.mjs` | Indeed Hiring Lab CSV (free, CC BY 4.0) | Mon 06:20 | auto-commits `data/postings/job_postings.json` |
+| gdpval-refresh | `scripts/gdpval-refresh.mjs` | Artificial Analysis GDPval-AA leaderboard page (free) | Mon 06:50 | **PR** proposing `data/gdpval/leaderboard.json` |
 | analysis-refresh | `scripts/analysis-refresh.mjs` | Claude Sonnet 5 (`claude-sonnet-5`) | Mon 06:50 (after the others) | `dashboard-data.json` → `analysis` |
 
-### `data/postings/job_postings.json` — Indeed job-postings spread
+### `data/postings/job_postings.json`: Indeed job-postings spread
 
 Exposed-vs-control **job-postings** spread from Indeed Hiring Lab's US
 [Job Postings Tracker](https://github.com/hiring-lab/job_postings_tracker)
@@ -35,12 +36,58 @@ Exposed-vs-control **job-postings** spread from Indeed Hiring Lab's US
   Marketing, Administrative Assistance (averaged).
 - **Control** (hands-on): Nursing, Installation & Maintenance, Loading & Stocking,
   Food Preparation & Service (averaged). Construction/driving are not distinct
-  Indeed cuts — mapped to their nearest hands-on sectors.
+  Indeed cuts; mapped to their nearest hands-on sectors.
 - Postings lead headcount (firms stop advertising before they stop filling). The
   whole index fell from its 2022 peak across the board, so the **spread**, not the
   level, is the signal. Mechanical index → **auto-commits** on change like
   `fred-refresh`; deterministic invariants **fail the run loud** on any upstream
   restructure (renamed/removed sector or variable).
+
+### `data/gdpval/leaderboard.json`: GDPval-AA Elo + expert win rates
+
+Two sections with two different provenances in one file. `gdpval-refresh` rewrites
+**only** `leaderboard`; `expertWinRate` is hand-pinned and never touched by the job.
+
+```
+"leaderboard": {
+  "poolVersion": "v2",
+  "records": [ { "slug", "model", "lab", "releaseDate", "elo", "poolVersion" }, ... ],
+  "lastRefreshed": "YYYY-MM-DD"
+}
+```
+
+- **Source**: [Artificial Analysis GDPval-AA](https://artificialanalysis.ai/evaluations/gdpval-aa),
+  their Elo evaluation on OpenAI's GDPval dataset (44 occupations, 9 industries).
+  Models get shell access and browsing in an agentic loop; outputs are compared
+  blind, head to head, and pairwise results aggregate into an Elo.
+- **Why a scrape**: the Data API exposes `gdpval_aa_elo` only on a paid tier, so
+  the job reads the same numbers out of the leaderboard page's server-rendered
+  payload. Fragile by construction, therefore: every structural assumption fails
+  the run loud, and the job opens a **PR** instead of committing.
+- **Pool versions are not comparable.** Elo is frozen per index version (v1 was
+  topped by Opus 4.8 at 1890, v2 by Opus 5 at 1861). The upstream field name
+  carries the version (`gdpval_v2`), so the job reads the version out of the data
+  and **fails** when it differs from `GDPVAL_POOL_VERSION` in `config.mjs`: a pool
+  roll is a public re-registration, not maintenance. Every record stores its own
+  `poolVersion` so the app can refuse a cross-version matchup.
+- **Levels are meaningless in isolation.** Only differences carry information, and
+  the pool contains no human, so the axis has no absolute anchor. 400 Elo = 10:1.
+- Entries are **per effort setting**: one model at two reasoning efforts is two
+  records with two Elos.
+
+```
+"expertWinRate": {
+  "rows": [ { "model", "released": "YYYY-MM", "winsPlusTiesPct" }, ... ],
+  "trueParityWinsOnlyPct": 49.7, "measurementGapAfter": "2025-12", ...
+}
+```
+
+- **Source**: OpenAI's own GDPval reporting — wins **plus ties** against industry
+  experts on the 220-task gold subset. Hand-pinned (a published table, not a feed).
+- The 50% line is **not** parity on this axis: ties count for the model. True
+  parity is 50% wins-only. `measurementGapAfter` declares the point past which
+  nothing has been published, so the app can shade it and refuse to extend a trend
+  into it — a gap here is evidence about the instrument, not about capability.
 
 Rules all three follow:
 
@@ -56,7 +103,7 @@ Rules all three follow:
 ## Schema: `dashboard-data.json`
 
 The JSON mirrors the app's existing data models (`ObservationEntity`,
-`CapabilityPointEntity`, `BenchmarkSlotEntity`, `AnalysisEntity`) — the JSON
+`CapabilityPointEntity`, `BenchmarkSlotEntity`, `AnalysisEntity`); it
 conforms to what the charts already consume, not the reverse. All timestamps
 are ISO-8601 UTC. Each top-level section carries its own `lastRefreshed`.
 
@@ -67,7 +114,7 @@ are ISO-8601 UTC. Each top-level section carries its own `lastRefreshed`.
   // Raw FRED observations, last 10 years, per series id. The app computes
   // ALL derived metrics (GDP-vs-employment, productivity band, indexed
   // sectors, recent-grad inversion, Displacement Watch z-scores) on-device
-  // from these — so these series ARE the Displacement Watch inputs.
+  // from these, so these series ARE the Displacement Watch inputs.
   "fred": {
     "lastRefreshed": "2026-07-11T06:00:00Z", // null until first run
     "series": {
@@ -131,19 +178,19 @@ are ISO-8601 UTC. Each top-level section carries its own `lastRefreshed`.
 }
 ```
 
-## METR time horizons — pinned, human-gated
+## METR time horizons: pinned, human-gated
 
 The METR capability chart is fed by **`data/metr/time_horizons.json`**, a
-pinned snapshot — NOT a live fetch. METR revises published horizons
+pinned snapshot, NOT a live fetch. METR revises published horizons
 retroactively (e.g. the 2026-03-03 regularization correction pulled every
 long-horizon estimate down), so a render-time fetch would silently rewrite the
 chart's own history. Instead:
 
-1. **Snapshot** (`data/metr/time_horizons.json`) — committed, versioned, the
+1. **Snapshot** (`data/metr/time_horizons.json`): committed, versioned, the
    only METR data the app reads. The chart is a pure function of it.
-2. **Fetcher** (`metr-fetch` workflow, weekly, free) — pulls METR's feed,
+2. **Fetcher** (`metr-fetch` workflow, weekly, free): pulls METR's feed,
    normalizes it through an explicit field map, and diffs against the
-   snapshot. It classifies every change and **opens a pull request** — it
+   snapshot. It classifies every change and **opens a pull request**; it
    never commits to the snapshot directly:
    - **NEW MODEL** → append (routine PR).
    - **REVISION** (a published p50/p80 changed) → PR labeled `needs-review`
@@ -152,7 +199,7 @@ chart's own history. Instead:
      fails; a different task suite is a different ruler and must not be merged
      into the TH1.1 series.
    - **NO CHANGE** → exit 0, no PR.
-3. **Human** — reviews the PR, merges or not.
+3. **Human**: reviews the PR, merges or not.
 
 A 404 / unparseable feed / missing field fails the job loudly rather than
 writing partial or stale data. The pre-registered threshold (AMBER at 80% ≥

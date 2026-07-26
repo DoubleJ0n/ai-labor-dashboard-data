@@ -49,6 +49,17 @@ export const LABOR_SHARE_BASELINE_QUARTERS = 120; // trailing 30 years
 export const TREND_DRIFT_Z = 0.3; // z-drift beyond which a streak is moving, not flat
 export const TREND_LOOKBACK_READINGS = 4; // readings compared for the drift
 
+// --- GDPval-AA leaderboard (capability context; votes on nothing) ---
+// Elo is frozen per index version and versions are NOT comparable (v1 topped by
+// Opus 4.8 at 1890, v2 by Opus 5 at 1861). The upstream field name carries the
+// version, so gdpval-refresh reads it from the data and fails when it differs
+// from this registration — a pool roll is a public re-registration.
+export const GDPVAL_POOL_VERSION = "v2";
+export const GDPVAL_MIN_RECORDS = 50; // a smaller parse means the page changed shape
+export const GDPVAL_REQUIRED_LABS = ["Anthropic", "OpenAI"]; // the per-lab chart needs both
+// 400 Elo = 10:1 odds. The scale constant in the logistic, not a tunable.
+export const ELO_SCALE = 400;
+
 // --- Other registered windows ---
 export const INVERSION_TRAILING_WINDOW_MONTHS = 120;
 export const INVERSION_MIN_HISTORY_MONTHS = 36;

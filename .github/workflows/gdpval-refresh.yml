@@ -1,0 +1,42 @@
+name: gdpval-refresh
+
+# Weekly GDPval-AA leaderboard check (Artificial Analysis' Elo eval on OpenAI's
+# GDPval dataset). FREE — reads the public leaderboard page, because the Elo
+# field in their Data API sits behind a paid key. That makes the path fragile by
+# construction, so the script fails loud on any structural drift and this job
+# proposes a PR rather than committing: a human eyeballs the numbers against the
+# page before they reach the app. Elo is frozen per pool version, and a pool roll
+# (v2 -> v3) fails the run instead of silently mixing incomparable scales.
+on:
+  schedule:
+    - cron: "50 6 * * 1" # Mondays 06:50 UTC — after the other free feeds
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - id: gdpval
+        name: Scrape the GDPval-AA leaderboard
+        run: node scripts/gdpval-refresh.mjs
+
+      - name: Open PR on change
+        if: steps.gdpval.outputs.status == 'changes'
+        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6
+        with:
+          branch: gdpval-update
+          base: main
+          title: ${{ steps.gdpval.outputs.title }}
+          body-path: gdpval-refresh-report.md
+          labels: needs-review
+          add-paths: data/gdpval/leaderboard.json
+          delete-branch: true
