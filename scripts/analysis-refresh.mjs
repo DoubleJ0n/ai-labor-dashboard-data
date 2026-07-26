@@ -87,10 +87,20 @@ function costUsd(model, inTok, outTok, onIso) {
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes("--dry-run");
 const AB_RUN = args.includes("--ab");
+// One question, asked once: is this a side mode that must not write or spend?
+// Every write-guard and every early-exit reads THIS rather than enumerating the
+// modes it knows about. Enumerating is how --dry-run ended up writing to the pool:
+// the weekly gate excluded --ab but predated --dry-run, so a dry run fell into a
+// branch that calls saveSection. A new mode joins by being added here, once.
+const SIDE_MODE = DRY_RUN || AB_RUN;
 
 const pool = loadPool();
 
 function bumpTimestampOnly(reason) {
+  if (SIDE_MODE) {
+    console.log(`analyst: ${reason}; side mode, so writing nothing`);
+    return;
+  }
   console.log(`analyst: ${reason}; keeping prior verdict, updating timestamp only`);
   const a = pool.analysis ?? {};
   a.lastRefreshed = nowIso();
@@ -223,7 +233,7 @@ const inputHash = createHash("sha256")
 // If this month's inputs are unstable, the honest output is "confounded, because
 // the data is broken", and paying for a model call to say so would be silly. The
 // code never overrides a verdict the model gave; it just doesn't ask for one.
-if (dataIntegrity.ok === false && !AB_RUN && !DRY_RUN) {
+if (dataIntegrity.ok === false && !SIDE_MODE) {
   const runAt = nowIso();
   const text =
     `The inputs this run are not stable enough to read: ${dataIntegrity.reason}. ` +
@@ -241,7 +251,7 @@ if (dataIntegrity.ok === false && !AB_RUN && !DRY_RUN) {
 }
 
 // --- Weekly gate: skip the paid call when nothing moved ----------------------
-if (!AB_RUN && priorRun && priorRun.inputHash === inputHash && pool.analysis?.text) {
+if (!SIDE_MODE && priorRun && priorRun.inputHash === inputHash && pool.analysis?.text) {
   bumpTimestampOnly(`inputs unchanged since the last run (${priorRun.runAt})`);
   process.exit(0);
 }
