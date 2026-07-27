@@ -28,7 +28,8 @@ test("config.mjs matches registered-values.json", () => {
   assert.equal(config.REABSORPTION_CHANGE_MONTHS, registered.reabsorptionChangeMonths);
   assert.equal(config.REABSORPTION_FAST_CHANGE_MONTHS, registered.reabsorptionFastChangeMonths);
   assert.equal(config.ATTRIBUTION_AXIS_Z, registered.attributionAxisZ);
-  assert.equal(config.REABSORPTION_SHORTFALL_POINTS, registered.reabsorptionShortfallPoints);
+  assert.equal(config.REABSORPTION_AXIS_LINE, registered.reabsorptionAxisLine);
+  assert.equal(config.EARLY_WARNING_EXPOSED_JOB_LOSS_PCT, registered.earlyWarningExposedJobLossPct);
   assert.equal(config.REABSORPTION_REFERENCE_YEAR, registered.reabsorptionReferenceYear);
   assert.deepEqual(config.REABSORPTION, registered.reabsorption);
   assert.equal(config.PROD_BAND_LOW, registered.prodBandLowPct);

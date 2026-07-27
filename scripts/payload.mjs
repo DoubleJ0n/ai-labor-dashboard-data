@@ -639,9 +639,51 @@ export function reabsorptionReference(pool) {
 export function reabsorptionAxisOriented(pool) {
   const series = pool.fred.series ?? {};
   const epop = datedOf(series[REABSORPTION.primeAgeEpop]);
-  const ref = reabsorptionReference(pool);
-  if (ref == null) return [];
-  return epop.map(([m, v]) => [m, ref - v]);
+  // Deterioration-positive 12-month CHANGE: falling employment share = positive.
+  // Compared against RAW ZERO, so there is no baseline, no reference year and no
+  // threshold. "Is the share of prime-age people working rising or falling" is a
+  // question with a natural zero and no parameters.
+  return changeOverMonths(epop, REABSORPTION_CHANGE_MONTHS).map(([m, v]) => [m, -v]);
+}
+
+/**
+ * Why a ratio moved: employment, or population?
+ *
+ * The headline is employed/population, so it can fall two ways, and they mean
+ * opposite things. Employment falling is people losing work. Population growing
+ * faster than employment is a larger working-age population the job market has not
+ * absorbed yet, which is usually immigration or a big cohort ageing in. Reported
+ * rather than resolved: the analyst decides what it means.
+ */
+export function reabsorptionDecomposition(pool) {
+  const series = pool.fred.series ?? {};
+  const emp = datedOf(series[REABSORPTION.primeAgeEmployed]);
+  const pop = datedOf(series[REABSORPTION.primeAgePopulation]);
+  if (!emp.length || !pop.length) return null;
+  const empChg = changeOverMonths(emp, REABSORPTION_CHANGE_MONTHS);
+  const popChg = changeOverMonths(pop, REABSORPTION_CHANGE_MONTHS);
+  const e = empChg.length ? empChg[empChg.length - 1] : null;
+  const p = popChg.length ? popChg[popChg.length - 1] : null;
+  if (!e || !p) return null;
+  const empPct = emp.length ? (e[1] / emp[emp.length - 1][1]) * 100 : null;
+  const popPct = pop.length ? (p[1] / pop[pop.length - 1][1]) * 100 : null;
+  return {
+    as_of: e[0],
+    employed_change_thousands: Math.round(e[1]),
+    population_change_thousands: Math.round(p[1]),
+    employed_change_percent: round2(empPct),
+    population_change_percent: round2(popPct),
+    // The whole point of sending this.
+    reading: e[1] < 0
+      ? "The employment share fell with employment ITSELF falling: fewer prime-age people are working than a year ago."
+      : popPct != null && empPct != null && popPct > empPct
+        ? "The employment share fell WITHOUT employment falling: more prime-age people are here, and the job market has not absorbed the increase. That is a different claim from people losing work."
+        : "Employment grew at least as fast as the prime-age population.",
+    caveat:
+      "Employment is seasonally adjusted and population is not, so do not subtract " +
+      "one from the other and expect the ratio's change exactly; read the two " +
+      "directions rather than the arithmetic.",
+  };
 }
 
 /**

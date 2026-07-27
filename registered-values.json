@@ -2,8 +2,8 @@
   "description": "Cross-repo registration record for pre-registered values (audit-2026-07 finding 9). scripts/config.test.mjs asserts scripts/config.mjs against this file; the app repo mirrors these values in its registered constants (Metrics.kt, Watch.kt, Verdicts.kt, Calibration.kt). Changing a value here is a public re-registration.",
   "reregistered_2026_07_27_worker_share": "The worker-share-of-income alarm is DELETED, not retuned. laborShareChangeQuarters is retained because the 4-quarter change is still computed and reported, but it no longer has a trigger, a z-score, or a Steady/Watch/Break state, and Card 2 no longer shows a status light. Reason: the share has fallen since the 1970s for causes that predate AI by decades, so 'falling faster than usual' is a business-cycle statement rather than an AI one - ordinary recessions produced 4-quarter falls of -2.18 (2009-12) and -1.59 (2010-03), both past the -1.4 the trigger sat at, so it fired on recessions and could not discriminate. Replaced by description with no verdict: level, decline streak, drift across several EXPLICIT fixed horizons, and the current change's percentile among all such changes. Deliberately NOT a fitted trend line, which audit-2026-07 finding 1 retired here for depending on its fit window. Verdicts published before this date carried a Card 2 state; those are not comparable to later runs.",
   "reregistered_2026_07_26": "The rolling trailingWindow (120 readings) is RETIRED and replaced by a fixed pre-treatment baseline (baselineStart..baselineEnd, never rolling), and the exclusion window is WIDENED from 2020-01..2021-12 to unusableStart..unusableEnd so the 2021-22 exposed-industry hiring overshoot cannot help define normal. Both changes make previously-published z-scores non-comparable to ones computed after this date: the old readings were scored against a baseline that was mostly post-2020, so they read closer to normal than the same data does now. Stored verdicts and dissent-log entries are NOT retroactively recomputed.",
-  "watchZ": 1.0,
-  "breakZ": 2.0,
+  "watchZ": 1,
+  "breakZ": 2,
   "watchMinHistory": 36,
   "baselineStart": "2010-01",
   "baselineEnd": "2019-12",
@@ -16,8 +16,7 @@
   "baselineMinReadings": 36,
   "reabsorptionChangeMonths": 12,
   "reabsorptionFastChangeMonths": 3,
-  "attributionAxisZ": 1.0,
-  "reabsorptionShortfallPoints": 1.0,
+  "attributionAxisZ": 0,
   "reabsorptionReferenceYear": 2019,
   "reabsorption": {
     "primeAgeEpop": "LNS12300060",
@@ -25,7 +24,9 @@
     "hiresRate": "JTSHIR",
     "quitsRate": "JTSQUR",
     "u6": "U6RATE",
-    "u3": "UNRATE"
+    "u3": "UNRATE",
+    "primeAgeEmployed": "LNS12000060",
+    "primeAgePopulation": "LNU00000060"
   },
   "prodBandLowPct": 2.7,
   "prodBandHighPct": 3.4,
@@ -42,17 +43,41 @@
   "sectorPeakWindowStart": "2021-01-01",
   "gdpvalPoolVersion": "v2",
   "gdpvalMinRecords": 50,
-  "gdpvalRequiredLabs": ["Anthropic", "OpenAI"],
+  "gdpvalRequiredLabs": [
+    "Anthropic",
+    "OpenAI"
+  ],
   "eloScale": 400,
   "differentials": {
     "jobs": {
-      "exposed": ["USINFO", "USPBS", "USFIRE"],
-      "control": ["USCONS", "USLAH", "USEHS"]
+      "exposed": [
+        "USINFO",
+        "USPBS",
+        "USFIRE"
+      ],
+      "control": [
+        "USCONS",
+        "USLAH",
+        "USEHS"
+      ]
     },
     "wages": {
-      "exposed": ["CES5000000003", "CES6000000003", "CES5500000003"],
-      "control": ["CES2000000003", "CES7000000003", "CES6500000003"]
+      "exposed": [
+        "CES5000000003",
+        "CES6000000003",
+        "CES5500000003"
+      ],
+      "control": [
+        "CES2000000003",
+        "CES7000000003",
+        "CES6500000003"
+      ]
     }
   },
-  "macroSpreadIds": ["T10Y2Y", "T10Y3M"]
+  "macroSpreadIds": [
+    "T10Y2Y",
+    "T10Y3M"
+  ],
+  "reabsorptionAxisLine": 0,
+  "earlyWarningExposedJobLossPct": -1
 }

@@ -326,7 +326,7 @@ if (DRY_RUN) {
   }
   console.log(`paired state     : ${paired.state} (${paired.attribution.label} + ${paired.reabsorption.label}) — NOT sent to the model`);
   console.log(`  attribution    : z ${paired.attribution.z ?? "cannot be placed"} (line ${paired.attributionLineZ})`);
-  console.log(`  reabsorption   : ${paired.reabsorption.pointsBelowReference ?? "cannot be placed"} points below its reference (line ${paired.reabsorptionLinePoints})`);
+  console.log(`  reabsorption   : ${paired.reabsorption.employmentFalling ?? "cannot be placed"} = 12-month FALL in prime-age employment (line ${paired.reabsorptionLine})`);
   console.log(`  path length    : ${paired.path.length} months`);
   console.log(`data integrity   : ${dataIntegrity.ok ? "ok" : `FAILED — ${dataIntegrity.reason}`}`);
   console.log(`data month       : ${dataMonth}`);

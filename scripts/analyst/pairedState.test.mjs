@@ -7,17 +7,17 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pairedState, pairedPath, PAIRED_STATES } from "./pairedState.mjs";
 import { buildAnalysisPayload } from "../payload.mjs";
-import { ATTRIBUTION_AXIS_Z, REABSORPTION_SHORTFALL_POINTS } from "../config.mjs";
+import { ATTRIBUTION_AXIS_Z, REABSORPTION_AXIS_LINE } from "../config.mjs";
 
 // The axes are measured in DIFFERENT UNITS and have separate lines: attribution is
 // a z against its own fixed baseline, reabsorption is points below a fixed 2019
 // reference level. They briefly shared a threshold, which read tidily and hid the
 // fact that a two-industry differential and an economy-wide employment level are
 // not the same kind of quantity.
-const A_MOVING = ATTRIBUTION_AXIS_Z + 0.5;
-const A_FLAT = ATTRIBUTION_AXIS_Z - 0.5;
-const R_MOVING = REABSORPTION_SHORTFALL_POINTS + 0.5;
-const R_FLAT = REABSORPTION_SHORTFALL_POINTS - 0.5;
+const A_MOVING = ATTRIBUTION_AXIS_Z + 0.5;   // gap wider than its 2010s norm
+const A_FLAT = ATTRIBUTION_AXIS_Z - 0.5;     // gap narrower than norm
+const R_MOVING = REABSORPTION_AXIS_LINE + 0.5; // employment falling
+const R_FLAT = REABSORPTION_AXIS_LINE - 0.5;   // employment rising
 
 test("the 2x2 truth table", () => {
   assert.equal(pairedState(A_MOVING, R_FLAT).state, "REALLOCATION");
@@ -31,7 +31,7 @@ test("the axis threshold is inclusive at exactly the registered line", () => {
   // because "at or above" versus "above" silently changes which quadrant a
   // borderline month lands in, and that is the whole output of this module.
   assert.equal(pairedState(ATTRIBUTION_AXIS_Z, R_FLAT).attribution.moving, true);
-  assert.equal(pairedState(A_FLAT, REABSORPTION_SHORTFALL_POINTS).reabsorption.moving, true);
+  assert.equal(pairedState(A_FLAT, REABSORPTION_AXIS_LINE).reabsorption.moving, true);
 });
 
 test("a maximally negative gap with a healthy aggregate is REALLOCATION, not DISPLACEMENT", () => {
@@ -46,26 +46,43 @@ test("a maximally negative gap with a healthy aggregate is REALLOCATION, not DIS
   assert.equal(s.reabsorption.label, "aggregate holding");
 });
 
-test("the reabsorption axis reads a LEVEL, so an ordinary expansion is not deterioration", () => {
-  // THE BUG THIS REPLACED. The axis first scored the 12-month CHANGE in prime-age
-  // employment against its 2010-2019 distribution. That decade is a continuous
-  // recovery from the financial crisis - the ratio rose 5.3 points, about +0.53 a
-  // year - so strongly positive changes were structurally normal in the baseline,
-  // and any mature-expansion year scored as deteriorating against it. On first real
-  // data the axis returned 1.77, most of which was "the recovery ended" rather than
-  // "absorption is failing".
+test("the reabsorption axis reads a CHANGE against raw zero", () => {
+  // TWO EARLIER VERSIONS FAILED HERE, in opposite directions, and both are pinned
+  // so neither comes back.
   //
-  // Against a fixed reference LEVEL there is no such artefact: sitting AT the 2019
-  // level is a shortfall of zero, whatever the recent rate of change has been.
-  const atReference = pairedState(A_MOVING, 0);
-  assert.equal(atReference.state, "REALLOCATION", "at its 2019 level the aggregate is holding");
-  assert.equal(atReference.reabsorption.moving, false);
+  // First it z-scored the 12-month change against 2010-2019. That decade is one
+  // continuous recovery, rising about +0.53 a year, so positive changes were
+  // structurally normal in the baseline and any mature expansion read as
+  // deteriorating. It returned 1.77 on first real data, mostly "the recovery ended".
+  //
+  // Then it read the LEVEL against the 2019 mean. That anchored the boundary to a
+  // cyclical peak, and almost every month in history sits below a peak: at a zero
+  // line it would have called 100% of 2011-2013 and 76% of 2014-2019 displacement.
+  //
+  // A change against RAW ZERO has neither failure. No distribution, so nothing to
+  // contaminate; no reference year, so no peak to anchor to. Verified against the
+  // record before adoption: it never calls the 2014-2019 boom displacement.
 
-  // Above the 2019 level is a NEGATIVE shortfall and must stay comfortably clear.
-  assert.equal(pairedState(A_MOVING, -0.25).state, "REALLOCATION");
+  // Employment RISING year-over-year: the aggregate is holding, whatever the gap does.
+  assert.equal(pairedState(A_MOVING, -0.5).state, "REALLOCATION");
+  assert.equal(pairedState(A_MOVING, -0.5).reabsorption.moving, false);
 
-  // A real shortfall past the line still registers, so the axis is not inert.
-  assert.equal(pairedState(A_MOVING, REABSORPTION_SHORTFALL_POINTS).state, "DISPLACEMENT");
+  // Employment FALLING: the aggregate is deteriorating.
+  assert.equal(pairedState(A_MOVING, 0.5).state, "DISPLACEMENT");
+
+  // Exactly flat sits ON the line and counts as the moving side. A boundary case
+  // that is vanishingly rare on a continuous measure, resolved toward SHOWING
+  // deterioration rather than hiding it, which is the right bias for an
+  // early-warning display and matches the attribution axis convention.
+  assert.equal(pairedState(A_MOVING, REABSORPTION_AXIS_LINE).reabsorption.moving, true);
+});
+
+test("both lines sit at zero, because the grid displays rather than triggers", () => {
+  // Pinned as a registered fact. If either line drifts off zero, someone has
+  // reintroduced a threshold into a display, which is the confusion this design
+  // exists to undo. The trigger belongs in the stoplight.
+  assert.equal(ATTRIBUTION_AXIS_Z, 0);
+  assert.equal(REABSORPTION_AXIS_LINE, 0);
 });
 
 test("an unplaceable axis is INDETERMINATE and never collapses to flat", () => {

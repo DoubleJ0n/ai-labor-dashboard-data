@@ -193,6 +193,19 @@ export const REABSORPTION = {
   // U-6 minus U-3: landing, but underemployed. UNRATE is already in the pool.
   u6: "U6RATE",
   u3: "UNRATE",
+  // The two halves of the headline ratio, so a move can be DECOMPOSED.
+  //
+  // primeAgeEpop is employed/population, and a ratio can fall two ways: employment
+  // drops, or population grows faster than employment does. Those mean opposite
+  // things — one is people losing work, the other is a growing working-age
+  // population the job market has not caught up with, most often immigration or a
+  // large cohort ageing in. With the ratio alone the panel cannot tell them apart,
+  // and it now carries a quadrant boundary, so it should.
+  //
+  // Both verified against the FRED series endpoint in CI 2026-07-27:
+  // Employment Level 25-54 and Population Level 25-54, thousands, 1948-01 onward.
+  primeAgeEmployed: "LNS12000060",
+  primeAgePopulation: "LNU00000060",
 };
 
 // HOW THE REABSORPTION AXIS IS PLACED — re-registered 2026-07-27.
@@ -231,6 +244,11 @@ export const REABSORPTION_REFERENCE_YEAR = 2019; // calendar-year mean, pre-pand
 // people of prime working age without a job who would have had one in 2019. That is
 // a claim a reader can check, which a z-score is not. The raw shortfall is reported
 // every run so anyone can apply a different line.
+// RETIRED as a threshold 2026-07-27, kept only to describe where the level sits.
+// The level-against-2019 test anchored the boundary to a CYCLICAL PEAK, and almost
+// every month in history sits below a peak: with the line at zero it would have read
+// "jobs are going away" for 100% of 2011-2013 and 76% of 2014-2019. The axis reads
+// the 12-month change now; see REABSORPTION_AXIS_LINE.
 export const REABSORPTION_SHORTFALL_POINTS = 1.0;
 
 export const REABSORPTION_CHANGE_MONTHS = 12;
@@ -260,7 +278,42 @@ export const REABSORPTION_FAST_CHANGE_MONTHS = 3;
 //
 // Attribution is a differential, so a z against its own fixed baseline is the right
 // scale, and it reuses the registered attention line rather than adding a tunable.
-export const ATTRIBUTION_AXIS_Z = WATCH_Z;
+// BOTH AXES NOW SIT AT ZERO, and zero is a fact about each measure rather than a
+// choice anyone has to defend.
+//
+// The grid is a DISPLAY, not a trigger. That distinction is what was wrong before:
+// one number was asked both to draw a quadrant boundary and to fire an alarm, and it
+// came out simultaneously too strict historically (8 of 10 baseline years past it)
+// and too slow currently (1.25 points of headroom while the series fell half a point
+// in a quarter). Splitting the two dissolves the problem instead of retuning it.
+//
+// A display is allowed to be sensitive. One month landing in a bad quadrant is a data
+// point rather than an alarm, and deciding whether it is a trend or a single noisy
+// print is the analyst's job. The trigger lives in the stoplight instead, below.
+export const ATTRIBUTION_AXIS_Z = 0.0; // gap at or wider than its own 2010s norm
+
+// Vertical: the 12-month change in prime-age employment-population, against zero.
+// Falling at all counts as deterioration.
+//
+// A CHANGE against RAW ZERO, not a z of the change. Scoring the change against the
+// 2010-2019 distribution was the original error: that decade rose about +0.53 a year
+// while recovering from the financial crisis, so strongly positive changes were
+// structurally normal in it and any ordinary expansion year read as deteriorating.
+// Zero involves no distribution at all, so there is nothing to contaminate, and it
+// removes the reference-year judgement entirely.
+//
+// Validated against history before adoption: it never once calls the 2014-2019 boom
+// displacement, and fires on 27% of the observation period including now.
+export const REABSORPTION_AXIS_LINE = 0.0;
+
+// The early-warning TRIGGER. Separate from the display above, and it lives in the
+// stoplight. Exposed-industry employment falling this much year-over-year is the
+// pre-registered warning line.
+//
+// NOTE IT IS ALREADY CROSSED: exposed employment is at -1.3% today. That is intended
+// rather than a surprise, and it is stated here so nobody discovers it later and
+// assumes the line was drawn to fit.
+export const EARLY_WARNING_EXPOSED_JOB_LOSS_PCT = -1.0;
 // Reabsorption is a level, so its line is REABSORPTION_SHORTFALL_POINTS above.
 //
 // This state is COMPUTED AND STORED, and it is never sent to the analyst. See

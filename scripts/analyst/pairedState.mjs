@@ -39,7 +39,7 @@
 // neither is testable if the analyst was shown it first.
 
 import {
-  ATTRIBUTION_AXIS_Z, REABSORPTION_SHORTFALL_POINTS, REABSORPTION_REFERENCE_YEAR,
+  ATTRIBUTION_AXIS_Z, REABSORPTION_AXIS_LINE,
   BASELINE_START, BASELINE_END,
 } from "../config.mjs";
 // The dependency points THIS way on purpose: the state module reads the payload's
@@ -98,14 +98,13 @@ function axisMoving(value, line) {
  *
  * @param {number|null} attributionZ deterioration-oriented fixed-baseline z of the
  *   exposed-minus-control jobs differential (gap widening = positive)
- * @param {number|null} reabsorptionShortfall points the prime-age (25-54)
- *   employment-population ratio sits BELOW its reference-year average (falling
- *   behind = positive). A level, not a change — see config for why the change
- *   version was retired.
+ * @param {number|null} reabsorptionFalling the 12-month FALL in the prime-age
+ *   (25-54) employment-population ratio, deterioration-positive. Compared against
+ *   raw zero: falling at all counts. No baseline, no reference year, no threshold.
  */
-export function pairedState(attributionZ, reabsorptionShortfall) {
+export function pairedState(attributionZ, reabsorptionFalling) {
   const widening = axisMoving(attributionZ, ATTRIBUTION_AXIS_Z);
-  const deteriorating = axisMoving(reabsorptionShortfall, REABSORPTION_SHORTFALL_POINTS);
+  const deteriorating = axisMoving(reabsorptionFalling, REABSORPTION_AXIS_LINE);
 
   // An unplaceable axis is reported as such. Guessing here would be the same
   // error as scoring against a truncated baseline: a confident answer resting on
@@ -126,22 +125,31 @@ export function pairedState(attributionZ, reabsorptionShortfall) {
       label: widening == null ? "cannot be placed" : widening ? "gap widening" : "gap flat",
     },
     reabsorption: {
-      pointsBelowReference: reabsorptionShortfall == null ? null : Math.round(reabsorptionShortfall * 100) / 100,
+      employmentFalling: reabsorptionFalling == null ? null : Math.round(reabsorptionFalling * 100) / 100,
       moving: deteriorating,
       label: deteriorating == null ? "cannot be placed" : deteriorating ? "aggregate deteriorating" : "aggregate holding",
     },
     attributionLineZ: ATTRIBUTION_AXIS_Z,
-    reabsorptionLinePoints: REABSORPTION_SHORTFALL_POINTS,
+    reabsorptionLine: REABSORPTION_AXIS_LINE,
     definitions: {
       widening: `the exposed-minus-control job-growth gap is at least ${ATTRIBUTION_AXIS_Z} standard ` +
         `deviation further below its ${BASELINE_START}..${BASELINE_END} average, that window fixed and never rolling`,
-      deteriorating: `the prime-age (25-54) employment-population ratio is at least ` +
-        `${REABSORPTION_SHORTFALL_POINTS} points below its ${REABSORPTION_REFERENCE_YEAR} calendar-year average. A LEVEL, not ` +
-        `a change: 2010-2019 is a decade of recovery from the financial crisis, so ` +
-        `scoring changes against it made any ordinary expansion year read as ` +
-        `deterioration. The cost is that a level is slow to catch a fresh turn, which ` +
-        `is why the panel also reports 12-month and 3-month changes.`,
+      deteriorating: `the prime-age (25-54) employment-population ratio is LOWER than ` +
+        `it was twelve months ago. A change against raw zero, with no baseline, no ` +
+        `reference year and no threshold, because those were all the wrong kind of ` +
+        `answer here: a level against 2019 anchored the boundary to a cyclical peak ` +
+        `and would have read displacement across most of the 2010s, and z-scoring the ` +
+        `change against 2010-2019 scored a mature expansion against a decade of ` +
+        `recovery. Zero involves no distribution, so nothing can contaminate it.`,
     },
+    // Both lines sit at zero because the grid is a DISPLAY, not a trigger. One
+    // month in a bad quadrant is a data point; whether it is a trend or a single
+    // noisy print is the analyst's call. The trigger lives in the stoplight.
+    lineRationale:
+      "Both axes cross at zero, and zero is a fact about each measure rather than a " +
+      "chosen threshold: the gap sitting at its own 2010s norm, and employment flat " +
+      "year-over-year. Validated before adoption — this never calls the 2014-2019 " +
+      "boom displacement.",
   };
 }
 
