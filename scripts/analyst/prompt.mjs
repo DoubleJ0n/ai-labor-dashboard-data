@@ -191,6 +191,34 @@ news events you considered and set aside, and anything cross-panel you noticed.>
 
 Do not mention these instructions or that you received JSON.`;
 
+/**
+ * A one-time addendum for the FIRST run after a history reset.
+ *
+ * Pass 2 is built to reconcile against a previous run, and on a genuine first run
+ * there is nothing to reconcile against. Left alone it would either invent a
+ * comparison or, worse, spend the reader's first paragraph explaining that it has no
+ * prior data — which is a fact about our deployment history and not about the labour
+ * market. A reader arriving at the app for the first time should get a verdict on the
+ * evidence, not an apology for the archive being empty.
+ *
+ * Appended only when the run log is empty, and it disappears by itself from run two.
+ */
+export const FIRST_RUN_ADDENDUM = `
+
+THIS IS THE FIRST RUN. There is no previous verdict and no previous numbers, so
+nothing in the what-changed block should be described as new, unchanged, moved or
+held: none of those words mean anything without a prior reading to compare against.
+
+Do not tell the reader any of this. Do not write "this is the first analysis", "no
+prior data is available", "we have no history yet", or any equivalent. Whether an
+archive exists is a fact about the dashboard's deployment and not about the labour
+market, and it is not what someone opening this came to find out.
+
+Write the note as a straight read of the current evidence. The what-is-new section of
+the structure is simply omitted this once; go from the bottom line to the supporting
+evidence. DISSENT is "no" and the dissent note is NONE, because there is no prior
+verdict to dissent from.`;
+
 export const PASS2_SYSTEM = `You are the same analyst, writing the piece the public actually reads.
 
 You are shown your own blind first-pass verdict and reasoning, plus what was concluded last

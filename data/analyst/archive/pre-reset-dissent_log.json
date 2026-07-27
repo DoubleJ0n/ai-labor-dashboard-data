@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "description": "Append-only monthly Analyst verdict log. See README.md for the entry shape. One entry is appended by analyst-refresh after each BLS Employment Situation release; this file is the data source for the Analyst Track Record timeline panel. Entries are never edited retroactively.",
+  "lastRefreshed": "2026-07-26T19:56:27Z",
+  "entries": [
+    {
+      "date": "2026-06",
+      "runAt": "2026-07-18T01:17:52Z",
+      "verdict": "AUGMENTATION_HOLDING",
+      "tagLine": "exposed-sector gaps holding steady",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "mechanicalState": "STEADY",
+      "breadth": 0,
+      "analysis": "Productivity growth came in at 2.8 percent year over year, inside the 2.7 to 3.4 band that historically marks a strong-but-normal pace, and this is only the first quarter there, not the two straight quarters that would flag a break. Nothing else in the panel moved enough to change the picture. AI-exposed industries are still growing jobs slower than control industries, a 2.5 point gap, but that gap is well within its calm-period range and has held roughly flat for 21 months. Pay in exposed industries is actually running ahead of control, not behind, and job postings for exposed occupations, while structurally weaker than hands-on work since 2020, actually narrowed slightly over the past six months rather than widening toward the alarm line.\n\nThe one soft spot is worker share of national income, down for a fourth straight quarter to 95. But the rule here is about acceleration away from trend, and a multi-decade downward drift showing up again isn't itself evidence of an AI-specific break. Recent graduates continue to face a wider unemployment gap than the general workforce, as they have for over eight years running, which is worth watching but doesn't move the headline on its own.\n\nOn the capability side, model time horizons and benchmark scores keep climbing, and Census now puts AI adoption at 21.7 percent of firms, up on a series that only started last November. Those are permissive conditions, not causes, and this month they aren't paired with weakening in the exposed-sector labor data. The news package this month is generic economic and geopolitical coverage with nothing specific tied to any of these series, so there's no basis for a confounder call. The panels are clean and the read holds: augmentation, not displacement.",
+      "inputsFingerprint": "8cd2a21fc4320536a383b3038d9395ad8cb4ee229b0b8de2714c8e05416d8c11"
+    },
+    {
+      "date": "2026-06",
+      "runAt": "2026-07-26T19:56:27Z",
+      "verdict": "AUGMENTATION",
+      "tagLine": "steady gaps, sinking labor share",
+      "notificationLine": "New results are in: augmentation verdict as AI-exposed job gaps hold steady, not widening",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "falsifier": {
+        "panel": "exposed_vs_control_jobs",
+        "direction": "falls",
+        "magnitude": "differential_exposed_minus_control at or below -3.5 percentage points (one full standard deviation past its calm-period mean of -2.19) in any monthly reading",
+        "by": "2026-10-26",
+        "horizonDays": 90
+      },
+      "falsifierPlain": "If the exposed-minus-control jobs gap breaks below -3.5 points, the \"wide but steady\" reading dies and this call flips.",
+      "dissent": null,
+      "analysis": "AI still looks like it is helping workers more than replacing them, but this is the thinnest version of that call yet.\n\nThis is the first note in this format, so there is no prior edition to measure against. In the data itself, no alarm line was crossed this month. One early-warning line was: the share of national income that goes to workers rather than to owners of capital has now fallen four quarters running and sits at its lowest point in records that begin in 1947.\n\nThe strongest support for the call is the shape of the exposed job market. Employment in information, professional and business services, and finance is shrinking, running about 1.3% below a year ago, while industries AI has barely touched are growing by roughly the same amount in the opposite direction. That gap is wide, but it has been about this wide for a long stretch, and in the latest reading it narrowed slightly rather than opening further. Job postings in exposed fields have drifted marginally less negative in recent months. At the same time, output per hour worked is accelerating, near 2.8%, with total payrolls still adding jobs and unemployment steady. More output alongside a still-growing workforce is the arithmetic of people doing more, not of people being removed. What triggers concern here is a gap that is widening, not one that is merely wide, and nothing is widening.\n\nThe strongest argument the other way is that output per hour is a ratio, and it rises either when output grows or when the hours underneath it are cut. Shrinking employment in exposed industries, combined with four consecutive quarterly declines in labor's income share, is precisely what the second version looks like: the gains from the technology showing up with capital rather than in paychecks. From these figures alone, the two stories cannot be told apart.\n\nThere is a similar trap in pay. Wages in AI-heavy industries are growing faster than elsewhere, 4.6% against 3.5%, which reads as reassuring until you notice that an industry losing jobs can see its average wage rise simply because lower-paid workers left. Nobody need have received a raise. That figure is therefore set aside rather than counted as evidence. And the weakness in exposed industries has no convenient excuse available: the bond market is not pricing a recession, which removes the ordinary business cycle as the explanation and makes the structural reading more plausible, not less.\n\nWhat to watch: the exposed-versus-control jobs chart. If that gap drops clearly below the range it has held for the past couple of years, the wide-but-steady reading dies and this call flips.",
+      "compliance": {
+        "words": 439,
+        "numbers": 5,
+        "withinWordRange": true,
+        "withinNumberCeiling": true
+      },
+      "mechanicalState": "STEADY",
+      "breadth": 0,
+      "inputsFingerprint": "2a6bad935967700a66b4df36ec5bc03bec134b610da85c341ddd23722a626f6c",
+      "keyNumbers": {
+        "jobsDiffPp": -2.541761512342429,
+        "wagesDiffPp": 1.1096046613358488
+      },
+      "panelHeadlines": {
+        "labor_productivity": {
+          "value": 2.8,
+          "date": "2026-03"
+        },
+        "exposed_vs_control_jobs": {
+          "value": -2.5,
+          "date": "2026-06"
+        },
+        "exposed_vs_control_wages": {
+          "value": 1.1,
+          "date": "2026-06"
+        },
+        "job_postings_spread": {
+          "value": -28,
+          "date": "2026-07"
+        },
+        "worker_share_of_income": {
+          "value": -1,
+          "date": "2026-03"
+        },
+        "recent_grad_gap": {
+          "value": 2.6,
+          "date": null
+        },
+        "ai_adoption": {
+          "value": 21.7,
+          "date": "2026-07-01"
+        },
+        "ai_use_automation_vs_augmentation": {
+          "value": 43.1,
+          "date": "2025-09-15"
+        },
+        "macro_regime": {
+          "value": 0.4,
+          "date": null
+        },
+        "ai_capability_metr": {
+          "value": 186,
+          "date": "Claude Mythos Preview"
+        },
+        "ai_capability_gdpval_ratings": {
+          "value": 1860.6,
+          "date": "2026-07-26"
+        },
+        "ai_capability_vs_human_experts": {
+          "value": 70.9,
+          "date": "2025-12"
+        },
+        "ai_capability_benchmarks": {
+          "value": null,
+          "date": null
+        }
+      }
+    }
+  ]
+}

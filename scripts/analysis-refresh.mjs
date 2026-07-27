@@ -35,6 +35,7 @@ import { assembleNews } from "./analyst/news.mjs";
 import {
   PASS1_SYSTEM, PASS2_SYSTEM, buildPass1Message, buildPass2Message,
   parsePass1, parsePass2, noteCompliance, analysisCompliance, FALSIFIER_HORIZON_DAYS,
+  FIRST_RUN_ADDENDUM,
 } from "./analyst/prompt.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -300,7 +301,12 @@ function pass2Request(model, pass1) {
     max_tokens: MAX_TOKENS,
     thinking: { type: "adaptive" },
     output_config: { effort: EFFORT },
-    system: PASS2_SYSTEM,
+    // The first-run addendum appends itself only when there is genuinely no prior
+    // entry, and drops off by itself from run two. Pass 2 is built to reconcile
+    // against a previous verdict; with none, it would either invent a comparison or
+    // spend the reader's opening paragraph explaining that the archive is empty,
+    // which is a fact about our deployment rather than about the labour market.
+    system: priorEntry ? PASS2_SYSTEM : PASS2_SYSTEM + FIRST_RUN_ADDENDUM,
     messages: [{ role: "user", content: buildPass2Message(pass1, priorEntry, changes, falsifierRecord) }],
   };
 }
