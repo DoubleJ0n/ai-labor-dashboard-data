@@ -1002,9 +1002,15 @@ export function buildAnalysisPayload(pool, extras = {}) {
       unit: "see each component",
       headline: {
         ...r.headline,
-        // What the axis is actually placed on, stated on the panel rather than
-        // left implicit. A level against a named year, in points, which a reader
-        // can check against their own sense of 2019.
+        // WHY the ratio moved: employment, or population. A ratio can fall two ways
+        // and they mean opposite things — people losing work, versus a growing
+        // working-age population the job market has not absorbed yet. The panel says
+        // which rather than leaving the analyst to assume, and reports rather than
+        // resolves. Null until the pool carries both halves.
+        decomposition: reabsorptionDecomposition(pool),
+        // The reference level is DESCRIPTIVE now: the axis is placed on the 12-month
+        // change against zero, not on distance from this year. Kept because "where
+        // does today sit against 2019" is a question a reader will ask anyway.
         reference_year: REABSORPTION_REFERENCE_YEAR,
         reference_level: r.reference == null ? null : round2(r.reference),
         points_below_reference: r.shortfall == null ? null : round2(r.shortfall),
