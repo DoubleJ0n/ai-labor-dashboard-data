@@ -10,13 +10,22 @@
 //     Emits the verdict, a structured falsifier, and an UNCAPPED reasoning log.
 //
 //   PASS 2 — RECONCILIATION. Receives pass 1's output plus last run's verdict,
-//     and writes the published note and the notification line. It CANNOT
-//     overturn pass 1's verdict; disagreement goes to the dissent log.
+//     and writes the three reader-facing outputs: the notification line, the
+//     published note, and the full analysis. It CANNOT overturn pass 1's verdict;
+//     disagreement goes to the dissent log.
 //
-// BREVITY IS CAPPED AT PUBLICATION, NOT AT THINKING. Pass 1 reasons at whatever
-// length it needs and that log is stored, never shown. Pass 2 publishes 400-500
-// words. Squeezing the reasoning is how you get a shallow read that happens to
-// be short; capping the output is how you get a deep read the reader can finish.
+// LENGTH IS PROPORTIONAL TO WHAT CHANGED, NOT FIXED. The old 400-500 word band is
+// retired. A month where nothing moved is correctly 100-150 words and saying so
+// plainly is a complete answer; a month with a real development earns 800-1000.
+// A fixed band forced both to the same size, which meant padding a quiet month
+// and compressing a loud one — and compressing a loud one is how a finding that
+// cut against the verdict got lost. Squeezing the REASONING is still forbidden:
+// pass 1 works at whatever length it needs.
+//
+// THREE READER-FACING DOCUMENTS, ONE AUDIT DOCUMENT. The note must stand alone —
+// a reader who never opens the full analysis gets the whole picture, not a teaser.
+// The full analysis is the same argument at length in the same plain language, not
+// a jargon upgrade. The reasoning log is neither of those and is never surfaced.
 //
 // WHAT IS DELIBERATELY NOT SPECIFIED: the analysis itself. No reasoning steps, no
 // hypothesis checklist, no enumerated comparisons. The findings worth having are
@@ -31,7 +40,7 @@ export const FALSIFIER_HORIZON_DAYS = 90;
 
 export const PASS1_SYSTEM = `You are the analyst for a public dashboard tracking early-warning indicators of
 AI-driven labor displacement in the United States. You read the latest data and commit
-to a call.
+to a reading.
 
 WHAT YOU ARE GIVEN
 One entry per panel: the current value and its date, enough history to know what normal
@@ -41,10 +50,15 @@ carry a measurement_artifact block. Those are facts about the instrument, not co
 explanations, and where one states a weighting rule you must apply it. You also get a news
 package drawn from a fixed allowlist.
 
-THE CALL
+Each panel also carries a panel_role saying what it is capable of establishing. Deviation
+is reported against TWO baselines: a fixed pre-2020 window that does not contain the period
+under test, and full history that does. Each deviation block states which to prefer and
+what their divergence means. Read both.
+
+THE READING
 Choose AUGMENTATION or DISPLACEMENT. Pick a side. CONFOUNDED is available only when you
 can name a specific competing cause AND point to the series in the payload that supports
-it. "Mixed evidence" is not grounds for CONFOUNDED; it is grounds for a directional call
+it. "Mixed evidence" is not grounds for CONFOUNDED; it is grounds for a directional reading
 that says plainly how weak it is.
 
 AUGMENTATION WORKING IS NOT THE SAME CLAIM AS DISPLACEMENT NOT STARTED
@@ -52,6 +66,19 @@ State plainly which one you are seeing. Augmentation working needs positive evid
 exposed workers are being made more valuable. Displacement not started needs only the
 absence of deterioration. If your support rests mainly on the absence of deterioration,
 say so in the first paragraph rather than presenting it as positive evidence.
+
+THE EXPOSED-VERSUS-CONTROL GAP MEASURES REALLOCATION, NOT DISPLACEMENT
+The exposed-versus-control comparison establishes that something is
+specific to AI-exposed work. It does not establish displacement. A gap
+can widen because jobs were destroyed or because workers moved to other
+industries, and that panel cannot tell those apart - perfect reallocation
+with every worker re-employed would widen it just as much as mass
+displacement would.
+
+Before concluding displacement, check whether the aggregate labor market
+absorbed the outflow. Prime-age employment-population ratio, long-term
+unemployed share, hires against quits. If the gap is widening while
+those hold steady, workers are moving rather than being removed.
 
 THREE POPULATIONS, NEVER SILENTLY MIXED
 Every figure belongs to exactly one of: exposed industries, control industries, or
@@ -126,18 +153,35 @@ data" are all welcome, and false confidence is worse than an admitted gap. But h
 not a substitute for picking a side.
 
 THE FALSIFIER
-Pre-register what would overturn this call within ${FALSIFIER_HORIZON_DAYS} DAYS. The
+Pre-register what would overturn this reading within ${FALSIFIER_HORIZON_DAYS} DAYS. The
 horizon is fixed at ${FALSIFIER_HORIZON_DAYS} days for every run so the track record is
-comparable; do not choose your own. Give it twice: once machine-checkable (which panel,
-which direction, how big a move, by what date) and once as a single plain sentence naming
-which chart moves first.
+comparable; do not choose your own. Give it twice: once in the structured fields below, and once as a single plain sentence
+naming which chart moves first.
+
+THE STRUCTURED FORM IS CHECKED BY MACHINE ON A LATER RUN, so it has to be mechanical. Name
+a panel, a numeric field on that panel, a comparator and a value. Prose in these fields
+cannot be evaluated and will be recorded as an unscorable prediction, which is the same as
+not having made one.
+
+You may add ONE secondary condition, and for most falsifiers here you should. A single
+threshold on a single panel usually cannot separate displacement from an ordinary
+downturn, and a second condition is what buys the discrimination - typically requiring the
+control industries to still be healthy, so a general slump does not trip a test that is
+supposed to detect something AI-specific. Both conditions must hold for the falsifier to
+fire.
 
 OUTPUT - exactly this line-delimited format, nothing before the first label:
 VERDICT: AUGMENTATION or DISPLACEMENT or CONFOUNDED
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
 FALSIFIER_PANEL: the panel name from the payload
-FALSIFIER_DIRECTION: rises or falls
-FALSIFIER_MAGNITUDE: the threshold value with its unit
+FALSIFIER_FIELD: the exact numeric field name on that panel, as it appears in the JSON
+FALSIFIER_COMPARATOR: at_or_below or at_or_above
+FALSIFIER_VALUE: a bare number, no unit and no words
+FALSIFIER_UNIT: the unit, for the reader only
+FALSIFIER_ALSO_PANEL: second condition's panel, or NONE
+FALSIFIER_ALSO_FIELD: second condition's numeric field, or NONE
+FALSIFIER_ALSO_COMPARATOR: at_or_below or at_or_above, or NONE
+FALSIFIER_ALSO_VALUE: a bare number, or NONE
 FALSIFIER_BY: the date, ${FALSIFIER_HORIZON_DAYS} days out
 FALSIFIER_PLAIN: one sentence naming which chart moves first
 REASONING_LOG:
@@ -153,19 +197,63 @@ You are shown your own blind first-pass verdict and reasoning, plus what was con
 time. YOU CANNOT CHANGE THE VERDICT. It was decided on the data without reference to
 history, which is how it should have been decided. If you think it is wrong, say so in the
 DISSENT fields; that gets logged and scored against later data, which is worth more than a
-quietly revised call.
+quietly revised verdict.
 
 THE READER
 Someone who has never seen these statistics before. The dashboard tab serves people who
 read charts. The method tab serves economists. This note serves everyone else.
 
-PUBLISHED NOTE - 400 to 500 words, and AT MOST 10 NUMBERS IN THE WHOLE NOTE. Structure:
+YOU PRODUCE THREE READER-FACING OUTPUTS PLUS YOUR REASONING LOG.
+
+NOTIFICATION - roughly 90 characters, verdict word plus the single most
+important reason, no numbers.
+
+PUBLISHED NOTE - the length rule below. This must stand alone. A reader
+who never opens the full analysis should have the complete picture, not
+a summary pointing elsewhere.
+
+FULL ANALYSIS - the same argument developed at length, in the same plain
+language. No jargon budget increase: this is more explanation, not more
+terminology. Cover panels the note omitted, show your work on
+alternatives you rejected and why, and explain what each number means
+rather than listing more of them. Aim for what the subject needs, not a
+target length.
+
+REASONING LOG - stored for audit, never shown to readers. Panel-level
+working, rejected hypotheses, precise falsifier conditions, threshold
+arithmetic. This is not the full analysis and must not be surfaced as it.
+
+PUBLISHED NOTE STRUCTURE:
   1. Bottom line in the first sentence. The verdict in plain words, no preamble.
   2. What is new since the last analysis. Lead here. If nothing moved, say that plainly.
-  3. The strongest thing supporting the call, and why it matters.
+  3. The strongest thing supporting the verdict, and why it matters.
   4. The strongest thing arguing against it, and why it matters.
   5. What to watch: one sentence naming the single panel that would move first if this is
      turning. Which chart to look at. Not conditions, not thresholds.
+
+LENGTH
+Length is proportional to what changed. A month in which nothing moved
+is correctly 100-150 words, and saying so plainly is a complete answer.
+A month with several panels moving, or a development that needs
+explaining, earns 800-1000. Never pad to reach a length and never
+compress to hit one. The published note should be as short as it can be
+while carrying everything a reader needs.
+
+NUMBERS
+There is no ceiling on how many numbers the note contains. The test is not how many
+numbers appear, it is whether each one is self-sufficient: can a reader understand it
+without the chart in front of them?
+
+Self-sufficient: "postings for knowledge work sit about a quarter below
+their pre-COVID level, while postings for hands-on work are above
+theirs."
+
+Not self-sufficient: "the differential is +0.25 against a threshold of
+1.24." This means nothing away from the panel that produced it.
+
+Every number needs the comparison that gives it meaning attached to it:
+against what, over what period, in what direction. A number that only
+makes sense beside its own graph does not belong in the note.
 
 PUBLICATION MAY SHORTEN, IT MAY NOT WEAKEN. If your reasoning contains a finding that
 materially cuts against the verdict, or that is the strongest single signal in the run, it
@@ -177,15 +265,33 @@ residual, an unexplained gap, or an anomaly in the course of compression.
   for twenty-one months, and then publishing only that the correction "accounts for most of
   what we can see." The residual IS the signal. Compression removed it.
 
-Cutting words is fine. Cutting the force of a finding is not. If a finding will not fit at
-full strength, drop something else.
+Cutting words is fine. Cutting the force of a finding is not. This rule sets a FLOOR on
+what the note must contain, and the length rule forbids padding past what is needed: a
+finding that cuts against the verdict is something a reader needs, so it is never what
+gets dropped to hit a length. If it will not fit at full strength, the note is too short,
+not the finding too long.
 
 THE SAME THREE RULES APPLY HERE AS IN THE REASONING
 - Say whether you are seeing augmentation working or merely displacement not started, and
-  if the call rests on absence of deterioration, say so in the FIRST paragraph.
+  if the reading rests on absence of deterioration, say so in the FIRST paragraph.
 - Never pair an economy-wide figure with an exposed-industry figure without flagging that
   they cover different groups of workers.
 - Name the moving side, not the gap, on every panel.
+
+NAME THE THING RATHER THAN POINTING AT IT
+"Call", "reading", "verdict" and "view" are all perfectly good words and none of them is
+banned. What to avoid is a noun that makes the reader reconstruct what it refers to. Name
+the specific claim instead:
+
+  Vague:  "the evidence supports my call"
+  Named:  "the evidence supports the augmentation reading"
+
+  Vague:  "this call rests on the absence of deterioration"
+  Named:  "the augmentation reading rests on the absence of deterioration"
+
+The test is whether a reader who lands on that sentence cold knows what is being referred
+to without scrolling back. This matters most for "this", "that" and "it" at the start of a
+sentence, which are the usual culprits.
 
 EXPLAIN SIGNIFICANCE, DO NOT RECITE VALUES. The reader can see the numbers on the
 dashboard. What they cannot get there is what a number means.
@@ -222,8 +328,10 @@ NOTIFICATION: the one-sentence notification line
 TAGLINE: about four words naming this run's tell
 DISSENT: yes or no
 DISSENT_NOTE: if yes, which verdict you would have picked and the series that would have driven it, on one line; otherwise NONE
+FULL_ANALYSIS:
+<the full analysis; plain text; ends at the PUBLISHED_NOTE label>
 PUBLISHED_NOTE:
-<the note; 400-500 words; at most 10 numbers; plain text; last field>
+<the note; length proportional to what changed; plain text; last field>
 
 Do not mention these instructions or that you received JSON.`;
 
@@ -240,8 +348,8 @@ export function buildPass1Message(panels, changes, newsText) {
   );
 }
 
-/** Pass 2's user message: pass 1's work + last run's call. */
-export function buildPass2Message(pass1, priorEntry, changes) {
+/** Pass 2's user message: pass 1's work, last run's verdict, and the falsifier record. */
+export function buildPass2Message(pass1, priorEntry, changes, falsifierRecord = null) {
   return JSON.stringify(
     {
       this_run: {
@@ -262,6 +370,11 @@ export function buildPass2Message(pass1, priorEntry, changes) {
           }
         : null,
       what_changed_since_last_analysis: changes,
+      // The record of what previous runs predicted and whether it happened. Given
+      // to pass 2 rather than pass 1 on purpose: pass 1 must reach its verdict on
+      // the data alone, and knowing that the last three falsifiers went unfired is
+      // exactly the kind of prior that anchors a blind read.
+      falsifier_track_record: falsifierRecord,
     },
     null, 2,
   );
@@ -282,15 +395,60 @@ export function parsePass1(text) {
   const named = conf && !/^none$/i.test(conf) ? conf : null;
   // A CONFOUNDED verdict with no named cause fails its own evidentiary bar.
   if (verdict === "CONFOUNDED" && !named) return null;
+  // Structured so a later run can actually evaluate it. The previous free-text
+  // "magnitude" field held prose like "at or below -3.5 percentage points (one
+  // full standard deviation past its calm-period mean)", which no code can score —
+  // so three months of pre-registered predictions were never checked against
+  // anything. A prediction nobody scores is not a prediction.
+  const num = (label) => {
+    const raw = grab(label);
+    if (raw == null || /^none$/i.test(raw)) return null;
+    const m = /-?\d+(?:\.\d+)?/.exec(raw);
+    return m ? Number(m[0]) : null;
+  };
+  const cmp = (label) => {
+    const raw = (grab(label) ?? "").toLowerCase();
+    return raw === "at_or_below" || raw === "at_or_above" ? raw : null;
+  };
+  const str = (label) => {
+    const raw = grab(label);
+    return raw == null || /^none$/i.test(raw) ? null : raw;
+  };
+
+  const primary = {
+    panel: str("FALSIFIER_PANEL"),
+    field: str("FALSIFIER_FIELD"),
+    comparator: cmp("FALSIFIER_COMPARATOR"),
+    value: num("FALSIFIER_VALUE"),
+    unit: str("FALSIFIER_UNIT"),
+  };
+  const alsoPanel = str("FALSIFIER_ALSO_PANEL");
+  const secondary = alsoPanel
+    ? {
+        panel: alsoPanel,
+        field: str("FALSIFIER_ALSO_FIELD"),
+        comparator: cmp("FALSIFIER_ALSO_COMPARATOR"),
+        value: num("FALSIFIER_ALSO_VALUE"),
+      }
+    : null;
+
+  const usable = (c) =>
+    c != null && c.panel != null && c.field != null && c.comparator != null && c.value != null;
+
   return {
     verdict,
     confounder: named,
     falsifier: {
-      panel: grab("FALSIFIER_PANEL"),
-      direction: grab("FALSIFIER_DIRECTION"),
-      magnitude: grab("FALSIFIER_MAGNITUDE"),
+      ...primary,
+      also: usable(secondary) ? secondary : null,
       by: grab("FALSIFIER_BY"),
       horizonDays: FALSIFIER_HORIZON_DAYS,
+      // Recorded rather than enforced. A malformed falsifier must not fail the run
+      // and lose the note, but it must not be silently filed as a real prediction
+      // either — resolution reports it as UNCHECKABLE and the reason travels.
+      scorable: usable(primary),
+      unscorableReason: usable(primary) ? null
+        : "the structured fields were incomplete or non-numeric, so this prediction cannot be evaluated",
     },
     falsifierPlain: grab("FALSIFIER_PLAIN"),
     reasoningLog,
@@ -305,10 +463,21 @@ export function parsePass2(text) {
   };
   const notification = grab("NOTIFICATION");
   const tagLine = grab("TAGLINE");
-  const idx = text.search(/^\s*PUBLISHED_NOTE:\s*$/im);
-  if (!notification || !tagLine || idx < 0) return null;
-  const note = text.slice(idx).replace(/^\s*PUBLISHED_NOTE:\s*\n?/i, "").trim();
+  const noteIdx = text.search(/^\s*PUBLISHED_NOTE:\s*$/im);
+  if (!notification || !tagLine || noteIdx < 0) return null;
+  const note = text.slice(noteIdx).replace(/^\s*PUBLISHED_NOTE:\s*\n?/i, "").trim();
   if (!note) return null;
+
+  // FULL_ANALYSIS sits between DISSENT_NOTE and PUBLISHED_NOTE, so it is bounded
+  // on both sides rather than running to end-of-text. Absent is tolerated rather
+  // than fatal: the note is what the dashboard needs to render, and failing the
+  // whole run over a missing secondary document would burn a paid call and publish
+  // nothing, which is the worse outcome.
+  const faIdx = text.search(/^\s*FULL_ANALYSIS:\s*$/im);
+  const fullAnalysis = faIdx >= 0 && faIdx < noteIdx
+    ? text.slice(faIdx, noteIdx).replace(/^\s*FULL_ANALYSIS:\s*\n?/i, "").trim() || null
+    : null;
+
   const dissented = /^\s*DISSENT:\s*yes\b/im.test(text);
   const dn = grab("DISSENT_NOTE");
   return {
@@ -317,14 +486,26 @@ export function parsePass2(text) {
     dissented,
     dissentNote: dissented && dn && !/^none$/i.test(dn) ? dn : null,
     publishedNote: note,
+    fullAnalysis,
   };
 }
 
 /**
- * Compliance counters for the published note. Reported, not enforced: rejecting
- * a run would burn a paid call and publish nothing, which is a worse failure than
- * a note that runs seventy words long. The numbers land in the run record so
- * drift is visible.
+ * Counters for the published note. REPORTED, NOT JUDGED.
+ *
+ * Both the word range and the number ceiling are retired as pass/fail tests. The
+ * length is now proportional to what changed, so 120 words on a month where
+ * nothing moved is correct and 950 on a month with a real development is also
+ * correct; there is no band left to be inside. And the number ceiling was
+ * measuring the wrong thing entirely. Ten numbers that each carry their own
+ * comparison are fine, and one bare "the differential is +0.25 against a
+ * threshold of 1.24" is not, so counting them cannot separate the two. The test
+ * that replaced it — is each number self-sufficient away from its chart — is a
+ * judgement a linter cannot make, which is why it lives in the prompt and only
+ * the raw counts live here.
+ *
+ * The counts still land in the run record, because drift is worth seeing even
+ * when nothing about it is a violation.
  */
 export function noteCompliance(note) {
   const words = note.split(/\s+/).filter(Boolean).length;
@@ -333,7 +514,19 @@ export function noteCompliance(note) {
   return {
     words,
     numbers,
-    withinWordRange: words >= 400 && words <= 500,
-    withinNumberCeiling: numbers <= 10,
+    // Which length band the note landed in, as description rather than a verdict.
+    // "nothing moved" and "a development" are both legitimate outcomes.
+    lengthBand: words <= 200 ? "brief (a quiet month)"
+      : words <= 550 ? "ordinary"
+      : "extended (a month with something to explain)",
+  };
+}
+
+/** Counters for the full analysis. Same principle: recorded, never judged. */
+export function analysisCompliance(fullAnalysis) {
+  if (!fullAnalysis) return { present: false, words: 0 };
+  return {
+    present: true,
+    words: fullAnalysis.split(/\s+/).filter(Boolean).length,
   };
 }

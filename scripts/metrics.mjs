@@ -18,8 +18,8 @@
 import {
   PROD_BAND_LOW as PRODUCTIVITY_BAND_LOW_PCT,
   PROD_BAND_HIGH as PRODUCTIVITY_BAND_HIGH_PCT,
-  INVERSION_TRAILING_WINDOW_MONTHS, INVERSION_MIN_HISTORY_MONTHS,
-  COVID_START, COVID_END, ADOPTION_RISING_LOOKBACK,
+  INVERSION_MIN_HISTORY_MONTHS,
+  BASELINE_START, BASELINE_END, ADOPTION_RISING_LOOKBACK,
 } from "./config.mjs";
 
 const ymOf = (dateStr) => dateStr.slice(0, 7);
@@ -119,23 +119,30 @@ function computeInversion(grad, unrate) {
       : i > 0 && run > 0 && ymAdd(joined[i - 1].month, 1) === joined[i].month ? run + 1
       : 1;
   }
-  // Anomalous: latest gap exceeds its own trailing 10-year average,
-  // COVID-excluded like every other statistical baseline (audit-2026-07
-  // finding 9 / B-3: this path was missing the registered exclusion the
-  // app applies, so the analyst could be told the gap is anomalous while
-  // the app's shading disagreed).
+  // Anomalous: the latest gap exceeds its FIXED 2010-2019 average. Was a rolling
+  // trailing-120 window, retired 2026-07-26 with every other rolling baseline —
+  // a rolling comparison on this panel meant a gap that widened slowly enough
+  // dragged its own reference up behind it and never read as anomalous.
   let anomalous = false;
   const idx = joined.length - 1;
   if (idx >= 0) {
-    const start = Math.max(0, idx - INVERSION_TRAILING_WINDOW_MONTHS);
-    const window = joined.slice(start, idx)
-      .filter((j) => j.month < COVID_START || j.month > COVID_END)
+    const window = joined
+      .filter((j) => j.month >= BASELINE_START && j.month <= BASELINE_END)
       .map((j) => j.gap);
     if (window.length >= INVERSION_MIN_HISTORY_MONTHS) {
       anomalous = joined[idx].gap > window.reduce((a, b) => a + b, 0) / window.length;
     }
+    // Below the minimum, anomalous stays false AND that is reported, so "not
+    // anomalous" is never confused with "not measurable".
+    return {
+      gapPct: joined[idx].gap,
+      anomalous,
+      runMonths: run,
+      baselineReadings: window.length,
+      baselineUsable: window.length >= INVERSION_MIN_HISTORY_MONTHS,
+    };
   }
-  return { gapPct: idx >= 0 ? joined[idx].gap : null, anomalous, runMonths: run };
+  return { gapPct: null, anomalous, runMonths: run, baselineReadings: 0, baselineUsable: false };
 }
 
 function lastVal(series, id) { const s = sorted(series[id]); return s.length ? s[s.length - 1].value : null; }

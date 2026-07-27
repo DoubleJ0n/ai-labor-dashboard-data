@@ -3,7 +3,11 @@
 // years) and rewrites ONLY the "fred" section of dashboard-data.json.
 // Free API; runs weekly via GitHub Actions. Key from FRED_API_KEY.
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
-import { DIFFERENTIALS, MACRO_SPREAD_IDS } from "./config.mjs";
+import {
+  DIFFERENTIALS, MACRO_SPREAD_IDS, REABSORPTION, BASELINE_START, BASELINE_END,
+  BASELINE_FETCH_START, BASELINE_REQUIRED_START, BASELINE_START_SLACK_MONTHS,
+  BASELINE_MIN_READINGS,
+} from "./config.mjs";
 
 // Core series the original panels depend on (mirrors SeriesIds.ALL) — a
 // missing one FAILS the run loudly.
@@ -39,9 +43,30 @@ const OPTIONAL_IDS = [
   // exposed-vs-control WAGES: avg hourly earnings, all employees (CES, SA, $), same industries
   ...DIFFERENTIALS.wages.exposed,
   ...DIFFERENTIALS.wages.control,
+  // The reabsorption axis: whether the outflow from exposed work landed
+  // anywhere. Verified in CI before wiring; UNRATE (u3) is already required.
+  ...Object.values(REABSORPTION).filter((id) => !REQUIRED_IDS.includes(id)),
   // macro-regime gate (daily)
   "DFII10", ...MACRO_SPREAD_IDS, "T10YIE",
 ];
+
+// Series that get z-scored need the WHOLE fixed baseline window in the pool, and
+// the rolling-10-year fetch did not reach it: the pool held exactly 120 monthly
+// readings starting 2016-07, so the fixed 2010-2019 baseline was not merely
+// mis-weighted, six of its ten years were absent. Fetching the baseline is a
+// precondition for using it, and a short pull must fail loudly rather than
+// silently score against a truncated window (see baselineCoverage below).
+//
+// Daily macro series are deliberately NOT in this set: the macro panel is a
+// gate with no z-score, so pulling 16 years of daily yields would multiply the
+// pool the app downloads for no statistical gain.
+const FIXED_BASELINE_IDS = new Set([
+  ...DIFFERENTIALS.jobs.exposed, ...DIFFERENTIALS.jobs.control,
+  ...DIFFERENTIALS.wages.exposed, ...DIFFERENTIALS.wages.control,
+  ...Object.values(REABSORPTION),
+  "CGBD2024", "PRS85006091", "OPHNFB", "USINFO", "TEMPHELPS",
+  "CES6054150001", "LNS14000036", "GDPC1", "PAYEMS",
+]);
 
 const apiKey = process.env.FRED_API_KEY;
 if (!apiKey) {
@@ -49,21 +74,34 @@ if (!apiKey) {
   process.exit(1);
 }
 
+// Default window for series that carry no z-score: still a rolling ten years,
+// because for a gate or a chart that is plenty and the pool is a mobile download.
 const start = new Date();
 start.setFullYear(start.getFullYear() - 10);
 const observationStart = start.toISOString().slice(0, 10);
 
-// A few series need a long history rather than the default 10-year window.
+// Series that ARE z-scored start a YEAR BEFORE the fixed baseline. The lead is not
+// slack, it is required: nearly every panel is derived (year-over-year, twelve-month
+// change, four-quarter change), so fetching from the baseline start would hand the
+// derivation a series whose first twelve months are missing and leave the baseline
+// beginning in 2011. Derived from the registered constant so the fetch window can
+// never drift from the window the statistics claim to use.
+const baselineFetchStart = `${BASELINE_FETCH_START}-01`;
+
+// A few series need a long history rather than either window above.
 // Worker share: pull the FULL series back to 1947 — the multi-decade decline
 // is itself the story, and the 4-quarter-change baseline wants the depth.
 const LONG_HISTORY = { GDICOMP: "1947-01-01", GDI: "1947-01-01" };
+
+const startFor = (id) =>
+  LONG_HISTORY[id] ?? (FIXED_BASELINE_IDS.has(id) ? baselineFetchStart : observationStart);
 
 async function fetchSeries(seriesId) {
   const url = new URL("https://api.stlouisfed.org/fred/series/observations");
   url.searchParams.set("series_id", seriesId);
   url.searchParams.set("api_key", apiKey);
   url.searchParams.set("file_type", "json");
-  url.searchParams.set("observation_start", LONG_HISTORY[seriesId] ?? observationStart);
+  url.searchParams.set("observation_start", startFor(seriesId));
   url.searchParams.set("sort_order", "asc");
   const res = await fetch(url);
   if (!res.ok) throw new Error(`FRED ${seriesId} HTTP ${res.status}`);
@@ -115,5 +153,83 @@ for (const id of OPTIONAL_IDS) {
   }
 }
 
-saveSection("fred", { ...prior, lastRefreshed: nowIso(), series, seriesGaps });
+// How much of the fixed baseline each z-scored series actually has. Recorded in
+// the pool rather than left implicit, because the spec's fallback rule ("where a
+// series does not extend to 2010, use the longest available pre-2020 window and
+// record the actual start date") is only honest if the actual start is written
+// down somewhere a reader can check. A series with too few baseline readings is
+// not silently scored against a stub — payload.mjs reports no clean baseline.
+// ACCEPTANCE IS THE START DATE, NOT THE COUNT. A count check passes on
+// 2016-07..2019-12 alone, which is the late-cycle top of one expansion rather than
+// a neutral decade, so it would certify precisely the unrepresentative baseline the
+// fixed window was introduced to rule out. Coverage from BASELINE_REQUIRED_START is
+// the test; the actual start is recorded either way; a series that misses it FAILS
+// THE RUN rather than being quietly scored against whatever history it happens to
+// have.
+//
+// Every FRED series here was verified in CI (2026-07-26) to begin at or before
+// 2006-03, so with the fetch lead there is no legitimate reason for a miss. A miss
+// means a truncated pull, a renamed series, or a discontinued one, and none of those
+// should reach the analyst wearing a z-score.
+const monthsApart = (a, b) => {
+  const [ay, am] = a.split("-").map(Number);
+  const [by, bm] = b.split("-").map(Number);
+  return (by * 12 + bm) - (ay * 12 + am);
+};
+
+const baselineCoverage = {};
+for (const id of FIXED_BASELINE_IDS) {
+  const obs = series[id];
+  if (!obs?.length) continue;
+  const inWindow = obs.filter((o) => {
+    const ym = o.date.slice(0, 7);
+    return ym >= BASELINE_START && ym <= BASELINE_END;
+  });
+  const actualStart = inWindow.length ? inWindow[0].date.slice(0, 7) : null;
+  // Slack absorbs quarter-end dating (a quarterly series legitimately starts
+  // 2010-03) and nothing more than that.
+  const lateBy = actualStart ? monthsApart(BASELINE_REQUIRED_START, actualStart) : null;
+  baselineCoverage[id] = {
+    requiredBaselineStart: BASELINE_REQUIRED_START,
+    actualBaselineStart: actualStart,
+    seriesStart: obs[0].date.slice(0, 7),
+    baselineReadings: inWindow.length,
+    startMonthsLate: lateBy,
+    coversBaseline: lateBy != null && lateBy <= BASELINE_START_SLACK_MONTHS,
+  };
+}
+
+const missing = Object.entries(baselineCoverage).filter(([, c]) => !c.coversBaseline);
+if (missing.length) {
+  const detail = missing
+    .map(([id, c]) =>
+      `  ${id}: baseline starts ${c.actualBaselineStart ?? "NEVER"} ` +
+      `(series begins ${c.seriesStart}, required ${BASELINE_REQUIRED_START}, ` +
+      `${c.baselineReadings} readings in window)`)
+    .join("\n");
+  throw new Error(
+    `${missing.length} z-scored series do not cover the fixed baseline from ` +
+    `${BASELINE_REQUIRED_START}:\n${detail}\n` +
+    `All of these were verified to begin at or before 2006-03, so this is a truncated ` +
+    `or broken pull, not a short series. A z-score against a baseline that starts late ` +
+    `is the unrepresentative reading the fixed window exists to prevent, so the run ` +
+    `stops rather than publishing it. If a series has genuinely been discontinued or ` +
+    `rebased, that is a public re-registration: add it to BASELINE_EXEMPT_PANELS with ` +
+    `the reason.`,
+  );
+}
+// Secondary floor. Coverage is the acceptance test; this catches a series that
+// starts on time and is full of holes.
+const holey = Object.entries(baselineCoverage)
+  .filter(([, c]) => c.baselineReadings < BASELINE_MIN_READINGS);
+if (holey.length) {
+  throw new Error(
+    `${holey.length} series cover the baseline start but hold fewer than ` +
+    `${BASELINE_MIN_READINGS} readings inside it, which means gaps: ` +
+    `${holey.map(([id, c]) => `${id}=${c.baselineReadings}`).join(", ")}`,
+  );
+}
+
+saveSection("fred", { ...prior, lastRefreshed: nowIso(), series, seriesGaps, baselineCoverage });
 console.log(`fred section updated${Object.keys(seriesGaps).length ? ` (${Object.keys(seriesGaps).length} gap-marked series)` : ""}`);
+console.log(`baseline coverage recorded for ${Object.keys(baselineCoverage).length} z-scored series`);

@@ -28,11 +28,13 @@ import {
   panelHeadlines, changesSinceLastRun,
 } from "./payload.mjs";
 import { deriveVerdict } from "./analyst/verdict.mjs";
+import { pairedStateFromPool } from "./analyst/pairedState.mjs";
+import { resolveOutstanding } from "./analyst/falsifier.mjs";
 import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES, HEAVY_REVISION_MAX_PP } from "./config.mjs";
 import { assembleNews } from "./analyst/news.mjs";
 import {
   PASS1_SYSTEM, PASS2_SYSTEM, buildPass1Message, buildPass2Message,
-  parsePass1, parsePass2, noteCompliance, FALSIFIER_HORIZON_DAYS,
+  parsePass1, parsePass2, noteCompliance, analysisCompliance, FALSIFIER_HORIZON_DAYS,
 } from "./analyst/prompt.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -136,6 +138,19 @@ const payload = buildAnalysisPayload(pool, {
 });
 const votes = votingPanelStates(pool, extras);
 
+// The paired state: computed every run, stored beside it, NEVER sent to the model.
+// The analyst gets the panels for both axes (attribution and reabsorption) and
+// reasons to its own conclusion; this is the mechanical check that conclusion is
+// measured against afterwards, the same way the existing stoplight is. Handing the
+// model its own answer would turn the analyst into a formatter for a rule engine.
+// payload.test.mjs asserts this value never reaches the request body.
+const paired = pairedStateFromPool(pool);
+
+// Score every prior run's falsifier against TODAY's panels, before the model is
+// called. Until now these were pre-registered and never checked, which produced
+// the appearance of a track record and none of the substance. The resolved record
+// goes to pass 2 so the analyst sees its own history rather than being told it
+// has one.
 const jobsPanel = payload.find((p) => p.panel === "exposed_vs_control_jobs");
 const latestLaborMonth = jobsPanel?.latest_date ?? null;
 
@@ -148,6 +163,12 @@ const runsLog = existsSync(RUNS_PATH)
   ? JSON.parse(readFileSync(RUNS_PATH, "utf8"))
   : { schemaVersion: 1, description: "Append-only Analyst run history. Every run, nothing overwritten.", runs: [] };
 const runs = runsLog.runs ?? [];
+
+// Score every prior falsifier against TODAY's panels. Every falsifier written
+// before 2026-07-27 carried a free-text magnitude and resolves as UNCHECKABLE,
+// which is the honest starting point: the record begins now rather than being
+// backfilled with predictions nobody could evaluate.
+const falsifierRecord = resolveOutstanding(runs, payload, nowIso());
 
 /** The most recent logged run, whatever data month it belongs to. */
 const priorEntry = entries.length ? entries[entries.length - 1] : null;
@@ -280,7 +301,7 @@ function pass2Request(model, pass1) {
     thinking: { type: "adaptive" },
     output_config: { effort: EFFORT },
     system: PASS2_SYSTEM,
-    messages: [{ role: "user", content: buildPass2Message(pass1, priorEntry, changes) }],
+    messages: [{ role: "user", content: buildPass2Message(pass1, priorEntry, changes, falsifierRecord) }],
   };
 }
 
@@ -293,6 +314,14 @@ if (DRY_RUN) {
   console.log("=== DRY RUN (no model call, nothing written) ===");
   console.log(`mechanical state : ${mechanical.mechanicalState} | breadth ${mechanical.breadth} | gainsVisible ${mechanical.gainsVisible}`);
   console.log(`labor votes      : jobs=${votes.jobs} wages=${votes.wages} postings=${votes.postings}`);
+  console.log(`falsifiers       : ${falsifierRecord.summary}`);
+  for (const r of falsifierRecord.resolutions) {
+    console.log(`  ${r.dataMonth} ${r.verdict}: ${r.outcome} — ${r.reason}`);
+  }
+  console.log(`paired state     : ${paired.state} (${paired.attribution.label} + ${paired.reabsorption.label}) — NOT sent to the model`);
+  console.log(`  attribution z  : ${paired.attribution.z ?? "cannot be placed"}`);
+  console.log(`  reabsorption z : ${paired.reabsorption.z ?? "cannot be placed"}`);
+  console.log(`  path length    : ${paired.path.length} months`);
   console.log(`data integrity   : ${dataIntegrity.ok ? "ok" : `FAILED — ${dataIntegrity.reason}`}`);
   console.log(`data month       : ${dataMonth}`);
   console.log(`input hash       : ${inputHash.slice(0, 16)}…`);
@@ -350,7 +379,9 @@ async function runAnalyst(model) {
       rate: rateFor(model, finishedAt),
     },
     text: pass2.publishedNote,
+    fullAnalysis: pass2.fullAnalysis,
     compliance: noteCompliance(pass2.publishedNote),
+    analysisStats: analysisCompliance(pass2.fullAnalysis),
   };
 }
 
@@ -367,8 +398,10 @@ if (AB_RUN) {
       console.log(`tag line    : ${r.pass2.tagLine}`);
       console.log(`notification: ${r.pass2.notificationLine} (${r.pass2.notificationLine.length} chars)`);
       console.log(`pass 2 dissent: ${r.pass2.dissented ? r.pass2.dissentNote : "no"}`);
-      console.log(`note        : ${r.compliance.words} words, ${r.compliance.numbers} numbers` +
-        `${r.compliance.withinWordRange ? "" : " [OUTSIDE 400-500]"}${r.compliance.withinNumberCeiling ? "" : " [OVER 10 NUMBERS]"}`);
+      // Counts are DESCRIPTIVE now. Length is proportional to what changed and the
+      // number ceiling is retired, so there is no band to be outside of.
+      console.log(`note        : ${r.compliance.words} words (${r.compliance.lengthBand}), ${r.compliance.numbers} numbers`);
+      console.log(`full analysis: ${r.analysisStats.present ? `${r.analysisStats.words} words` : "ABSENT"}`);
       console.log(`tokens      : ${r.usage.totalInputTokens} in / ${r.usage.totalOutputTokens} out` +
         ` (pass1 ${r.usage.pass1.inputTokens}/${r.usage.pass1.outputTokens}, pass2 ${r.usage.pass2.inputTokens}/${r.usage.pass2.outputTokens})`);
       console.log(`cost        : $${r.usage.costUsd.toFixed(4)} at $${r.usage.rate.input}/$${r.usage.rate.output} per MTok${r.usage.rate.intro ? " (introductory)" : ""}`);
@@ -408,7 +441,11 @@ appendEntry(
     falsifierPlain: result.pass1.falsifierPlain,
     dissent: result.pass2.dissented ? result.pass2.dissentNote : null,
     analysis: result.text,
+    // The longer document, shown behind the "Full analysis" control. NOT the
+    // reasoning log, which stays out of the app entirely.
+    fullAnalysis: result.fullAnalysis,
     compliance: result.compliance,
+    analysisStats: result.analysisStats,
   },
   result,
 );
@@ -417,10 +454,29 @@ console.log(
   `analyst: ${result.pass1.verdict} "${result.pass2.tagLine}" (${dataMonth}); ` +
   `mechanical ${mechanical.mechanicalState}` +
   (result.pass2.dissented ? "; PASS 2 DISSENTED" : "") +
-  `; note ${result.compliance.words}w/${result.compliance.numbers}n` +
+  `; note ${result.compliance.words}w (${result.compliance.lengthBand})/${result.compliance.numbers}n` +
+  `; analysis ${result.analysisStats.present ? `${result.analysisStats.words}w` : "ABSENT"}` +
   ` — usage (log only): ${result.usage.totalInputTokens} in / ${result.usage.totalOutputTokens} out, ` +
   `est $${result.usage.costUsd.toFixed(4)}`,
 );
+
+/**
+ * Whether the mechanical 2x2 lands in the same place the analyst did. Returns a
+ * string rather than a boolean because "cannot be compared" is a real third
+ * answer: CONFOUNDED is off the axis by design and INDETERMINATE means an axis
+ * had no clean baseline, and collapsing either into "disagrees" would manufacture
+ * a dissent that nobody asserted.
+ */
+function agreementWith(state, verdict) {
+  if (state === "INDETERMINATE" || verdict === "CONFOUNDED") return "not comparable";
+  const impliedByState = {
+    DISPLACEMENT: "DISPLACEMENT",
+    REALLOCATION: "AUGMENTATION",  // work moving, aggregate catching it
+    STABLE: "AUGMENTATION",        // nothing deteriorating anywhere
+    NOT_AI: "CONFOUNDED",          // weakness with no AI-exposed signature
+  }[state];
+  return impliedByState === verdict ? "agrees" : "diverges";
+}
 
 /**
  * Append to BOTH logs. The dissent log is the app's timeline (public, small); the
@@ -432,6 +488,21 @@ function appendEntry(entry, result) {
     ...entry,
     mechanicalState: mechanical.mechanicalState,
     breadth: mechanical.breadth,
+    // The paired state, stored with the run and never shown to the model. The
+    // path is kept out of the timeline entry (the app recomputes it from the pool
+    // for the 2x2 chart); only the placement is logged, so the log stays small
+    // while still recording what the mechanics said this month.
+    pairedState: {
+      state: paired.state,
+      attributionZ: paired.attribution.z,
+      attributionLabel: paired.attribution.label,
+      reabsorptionZ: paired.reabsorption.z,
+      reabsorptionLabel: paired.reabsorption.label,
+    },
+    // Divergence is the reviewable signal: the analyst reasoned over the same two
+    // axes without being told the answer, so a mismatch is worth looking at in
+    // either direction. Recorded as a flag rather than a judgement.
+    pairedStateAgreesWithVerdict: agreementWith(paired.state, entry.verdict),
     inputsFingerprint: inputHash,
     // For heavy-revision detection on a later run.
     keyNumbers: {
@@ -467,6 +538,10 @@ function appendEntry(entry, result) {
         `Model: ${result.model} | effort: ${result.effort} | verdict: ${entry.verdict}`,
         `Input snapshot: ${inputHash}`,
         `Mechanical indicator, never shown to the model: ${mechanical.mechanicalState}, breadth ${mechanical.breadth}`,
+        `Paired state, never shown to the model: ${paired.state} ` +
+          `(${paired.attribution.label} z=${paired.attribution.z ?? "n/a"} + ` +
+          `${paired.reabsorption.label} z=${paired.reabsorption.z ?? "n/a"}) ` +
+          `— ${agreementWith(paired.state, entry.verdict)} with the published verdict`,
         ``,
         `Stored, never published. Pass 1 full working.`,
         ``,
@@ -481,7 +556,8 @@ function appendEntry(entry, result) {
       [
         `# Published note ${dataMonth} (run ${entry.runAt})`,
         ``,
-        `Verdict: ${entry.verdict} | ${entry.compliance?.words ?? "?"} words | ${entry.compliance?.numbers ?? "?"} numbers`,
+        `Verdict: ${entry.verdict} | ${entry.compliance?.words ?? "?"} words (${entry.compliance?.lengthBand ?? "?"}) | ${entry.compliance?.numbers ?? "?"} numbers`,
+        `Counts are reported, not enforced: length is proportional to what changed and the number ceiling is retired.`,
         `Notification: ${entry.notificationLine}`,
         `Falsifier: ${entry.falsifierPlain ?? "(none)"}`,
         ``,
@@ -491,6 +567,33 @@ function appendEntry(entry, result) {
       ].join("\n") + "\n",
       "utf8",
     );
+    // The full analysis as its own file. Three documents, three files: the note is
+    // what most readers see, this is what the "Full analysis" control opens, and the
+    // reasoning log is the audit trail that is never surfaced to a reader. Keeping
+    // them separate on disk is what makes the gap between them reviewable.
+    if (entry.fullAnalysis) {
+      writeFileSync(
+        path.join(TRANSCRIPT_DIR, `${stem}.analysis.md`),
+        [
+          `# Full analysis ${dataMonth} (run ${entry.runAt})`,
+          ``,
+          `Verdict: ${entry.verdict} | ${entry.analysisStats?.words ?? "?"} words`,
+          `Reader-facing. The same argument as the published note, developed at length.`,
+          `This is NOT the reasoning log — see ${stem}.reasoning.md for that.`,
+          ``,
+          `---`,
+          ``,
+          entry.fullAnalysis,
+        ].join("\n") + "\n",
+        "utf8",
+      );
+    } else {
+      console.warn(
+        "WARN pass 2 returned no FULL_ANALYSIS block. The note and notification are " +
+        "unaffected and the run still publishes; the app's Full analysis control will " +
+        "be hidden for this month.",
+      );
+    }
   }
   writeFileSync(
     RUNS_PATH,
@@ -500,7 +603,12 @@ function appendEntry(entry, result) {
         description: runsLog.description,
         lastRefreshed: entry.runAt,
         runs: [
-          ...runs,
+          ...runs.map((r) => {
+            const res = falsifierRecord.resolutions.find((x) => x.runAt === r.runAt);
+            if (!res || res.outcome === "NOT_YET_DUE") return r;
+            const { runAt, dataMonth, verdict, ...outcome } = res;
+            return { ...r, falsifierResolution: outcome };
+          }),
           {
             runAt: entry.runAt,
             dataMonth,
@@ -511,10 +619,22 @@ function appendEntry(entry, result) {
             falsifierPlain: entry.falsifierPlain,
             falsifierHorizonDays: FALSIFIER_HORIZON_DAYS,
             publishedNoteCompliance: entry.compliance,
+            fullAnalysisStats: entry.analysisStats,
             namedConfounder: entry.namedConfounder,
             mechanicalState: mechanical.mechanicalState,
             breadth: mechanical.breadth,
             gainsVisible: mechanical.gainsVisible,
+            // Full paired state INCLUDING the 24-month path in the audit record.
+            // The audit log is where a later reader reconstructs what the mechanics
+            // saw, and a path shows movement between quadrants that a single
+            // placement cannot.
+            pairedState: paired,
+            pairedStateAgreesWithVerdict: agreementWith(paired.state, entry.verdict),
+            // Opened unresolved; a later run settles it. Storing the slot now means
+            // the shape is present from the first run rather than appearing later
+            // and making early runs look like they were never scored.
+            falsifierResolution: { outcome: "NOT_YET_DUE", reason: "registered this run" },
+            falsifierRecordAtRun: falsifierRecord.tally,
             inputHash,
             // Oscillation is MEASURED, not suppressed. A two-consecutive-periods
             // confirmation rule would delay a real turn as readily as it damps a
@@ -530,7 +650,7 @@ function appendEntry(entry, result) {
                   // The reasoning log lives HERE and only here: stored for audit,
                   // never published to the pool and never shown in the app.
                   pass1: { verdict: result.pass1.verdict, falsifier: result.pass1.falsifier, falsifierPlain: result.pass1.falsifierPlain, reasoningLog: result.pass1.reasoningLog, raw: result.rawPass1 },
-                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, publishedNote: result.pass2.publishedNote, raw: result.rawPass2 },
+                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, publishedNote: result.pass2.publishedNote, fullAnalysis: result.pass2.fullAnalysis, raw: result.rawPass2 },
                 }
               : null,
             usage: result?.usage ?? null,

@@ -21,10 +21,13 @@
 // All registered values come from config.mjs — one home, no per-file copies
 // (audit-2026-07 findings 5, 6, 7, 9, 21).
 import {
-  COVID_START, COVID_END, WATCH_MIN_HISTORY, TRAILING_WINDOW, WATCH_Z, BREAK_Z,
+  BASELINE_START, BASELINE_END, UNUSABLE_START, UNUSABLE_END, OBSERVATION_START,
+  BASELINE_MIN_READINGS, BASELINE_REQUIRED_START, BASELINE_START_SLACK_MONTHS,
+  BASELINE_EXEMPT_PANELS, WATCH_MIN_HISTORY, WATCH_Z, BREAK_Z,
   PROD_BAND_LOW, PROD_BAND_HIGH, PROD_BREAK_RUN_QUARTERS,
   ADOPTION_RISING_LOOKBACK, TREND_DRIFT_Z, TREND_LOOKBACK_READINGS,
-  DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS, LABOR_SHARE_BASELINE_QUARTERS,
+  DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS,
+  REABSORPTION, REABSORPTION_CHANGE_MONTHS, REABSORPTION_FAST_CHANGE_MONTHS,
   ELO_SCALE,
 } from "./config.mjs";
 
@@ -76,6 +79,26 @@ function exposedEmploymentYoY(series) {
   return null;
 }
 
+/** [month, value] pairs for a raw FRED series, oldest first. */
+const datedOf = (obs) => sorted(obs).map((o) => [ymOf(o.date), o.value]);
+
+/** N-month change of a dated series, keyed by the later month. */
+function changeOverMonths(dated, months) {
+  const byMonth = new Map(dated);
+  const out = [];
+  for (const [m, v] of dated) {
+    const prior = byMonth.get(ymAdd(m, -months));
+    if (prior != null) out.push([m, v - prior]);
+  }
+  return out;
+}
+
+/** Month-by-month difference of two dated series, on their shared months. */
+function spreadOf(datedA, datedB) {
+  const b = new Map(datedB);
+  return datedA.filter(([m]) => b.has(m)).map(([m, v]) => [m, v - b.get(m)]);
+}
+
 /** Average of several ids' YoY-by-month, keeping only months where all are present. */
 function avgYoyDiffSeries(exposedIds, controlIds, series) {
   const ex = exposedIds.map((id) => yoyByMonth(series[id]));
@@ -94,26 +117,73 @@ function avgYoyDiffSeries(exposedIds, controlIds, series) {
   return pts;
 }
 
-const keepExCovid = (dated) =>
-  dated.filter(([m]) => m < COVID_START || m > COVID_END).map(([, v]) => v);
+// --- The two baselines ------------------------------------------------------
+//
+// Every z on this dashboard is now reported TWICE: once against the fixed
+// pre-treatment window (2010-2019) and once against everything we hold minus the
+// unusable middle. Neither reading is the "real" one. The pre-2020 figure is the
+// only clean control, but it is old and cannot know about structural changes that
+// have nothing to do with AI; the full-history figure is current but includes the
+// period under test in its own definition of normal. The gap between them is the
+// measurement of how much the second problem matters, which is why both travel.
+//
+// Read the divergence like this: if the full-history z is materially SMALLER than
+// the fixed-baseline z, the observation period has been pulling "normal" toward
+// itself — the panel is being graded against its own recent behaviour.
 
-function zScore(latest, historyVals) {
-  if (historyVals.length < WATCH_MIN_HISTORY) return null;
-  const mean = historyVals.reduce((a, b) => a + b, 0) / historyVals.length;
-  const sd = Math.sqrt(historyVals.reduce((a, b) => a + (b - mean) ** 2, 0) / historyVals.length);
-  if (sd < 1e-9) return null;
-  return (latest - mean) / sd;
-}
-const stateForZ = (z) => (z == null ? "steady" : z >= BREAK_Z ? "break" : z >= WATCH_Z ? "watch" : "steady");
+const inBaseline = (ym) => ym >= BASELINE_START && ym <= BASELINE_END;
+const inUnusable = (ym) => ym >= UNUSABLE_START && ym <= UNUSABLE_END;
+const inObservation = (ym) => ym >= OBSERVATION_START;
 
-/** The panel's trigger value in its own units (one-tailed 2-sigma off the calm baseline). */
-function twoSigmaTrigger(dated, upperSide) {
-  const vals = keepExCovid(dated);
-  if (vals.length < WATCH_MIN_HISTORY) return null;
+/** Readings inside the fixed pre-treatment window, in order. */
+const baselineSample = (dated) => dated.filter(([m]) => inBaseline(m));
+/** Every reading except the unusable middle, latest excluded by the caller. */
+const usableSample = (dated) => dated.filter(([m]) => !inUnusable(m));
+
+function stats(vals) {
+  if (!vals.length) return null;
   const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
   const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length);
-  if (sd < 1e-9) return null;
-  return upperSide ? mean + BREAK_Z * sd : mean - BREAK_Z * sd;
+  return { mean, sd, n: vals.length };
+}
+
+/**
+ * Does this sample actually COVER the baseline, starting when it is supposed to?
+ *
+ * This is the acceptance test, and it replaced a reading count because the count
+ * was passing on windows that should never have qualified: 36 monthly readings is
+ * satisfiable by 2016-07..2019-12 alone, which is the late-cycle top of one
+ * expansion rather than a neutral decade. Slack absorbs quarter-end dating only.
+ */
+function baselineCovers(datedSample) {
+  if (!datedSample.length) return false;
+  return monthsBetween(BASELINE_REQUIRED_START, datedSample[0][0]) <= BASELINE_START_SLACK_MONTHS;
+}
+
+/**
+ * z of [latest] against a dated sample. Returns null rather than a number computed
+ * off an unrepresentative window — a baseline that starts late has to read as "no
+ * clean baseline exists", never as a quiet fallback.
+ */
+function zAgainst(latest, datedSample, opts = {}) {
+  const { requireCoverage = true, minReadings = BASELINE_MIN_READINGS } = opts;
+  if (requireCoverage && !baselineCovers(datedSample)) return null;
+  const st = stats(datedSample.map(([, v]) => v));
+  if (!st || st.n < minReadings || st.sd < 1e-9) return null;
+  return (latest - st.mean) / st.sd;
+}
+
+const stateForZ = (z) => (z == null ? "steady" : z >= BREAK_Z ? "break" : z >= WATCH_Z ? "watch" : "steady");
+
+/**
+ * The panel's trigger value in its own units, off the FIXED baseline (one-tailed
+ * two sigma). Previously computed off the rolling window, which meant the alarm
+ * line drifted with the data it was supposed to be judging.
+ */
+function twoSigmaTrigger(dated, upperSide) {
+  const st = stats(baselineSample(dated).map(([, v]) => v));
+  if (!st || st.n < BASELINE_MIN_READINGS || st.sd < 1e-9) return null;
+  return upperSide ? st.mean + BREAK_Z * st.sd : st.mean - BREAK_Z * st.sd;
 }
 
 // --- Step 3: long-run context, deviation, and last month ----------------------
@@ -137,32 +207,84 @@ function twoSigmaTrigger(dated, upperSide) {
  * distribution, plus its range and how many readings back it goes.
  * [dated] is [month, value] in the series' own units and orientation.
  */
-function longRun(dated) {
-  const vals = keepExCovid(dated);
-  if (vals.length < WATCH_MIN_HISTORY) {
-    return {
-      readings_in_baseline: vals.length,
-      note: `only ${vals.length} readings outside the excluded pandemic window — too few for a baseline (${WATCH_MIN_HISTORY} needed), so treat any deviation language with caution`,
-    };
-  }
-  const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
-  const sd = Math.sqrt(vals.reduce((a, b) => a + (b - mean) ** 2, 0) / vals.length);
-  const withDates = dated.filter(([m]) => m < COVID_START || m > COVID_END);
-  let lo = withDates[0], hi = withDates[0];
-  for (const p of withDates) {
+function rangeOf(dated) {
+  if (!dated.length) return {};
+  let lo = dated[0], hi = dated[0];
+  for (const p of dated) {
     if (p[1] < lo[1]) lo = p;
     if (p[1] > hi[1]) hi = p;
   }
   return {
-    baseline_mean: round2(mean),
-    baseline_standard_deviation: round2(sd),
-    baseline_low: round2(lo[1]),
-    baseline_low_date: lo[0],
-    baseline_high: round2(hi[1]),
-    baseline_high_date: hi[0],
-    readings_in_baseline: vals.length,
-    first_reading_date: withDates[0]?.[0] ?? null,
-    baseline_window: `all readings from ${withDates[0]?.[0] ?? "?"} onward, with ${COVID_START} to ${COVID_END} excluded`,
+    low: round2(lo[1]), low_date: lo[0],
+    high: round2(hi[1]), high_date: hi[0],
+  };
+}
+
+function longRun(dated, panelName = null) {
+  const base = baselineSample(dated);
+  const full = usableSample(dated);
+  const bst = stats(base.map(([, v]) => v));
+  const fst = stats(full.map(([, v]) => v));
+
+  // Acceptance is COVERAGE FROM THE REQUIRED START, not a reading count. The count
+  // was the original test and it was too weak to do the job: 36 monthly readings is
+  // satisfiable by 2016-07..2019-12 alone, so a series could pass while its entire
+  // "normal" was drawn from the late-cycle top of one expansion.
+  const covers = baselineCovers(base);
+  const enough = bst != null && bst.n >= BASELINE_MIN_READINGS;
+  const exemptReason = panelName ? BASELINE_EXEMPT_PANELS[panelName] ?? null : null;
+
+  const fixed = !covers || !enough
+    ? {
+        usable: false,
+        readings: bst?.n ?? 0,
+        actual_baseline_start: base.length ? base[0][0] : null,
+        required_baseline_start: BASELINE_REQUIRED_START,
+        // A declared reason where one exists, so "cannot reach the baseline" is
+        // never indistinguishable from "something broke in the pull".
+        reason: exemptReason ??
+          (base.length
+            ? `this series' baseline starts at ${base[0][0]}, later than the required ` +
+              `${BASELINE_REQUIRED_START}, and no reason is on record for that`
+            : `this series has no readings at all inside ${BASELINE_START} to ${BASELINE_END}`),
+        note:
+          `NO CLEAN PRE-2020 BASELINE. A window that starts late is not a smaller version ` +
+          `of the right window, it is a different and unrepresentative one: the years most ` +
+          `often left over are 2016-2019, the top of the last expansion, which makes almost ` +
+          `anything today look weak by comparison. So no deviation figure is reported ` +
+          `against the fixed window here. Read this panel on its levels and its direction, ` +
+          `not on how unusual it is.`,
+      }
+    : {
+        usable: true,
+        mean: round2(bst.mean),
+        standard_deviation: round2(bst.sd),
+        ...rangeOf(base),
+        readings: bst.n,
+        window: `${base[0][0]} to ${base[base.length - 1][0]}, fixed and never rolling`,
+        // Kept for the quarter-end case: a quarterly panel legitimately starts
+        // 2010-03, and stating it is cheaper than leaving a reader to wonder.
+        start_offset_note: base[0][0] !== BASELINE_START
+          ? `baseline starts ${base[0][0]} rather than ${BASELINE_START}, within the ` +
+            `${BASELINE_START_SLACK_MONTHS}-month allowance for quarter-end dating`
+          : null,
+      };
+
+  return {
+    fixed_pre2020_baseline: fixed,
+    full_history: fst
+      ? {
+          mean: round2(fst.mean),
+          standard_deviation: round2(fst.sd),
+          ...rangeOf(full),
+          readings: fst.n,
+          window: `every reading from ${full[0][0]} onward with ${UNUSABLE_START} to ${UNUSABLE_END} excluded`,
+          contamination_note:
+            `This window CONTAINS the period under test (${OBSERVATION_START} onward), so it is not an ` +
+            `independent control. It is reported so the two can be compared, not as the ` +
+            `preferred reading.`,
+        }
+      : null,
   };
 }
 
@@ -174,14 +296,46 @@ function longRun(dated) {
  */
 function deviation(oriented) {
   if (!oriented.length) return null;
-  const hist = oriented.slice(0, -1).slice(-TRAILING_WINDOW);
-  const z = zScore(oriented[oriented.length - 1][1], keepExCovid(hist));
-  if (z == null) return null;
+  const latest = oriented[oriented.length - 1][1];
+  // The fixed reading requires baseline coverage; the full-history reading does not,
+  // because it makes no claim to be a clean control in the first place.
+  const zFixed = zAgainst(latest, baselineSample(oriented));
+  // Latest excluded from its own comparison window, as before.
+  const zFull = zAgainst(latest, usableSample(oriented.slice(0, -1)), {
+    requireCoverage: false, minReadings: WATCH_MIN_HISTORY,
+  });
+  if (zFixed == null && zFull == null) return null;
+
+  // The divergence is the point of reporting both, so it is computed here rather
+  // than left as arithmetic for the reader. Positive means the fixed baseline
+  // reads MORE displacement-shaped than full history does, which is the
+  // signature of full history having absorbed the trend.
+  const divergence = zFixed != null && zFull != null ? zFixed - zFull : null;
+
   return {
-    standard_deviations_from_normal: round2(z),
+    against_fixed_pre2020_baseline: zFixed == null ? null : round2(zFixed),
+    against_full_history: zFull == null ? null : round2(zFull),
+    divergence: divergence == null ? null : round2(divergence),
+    divergence_note: divergence == null
+      ? "only one of the two readings could be computed, so they cannot be compared. " +
+        "If the fixed-baseline figure is the missing one, see this panel's " +
+        "long_run_context for why it has no clean baseline"
+      : Math.abs(divergence) < 0.25
+        ? "the two baselines agree, so this reading does not depend on which window is used"
+        : divergence > 0
+          ? "this reading looks LESS unusual against full history than against the clean " +
+            "pre-2020 window, which is what it looks like when the period under test has " +
+            "been absorbed into the definition of normal. Prefer the pre-2020 figure."
+          : "this reading looks MORE unusual against full history than against the clean " +
+            "pre-2020 window, so the recent period is more extreme than the pre-2020 " +
+            "record and the divergence is not a contamination artifact.",
     orientation: "positive means further toward displacement; negative means further away",
     alarm_line: BREAK_Z,
     attention_line: WATCH_Z,
+    which_to_prefer:
+      `The fixed ${BASELINE_START} to ${BASELINE_END} window is the only baseline that does not ` +
+      `contain the period being judged. Where the two disagree, reason from it and say ` +
+      `that you are doing so.`,
   };
 }
 
@@ -206,25 +360,33 @@ function elapsed(months) {
  * toward displacement. Returns a plain-English streak string, or null.
  */
 function streakString(oriented, cadence) {
-  const states = [];
-  const zs = [];
-  for (let i = 0; i < oriented.length; i++) {
-    const hist = oriented.slice(0, i).slice(-TRAILING_WINDOW);
-    const z = zScore(oriented[i][1], keepExCovid(hist));
-    if (z == null) continue;
-    states.push([oriented[i][0], stateForZ(z)]);
-    zs.push(z);
-  }
-  if (!states.length) return null;
+  // The baseline is fixed, so every reading is scored against the SAME mean and
+  // standard deviation. Under the old rolling window each reading was scored
+  // against its own preceding decade, which meant a long streak was partly
+  // measuring the window sliding rather than the series moving.
+  const base = stats(baselineSample(oriented).map(([, v]) => v));
+  if (!base || base.n < BASELINE_MIN_READINGS || base.sd < 1e-9) return null;
+
+  // Walked over the observation period only. The unusable middle is not a
+  // condition the panel "held", and readings inside the baseline are steady by
+  // construction, so including either would inflate every streak.
+  const walk = oriented.filter(([m]) => inObservation(m));
+  if (!walk.length) return null;
+
+  const states = walk.map(([m, v]) => [m, stateForZ((v - base.mean) / base.sd)]);
+  const zs = walk.map(([, v]) => (v - base.mean) / base.sd);
+
   const current = states[states.length - 1][1];
   let consecutive = 0;
   let start = states[states.length - 1][0];
   for (let j = states.length - 1; j >= 0; j--) {
     if (states[j][1] === current) { consecutive++; start = states[j][0]; } else break;
   }
+  const censored = consecutive === states.length; // ran to the start of the window
   const [sy, sm] = start.split("-").map(Number);
   const [ey, em] = states[states.length - 1][0].split("-").map(Number);
   const months = (ey * 12 + em) - (sy * 12 + sm);
+
   let drift = "holding roughly flat";
   if (zs.length >= TREND_LOOKBACK_READINGS) {
     const d = zs[zs.length - 1] - zs[zs.length - TREND_LOOKBACK_READINGS];
@@ -232,10 +394,14 @@ function streakString(oriented, cadence) {
     else if (d < -TREND_DRIFT_Z) drift = "recovering";
   }
   const condition = current === "steady"
-    ? "inside its normal range"
+    ? "inside the range its own 2010s history defined"
     : current === "watch" ? "modestly past its alarm line" : "well past its alarm line";
   const noun = consecutive === 1 ? "reading" : "readings";
-  return `${consecutive} consecutive ${cadence} ${noun} ${condition} (${elapsed(months)}), ${drift}`;
+  const prefix = censored ? "at least " : "";
+  const tail = censored
+    ? ` — the streak reaches the start of the observation window (${OBSERVATION_START}), so it may be longer than this`
+    : "";
+  return `${prefix}${consecutive} consecutive ${cadence} ${noun} ${condition} (${elapsed(months)}), ${drift}${tail}`;
 }
 
 /**
@@ -267,9 +433,184 @@ function declineStreakQuarters(obs) {
  */
 function currentDisplacementState(oriented) {
   if (!oriented.length) return "steady";
-  const hist = oriented.slice(0, -1).slice(-TRAILING_WINDOW);
-  const z = zScore(oriented[oriented.length - 1][1], keepExCovid(hist));
+  const z = zAgainst(oriented[oriented.length - 1][1], baselineSample(oriented));
   return stateForZ(z);
+}
+
+/**
+ * The fixed-baseline z of the latest reading, exported for the paired state.
+ * Returns null when no clean baseline exists, and the caller must treat that as
+ * "cannot place this axis" rather than as zero.
+ */
+export function fixedBaselineZ(oriented) {
+  if (!oriented.length) return null;
+  return zAgainst(oriented[oriented.length - 1][1], baselineSample(oriented));
+}
+
+// --- The reabsorption axis ---------------------------------------------------
+//
+// Everything here is measured as a 12-MONTH CHANGE rather than a level, and that
+// is a deliberate statistical choice rather than a stylistic one. These are level
+// series with strong decade-scale trends, and the fixed baseline opens in the
+// post-financial-crisis hole: prime-age employment-population bottomed near 74.8
+// in 2010-2011 and climbed for a decade, and the long-term-unemployed share was
+// at a record high over the same stretch. Scoring today's LEVEL against the
+// 2010-2019 mean would therefore read as "abnormally healthy" more or less
+// permanently, and the deterioration side of this axis would be unfireable by
+// construction. Scoring the CHANGE asks the question that actually matters — is
+// absorption getting worse — and it is what Card 2 already does with the worker
+// income share, for this same reason.
+
+/**
+ * One reabsorption component. [orientSign] is +1 when a RISING value means
+ * deterioration and -1 when a FALLING value does, so every returned z is
+ * deterioration-positive and the components can be read against one line.
+ */
+function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning) {
+  if (!dated.length) {
+    return { series_id: seriesId, display_label: label, available: false, note: "series absent from the pool this run" };
+  }
+  const changes = changeOverMonths(dated, REABSORPTION_CHANGE_MONTHS);
+  const oriented = changes.map(([m, v]) => [m, orientSign * v]);
+  const fast = changeOverMonths(dated, REABSORPTION_FAST_CHANGE_MONTHS);
+  const fastOriented = fast.map(([m, v]) => [m, orientSign * v]);
+  const latest = dated[dated.length - 1];
+  const latestChange = changes.length ? changes[changes.length - 1] : null;
+  const latestFast = fast.length ? fast[fast.length - 1] : null;
+  const dirOf = (v) => (v == null ? "unknown" : Math.abs(v) < 1e-9 ? "flat" : v > 0 ? "rising" : "falling");
+
+  return {
+    series_id: seriesId,
+    display_label: label,
+    unit,
+    what_it_reads: meaning,
+    latest_value: round2(latest[1]),
+    latest_date: latest[0],
+    change_over_12_months: latestChange ? round2(latestChange[1]) : null,
+    direction: dirOf(latestChange?.[1]),
+    deterioration_direction: orientSign > 0 ? "rising is deterioration" : "falling is deterioration",
+    long_run_context_12m_changes: longRun(oriented),
+    deviation_from_normal: deviation(oriented),
+    // The fast horizon. A twelve-month change is the right orientation for placing
+    // the axis and it is slow — a turn can take a year to appear in it — so the
+    // three-month change is carried alongside to make a recent inflection visible
+    // sooner. It is CONTEXT AND NOT A SECOND VOTE.
+    fast_horizon: {
+      months: REABSORPTION_FAST_CHANGE_MONTHS,
+      change: latestFast ? round2(latestFast[1]) : null,
+      direction: dirOf(latestFast?.[1]),
+      deviation_from_normal: deviation(fastOriented),
+      role:
+        `CONTEXT ONLY. The ${REABSORPTION_CHANGE_MONTHS}-month change above places this axis; this ` +
+        `${REABSORPTION_FAST_CHANGE_MONTHS}-month reading does not and must not be treated as a second ` +
+        `vote. Use it to notice a turn earlier than the headline can show one, and to say ` +
+        `whether the two horizons agree.`,
+      reading_rule:
+        `A ${REABSORPTION_FAST_CHANGE_MONTHS}-month change on a monthly series is noisy, and it is ` +
+        `not seasonally comparable to the ${REABSORPTION_CHANGE_MONTHS}-month figure. If it disagrees with ` +
+        `the headline, that is a hypothesis about a possible turn, not a finding. Say ` +
+        `which horizon you are citing whenever you cite either.`,
+      agrees_with_headline: latestFast && latestChange
+        ? Math.sign(latestFast[1]) === Math.sign(latestChange[1])
+        : null,
+    },
+  };
+}
+
+/**
+ * The reabsorption axis: whether the outflow from AI-exposed work is landing.
+ * Exported because BOTH the payload panel and the paired state read it, and they
+ * must read the same numbers — the state is a check on the analyst's reasoning
+ * over this panel, which is worthless if the two are computed differently.
+ */
+export function reabsorptionReadings(series) {
+  const epop = datedOf(series[REABSORPTION.primeAgeEpop]);
+  const ltu = datedOf(series[REABSORPTION.longTermUnemployedShare]);
+  const hires = datedOf(series[REABSORPTION.hiresRate]);
+  const quits = datedOf(series[REABSORPTION.quitsRate]);
+  const u6 = datedOf(series[REABSORPTION.u6]);
+  const u3 = datedOf(series[REABSORPTION.u3]);
+  const netHiring = spreadOf(hires, quits);
+  const underemployment = spreadOf(u6, u3);
+
+  const headline = reabsorptionComponent(
+    REABSORPTION.primeAgeEpop,
+    "Share of 25-to-54-year-olds with a job",
+    "percent of the 25-54 population",
+    epop, -1,
+    "THE HEADLINE. Restricted to 25-54 on purpose: the all-ages employment rate " +
+    "falls when people retire, which has nothing to do with anyone being displaced. " +
+    "If work is being destroyed rather than moved, this is where it has to show up.",
+  );
+
+  return {
+    headline,
+    // Deterioration-oriented z of the headline's 12-month change, against the
+    // fixed window. This single number places the reabsorption axis.
+    headlineZ: fixedBaselineZ(changeOverMonths(epop, REABSORPTION_CHANGE_MONTHS).map(([m, v]) => [m, -v])),
+    secondary: [
+      reabsorptionComponent(
+        REABSORPTION.longTermUnemployedShare,
+        "Share of the unemployed who have been out 27 weeks or more",
+        "percent of the unemployed", ltu, +1,
+        "Whether the people leaving are failing to land. Short spells mean a working " +
+        "labour market; a rising long-term share means exits are not being caught.",
+      ),
+      {
+        // Built through the shared helper so the spread gets the same dual-horizon
+        // treatment as every other component, then annotated with both legs: a net
+        // figure alone hides whether hiring fell or quitting rose.
+        ...reabsorptionComponent(
+          `${REABSORPTION.hiresRate} minus ${REABSORPTION.quitsRate}`,
+          "Hiring pace against quitting pace",
+          "rate points (percent of employment, per month)",
+          netHiring, -1,
+          "Absorption against shedding. Hires above quits means the market is taking " +
+          "on more people than are voluntarily leaving.",
+        ),
+        hires_rate: hires.length ? round2(hires[hires.length - 1][1]) : null,
+        quits_rate: quits.length ? round2(quits[quits.length - 1][1]) : null,
+        both_sides_note:
+          "Name the moving side here too: this net figure falls both when hiring slows " +
+          "and when quitting accelerates, and those are different stories. The two " +
+          "underlying rates are given above.",
+      },
+      reabsorptionComponent(
+        `${REABSORPTION.u6} minus ${REABSORPTION.u3}`,
+        "Underemployment gap (U-6 minus U-3)",
+        "percentage points",
+        underemployment, +1,
+        "Whether people are landing but landing badly — part-time for economic " +
+        "reasons, or discouraged out of the count entirely. A displacement episode " +
+        "absorbed into worse work would widen this while the headline job count held.",
+      ),
+    ],
+    componentVintages: {
+      [REABSORPTION.primeAgeEpop]: epop.length ? epop[epop.length - 1][0] : null,
+      [REABSORPTION.longTermUnemployedShare]: ltu.length ? ltu[ltu.length - 1][0] : null,
+      [REABSORPTION.hiresRate]: hires.length ? hires[hires.length - 1][0] : null,
+      [REABSORPTION.quitsRate]: quits.length ? quits[quits.length - 1][0] : null,
+      [REABSORPTION.u6]: u6.length ? u6[u6.length - 1][0] : null,
+    },
+  };
+}
+
+// The two axes of the paired state, exposed as deterioration-oriented series so
+// the state module can place them without re-deriving anything. Note what is NOT
+// here: this file computes no paired state and imports nothing that does. The
+// payload is what the model sees, so the boundary is enforced by the direction of
+// the dependency rather than by remembering to leave a field out.
+export function attributionAxisOriented(pool) {
+  const series = pool.fred.series ?? {};
+  return avgYoyDiffSeries(DIFFERENTIALS.jobs.exposed, DIFFERENTIALS.jobs.control, series)
+    .map((p) => [p.month, -p.diff]); // gap widening = positive
+}
+
+export function reabsorptionAxisOriented(pool) {
+  const series = pool.fred.series ?? {};
+  const epop = datedOf(series[REABSORPTION.primeAgeEpop]);
+  return changeOverMonths(epop, REABSORPTION_CHANGE_MONTHS)
+    .map(([m, v]) => [m, -v]); // employment rate falling = positive
 }
 
 /**
@@ -520,16 +861,104 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "exposed_vs_control_jobs",
       series_id: "CES exposed (information, professional/business, financial) vs control (construction, leisure/hospitality, education/health)",
       display_label: "Jobs: AI-exposed vs control industries",
+      // Demoted 2026-07-26. This panel establishes that something is specific to
+      // AI-exposed work. It does not establish displacement, and it used to be
+      // read as though it did.
+      panel_role: "ATTRIBUTION",
+      panel_role_note:
+        "This is the attribution half of the question, not the verdict. It is the only " +
+        "measure on the dashboard that can separate an AI-specific story from a general " +
+        "economic one, which is why it is necessary. It cannot say whether work was " +
+        "destroyed. Pair it with the reabsorption panel before concluding anything.",
       unit: "percent (year-over-year job growth)",
       exposed_value: round1(last?.exposed),
       control_value: round1(last?.control),
       differential_exposed_minus_control: round1(last?.diff),
       latest_date: last?.month ?? null,
       prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
+      // A fact about what this instrument can and cannot see, carried with every
+      // reading rather than left in a rule the model may or may not apply here.
+      measurement_artifact: {
+        text:
+          "This measures REALLOCATION, not destruction. Work the mechanics: if AI " +
+          "eliminates 100 jobs in information and professional services and all 100 of " +
+          "those workers are hired in construction and health care, exposed employment " +
+          "falls, control employment rises, the gap widens from both ends at once, and " +
+          "total employment is unchanged with every worker landing somewhere. Perfect " +
+          "reallocation with nobody left behind produces the MAXIMALLY negative reading " +
+          "on this panel. A widening gap is therefore consistent with mass displacement " +
+          "and with entirely benign job-switching, and this panel cannot tell them apart.",
+        weighting_rule:
+          "Never treat a widening gap as displacement on its own. Read it as: something " +
+          "is happening specifically to AI-exposed work. Then go to the reabsorption " +
+          "panel to find out whether the outflow landed. If the gap is widening while " +
+          "prime-age employment, long-term unemployment and hiring hold steady, workers " +
+          "are moving rather than being removed.",
+        industry_proxy_caveat:
+          "Exposure here is assigned by INDUSTRY, which is a crude proxy for exposure to " +
+          "AI. A janitor employed in the information sector counts as exposed; a data " +
+          "analyst employed in manufacturing does not. Occupation-level task exposure " +
+          "would be the better frame, but occupational data is annual and heavily lagged, " +
+          "so this trades accuracy for responsiveness. Do not attribute precision to the " +
+          "exposed/control split that the industry proxy cannot support.",
+      },
       long_run_context: longRun(pts.map((p) => [p.month, p.diff])),
       deviation_from_normal: deviation(pts.map((p) => [p.month, -p.diff])),
       streak: streakString(pts.map((p) => [p.month, -p.diff]), "monthly"),
-      threshold: { differential_trigger: round1(trigger), rule: "the alarm is the exposed-minus-control gap falling two standard deviations below its own calm-period average (a wide but steady gap is not the alarm; the gap widening is)" },
+      threshold: { differential_trigger: round1(trigger), rule: `the attribution line is the exposed-minus-control gap falling two standard deviations below its ${BASELINE_START} to ${BASELINE_END} average (a wide but steady gap is not the signal; the gap widening is). Crossing it means AI-exposed work is diverging, not that anyone was displaced` },
+    });
+  }
+
+  // --- Reabsorption: did the outflow land anywhere? (the other half) ---
+  {
+    const r = reabsorptionReadings(series);
+    const vintages = Object.entries(r.componentVintages).filter(([, v]) => v);
+    const dates = vintages.map(([, v]) => v).sort();
+    panels.push({
+      panel: "reabsorption",
+      as_of: r.headline.latest_date ?? null,
+      series_id: Object.values(REABSORPTION).join(", "),
+      display_label: "Are people who left finding work",
+      panel_role: "REABSORPTION",
+      panel_role_note:
+        "The other half of the attribution panel. Displacement means work was removed " +
+        "from the economy; reallocation means it moved. Only the aggregate labour market " +
+        "can tell those apart, because a worker who left an exposed industry and was " +
+        "hired in a control one is invisible to the exposed-vs-control gap but visible " +
+        "here. None of these series requires knowing where any individual went.",
+      unit: "see each component",
+      headline: r.headline,
+      secondary_readouts: r.secondary,
+      reading_rule:
+        "The HEADLINE places this axis, on its 12-month change. The three secondary " +
+        "readouts are context and do not decide it on their own. This mirrors the rest of " +
+        "the dashboard, where supplemental panels inform but do not vote, and it avoids an " +
+        "unregistered composite index built out of four series with different vintages. " +
+        "Every component also carries a 3-month fast_horizon, which is context for the " +
+        "same reason and at one further remove: it exists to reveal a turn sooner than a " +
+        "12-month change can, and a 3-month move on a noisy monthly series is precisely " +
+        "what should not be able to move a verdict by itself. Where the two horizons " +
+        "disagree, say so and say which one you are citing.",
+      measurement_basis:
+        `Every component here is scored as a ${REABSORPTION_CHANGE_MONTHS}-month CHANGE, not as a level. ` +
+        `These are trending level series and the fixed baseline opens in the ` +
+        `post-financial-crisis hole, so a level scored against the 2010s mean would read ` +
+        `as abnormally healthy almost permanently and could never register deterioration. ` +
+        `The question is whether absorption is getting worse, which is a question about change.`,
+      component_vintages: r.componentVintages,
+      vintage_note: dates.length > 1 && dates[0] !== dates[dates.length - 1]
+        ? `These components do not share a vintage: the survey-based series run to ` +
+          `${dates[dates.length - 1]} while the job-openings series run to ${dates[0]}. ` +
+          `The headline is the fresher of the two, so a very recent turn would appear in ` +
+          `the headline before the hiring and quitting figures caught up.`
+        : null,
+      threshold: {
+        rule:
+          `deterioration is the headline's 12-month change reaching ${WATCH_Z} standard deviations ` +
+          `below its ${BASELINE_START} to ${BASELINE_END} norm. This panel does not fire an alarm by ` +
+          `itself either: a weak aggregate with no exposed-industry divergence is an ordinary ` +
+          `downturn, not an AI one.`,
+      },
     });
   }
 
@@ -600,7 +1029,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       spread_change_over_6_months: last && pp.length > 6 ? Math.round(last.spread - pp[pp.length - 7].spread) : null,
       latest_date: last ? last.date.slice(0, 7) : null,
       prior_reading: priorReading(pp.map((p) => [p.date.slice(0, 7), p.spread])),
-      long_run_context: longRun(pp.map((p) => [p.date.slice(0, 7), p.spread])),
+      long_run_context: longRun(pp.map((p) => [p.date.slice(0, 7), p.spread]), "job_postings_spread"),
       deviation_from_normal: deviation(pp.map((p) => [p.date.slice(0, 7), -p.spread])),
       history_caveat: "this series begins February 2020, so it has no pre-pandemic baseline and a shorter calm history than the other panels",
       streak: streakString(pp.map((p) => [p.date.slice(0, 7), -p.spread]), "monthly"),
@@ -608,13 +1037,34 @@ export function buildAnalysisPayload(pool, extras = {}) {
     });
   }
 
-  // --- Worker share of income (Card 2; audit-2026-07 finding 1 re-registration) ---
-  // GDICOMP/GDI, a true percent of national income, quarterly back to 1947.
-  // Registered rule: the change over LABOR_SHARE_CHANGE_QUARTERS quarters,
-  // z-scored against its own trailing LABOR_SHARE_BASELINE_QUARTERS history of
-  // such changes, COVID-excluded, latest excluded — acceleration, not level,
-  // with no fitted trend line (the old post-1980 detrend on PRS85006173 is
-  // retired; its reading depended on the fit window).
+  // --- Worker share of income (Card 2) ---
+  //
+  // NO THRESHOLD. RE-REGISTERED 2026-07-27, and the alarm is deleted rather than
+  // retuned.
+  //
+  // The old rule scored the 4-quarter change against a 2-sigma trigger. It could
+  // not mean what an alarm implies. This series has fallen for more than forty
+  // years, from 58.7 percent in 1970 to 51.0 now, for reasons that predate AI by
+  // decades: globalisation, union decline, capital deepening, the shift to
+  // intangibles. Against that, "falling faster than usual" is a statement about
+  // the business cycle, not about AI. Ordinary recessions have already produced
+  // 4-quarter declines of -2.18 (2009-12) and -1.59 (2010-03), both past the -1.4
+  // the trigger was set at, so the alarm fired on recessions and could never
+  // discriminate. Two independent analyst runs then chose this panel for their
+  // falsifier precisely BECAUSE it was the only one with clean history, and both
+  // had to bolt a "control industries still growing" condition onto it to stop it
+  // firing on a downturn. The threshold was doing harm.
+  //
+  // What replaces it is description with no verdict attached: where the level sits
+  // in its own record, how fast it has drifted over several EXPLICIT fixed
+  // horizons, and where the current 4-quarter change falls in the distribution of
+  // all such changes. The analyst reads it and decides what it is worth.
+  //
+  // Deliberately NOT a fitted trend line. The audit retired one on this panel
+  // (finding 1) because its reading depended on the fit window, and re-introducing
+  // one under the name "deviation from trend" would repeat that mistake with
+  // better manners. Several stated horizons cannot hide a window choice: they show
+  // it.
   {
     const share = laborShareSeries(series);
     const last = share.length ? share[share.length - 1] : null;
@@ -623,8 +1073,31 @@ export function buildAnalysisPayload(pool, extras = {}) {
       changes.push([quarterEndMonth(share[i].date), share[i].value - share[i - LABOR_SHARE_CHANGE_QUARTERS].value]);
     }
     const latestChange = changes.length ? changes[changes.length - 1][1] : null;
-    const trigger = twoSigmaTrigger(changes.slice(0, -1).slice(-LABOR_SHARE_BASELINE_QUARTERS), false);
     const decl = declineStreakQuarters(share);
+
+    // Drift over fixed look-backs, in quarters. Every horizon is named, so the
+    // reader can see that a "fast" recent decline against a slow secular one is a
+    // different claim from a fast one against a fast one.
+    const driftOver = (quarters) => {
+      if (share.length <= quarters) return null;
+      const a = share[share.length - 1 - quarters];
+      const b = share[share.length - 1];
+      return {
+        from_date: quarterEndMonth(a.date),
+        from_value: round1(a.value),
+        change: round2(b.value - a.value),
+        change_per_year: round2((b.value - a.value) / (quarters / 4)),
+      };
+    };
+
+    // Where the current 4-quarter change sits among ALL such changes on record.
+    // A percentile, not a threshold: it says how ordinary the move is without
+    // asserting that any particular rank means anything.
+    const changeVals = changes.map(([, v]) => v);
+    const rank = latestChange == null ? null
+      : changeVals.filter((v) => v < latestChange).length;
+    const percentile = rank == null || changeVals.length === 0 ? null
+      : Math.round((rank / changeVals.length) * 100);
     panels.push({
       panel: "worker_share_of_income",
       series_id: "GDICOMP/GDI",
@@ -639,9 +1112,46 @@ export function buildAnalysisPayload(pool, extras = {}) {
       // 4-quarter CHANGES (which is what the rule actually tests).
       long_run_context_level: longRun(share.map((p) => [quarterEndMonth(p.date), p.value])),
       long_run_context_4q_changes: longRun(changes),
-      deviation_from_normal: deviation(changes.map(([m, v]) => [m, -v])),
+      // NO deviation_from_normal block here, and its absence is deliberate: that
+      // block carries an alarm_line and an attention_line, which is the thing this
+      // panel is no longer entitled to.
       streak: last ? `${decl} consecutive quarterly ${decl === 1 ? "decline" : "declines"}` : null,
-      threshold: { change_trigger: round1(trigger), rule: `the alarm is the share falling over ${LABOR_SHARE_CHANGE_QUARTERS} quarters ${BREAK_Z} standard deviations faster than its trailing thirty-year norm of such changes (pandemic years excluded); acceleration, not level, is the tell` },
+      trend_context: {
+        drift_over_1_year: driftOver(4),
+        drift_over_5_years: driftOver(20),
+        drift_over_10_years: driftOver(40),
+        drift_over_20_years: driftOver(80),
+        drift_over_40_years: driftOver(160),
+        // Named for what it counts rather than as a bare "percentile", which is
+        // ambiguous about direction and easy to state backwards.
+        percent_of_past_changes_that_fell_faster: percentile,
+        percentile_note: percentile == null ? null
+          : `Of every ${LABOR_SHARE_CHANGE_QUARTERS}-quarter change on record, ${percentile} percent fell FASTER ` +
+            `than the current one, so the current one is in the fastest ${percentile} percent ` +
+            `of declines this series has produced. This is a rank, not a threshold: no ` +
+            `rank here is registered as meaning anything, and it is given so you can say ` +
+            `whether a move is ordinary rather than so you can call it an alarm.`,
+        how_to_read:
+          "Compare the recent horizons against the long ones. A one-year decline that " +
+          "matches the forty-year pace is the secular drift continuing. A one-year " +
+          "decline several times the forty-year pace is something else, though not " +
+          "necessarily something AI did.",
+      },
+      threshold: {
+        rule:
+          "NO THRESHOLD. This panel has no alarm line, no trigger and no deviation score, " +
+          "and that is a deliberate re-registration rather than missing data. The share " +
+          "has declined for more than forty years for reasons that predate AI, so " +
+          `"falling faster than usual" is a business-cycle statement rather than an ` +
+          "AI one: ordinary recessions produced 4-quarter falls of -2.18 in 2009 and " +
+          "-1.59 in 2010, faster than anything AI has yet been accused of. Any trigger " +
+          "set here fires on recessions. Read the level, the streak and the drift " +
+          "horizons, say what you think they mean, and do not treat the absence of a " +
+          "threshold as either reassurance or alarm.",
+        population_caveat:
+          "This is ECONOMY-WIDE. It covers every industry, so it cannot be evidence " +
+          "about AI-exposed work specifically, whatever it does.",
+      },
     });
   }
 
