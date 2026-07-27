@@ -27,7 +27,9 @@ test("config.mjs matches registered-values.json", () => {
   assert.equal(config.BASELINE_FETCH_START, registered.baselineFetchStart);
   assert.equal(config.REABSORPTION_CHANGE_MONTHS, registered.reabsorptionChangeMonths);
   assert.equal(config.REABSORPTION_FAST_CHANGE_MONTHS, registered.reabsorptionFastChangeMonths);
-  assert.equal(config.PAIRED_STATE_AXIS_Z, registered.pairedStateAxisZ);
+  assert.equal(config.ATTRIBUTION_AXIS_Z, registered.attributionAxisZ);
+  assert.equal(config.REABSORPTION_SHORTFALL_POINTS, registered.reabsorptionShortfallPoints);
+  assert.equal(config.REABSORPTION_REFERENCE_YEAR, registered.reabsorptionReferenceYear);
   assert.deepEqual(config.REABSORPTION, registered.reabsorption);
   assert.equal(config.PROD_BAND_LOW, registered.prodBandLowPct);
   assert.equal(config.PROD_BAND_HIGH, registered.prodBandHighPct);

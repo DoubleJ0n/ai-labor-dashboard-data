@@ -195,15 +195,44 @@ export const REABSORPTION = {
   u3: "UNRATE",
 };
 
-// The reabsorption axis reads the CHANGE in prime-age employment-population,
-// not its level, z-scored against the distribution of like changes in the fixed
-// window. This is not a stylistic choice. A level's 2010-2019 mean is
-// trend-contaminated in a way a differential's is not: that decade OPENS in the
-// post-financial-crisis hole and climbs for ten years, so its mean sits far
-// below its own 2019 endpoint. Scoring today's level against it would read as
-// "abnormally healthy" more or less permanently and the deterioration side of
-// the axis would be close to unfireable. Card 2 already z-scores the 4-quarter
-// CHANGE in the worker income share for exactly this reason; this follows it.
+// HOW THE REABSORPTION AXIS IS PLACED — re-registered 2026-07-27.
+//
+// It reads the LEVEL of prime-age employment-population against a fixed 2019
+// reference, and NOT the z of its 12-month change. The change version was tried
+// first and was wrong in a way that only showed up once the real data arrived.
+//
+// The reasoning for the change version was that a level scored against the
+// 2010-2019 MEAN would read as abnormally healthy forever, because that decade
+// opens in the post-financial-crisis hole and climbs for ten years. That much was
+// right. What it missed is that the same recovery contaminates the CHANGES: prime-
+// age employment rose 5.3 points over that decade, about +0.53 a year, so strongly
+// positive 12-month changes were structurally normal in the baseline. Scored that
+// way, any mature-expansion year reads as deteriorating, and on first real data
+// the axis returned 1.77 — most of which was "we stopped recovering from 2008"
+// rather than "absorption is failing". That is the mirror image of the flaw it was
+// introduced to fix.
+//
+// A fixed reference LEVEL has neither problem. The comparison is to a specific,
+// nameable state of the labour market rather than to the average of a decade spent
+// travelling between two very different states.
+//
+// What it gives up: a level test is slow to notice a fresh turn from a high level.
+// So the 12- and 3-month changes are still reported beside it as context. The level
+// places the axis; the changes catch the turn; neither is asked to do the other's
+// job.
+export const REABSORPTION_REFERENCE_YEAR = 2019; // calendar-year mean, pre-pandemic
+
+// How far below the reference counts as the aggregate failing to absorb.
+//
+// A judgement, registered as one. Prime-age employment-population swung 4.82 points
+// between its 2011 trough and its 2019 level, so a full recession is roughly five
+// points on this series and one point is about a fifth of that. In people: prime-age
+// population is around 130 million, so a one-point shortfall is roughly 1.3 million
+// people of prime working age without a job who would have had one in 2019. That is
+// a claim a reader can check, which a z-score is not. The raw shortfall is reported
+// every run so anyone can apply a different line.
+export const REABSORPTION_SHORTFALL_POINTS = 1.0;
+
 export const REABSORPTION_CHANGE_MONTHS = 12;
 
 // A twelve-month change is the right orientation for PLACING the axis, and it is
@@ -224,14 +253,18 @@ export const REABSORPTION_FAST_CHANGE_MONTHS = 3;
 //   gap flat     + aggregate deteriorating -> NOT_AI
 //   gap flat     + aggregate holding       -> STABLE
 //
-// Both axis thresholds reuse the registered attention line rather than
-// introducing a new tunable: an axis is "moving" when its fixed-baseline z
-// reaches WATCH_Z in the displacement direction. One threshold, already
-// registered, already mirrored in the app.
+// THE TWO AXES ARE MEASURED IN DIFFERENT UNITS AND HAVE SEPARATE LINES. They were
+// briefly forced onto a single z threshold, which read tidily and was wrong: a
+// differential between two industry groups and an economy-wide employment level are
+// not the same kind of quantity, and a shared threshold only hid that.
+//
+// Attribution is a differential, so a z against its own fixed baseline is the right
+// scale, and it reuses the registered attention line rather than adding a tunable.
+export const ATTRIBUTION_AXIS_Z = WATCH_Z;
+// Reabsorption is a level, so its line is REABSORPTION_SHORTFALL_POINTS above.
 //
 // This state is COMPUTED AND STORED, and it is never sent to the analyst. See
 // analyst/pairedState.mjs for that boundary and why it is drawn there.
-export const PAIRED_STATE_AXIS_Z = WATCH_Z;
 
 // --- Macro-regime gate series (the recession-veto inputs) ---
 export const MACRO_SPREAD_IDS = ["T10Y2Y", "T10Y3M"];

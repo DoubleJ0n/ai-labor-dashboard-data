@@ -28,6 +28,7 @@ import {
   ADOPTION_RISING_LOOKBACK, TREND_DRIFT_Z, TREND_LOOKBACK_READINGS,
   DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS,
   REABSORPTION, REABSORPTION_CHANGE_MONTHS, REABSORPTION_FAST_CHANGE_MONTHS,
+  REABSORPTION_REFERENCE_YEAR, REABSORPTION_SHORTFALL_POINTS,
   ELO_SCALE,
 } from "./config.mjs";
 
@@ -543,11 +544,19 @@ export function reabsorptionReadings(series) {
     "If work is being destroyed rather than moved, this is where it has to show up.",
   );
 
+  const refVals = epop.filter(([m]) => m.startsWith(`${REABSORPTION_REFERENCE_YEAR}-`)).map(([, v]) => v);
+  const reference = refVals.length ? refVals.reduce((a, b) => a + b, 0) / refVals.length : null;
+  const latestLevel = epop.length ? epop[epop.length - 1][1] : null;
+  const shortfall = reference != null && latestLevel != null ? reference - latestLevel : null;
+
   return {
     headline,
-    // Deterioration-oriented z of the headline's 12-month change, against the
-    // fixed window. This single number places the reabsorption axis.
-    headlineZ: fixedBaselineZ(changeOverMonths(epop, REABSORPTION_CHANGE_MONTHS).map(([m, v]) => [m, -v])),
+    // The axis is placed on the LEVEL against a fixed reference year, not on the z
+    // of a 12-month change. The change version scored a mature expansion against a
+    // decade of post-2008 recovery, so it read deterioration that was mostly the
+    // recovery having ended. See REABSORPTION_REFERENCE_YEAR in config.
+    reference,
+    shortfall,
     secondary: [
       reabsorptionComponent(
         REABSORPTION.longTermUnemployedShare,
@@ -606,11 +615,33 @@ export function attributionAxisOriented(pool) {
     .map((p) => [p.month, -p.diff]); // gap widening = positive
 }
 
+/**
+ * The reference level: the mean of the reference year. A calendar-year mean rather
+ * than a single-month peak, because one month is noisy and a peak is by definition
+ * the least representative month available.
+ */
+export function reabsorptionReference(pool) {
+  const epop = datedOf((pool.fred.series ?? {})[REABSORPTION.primeAgeEpop]);
+  const yr = String(REABSORPTION_REFERENCE_YEAR);
+  const vals = epop.filter(([m]) => m.startsWith(`${yr}-`)).map(([, v]) => v);
+  if (!vals.length) return null;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+/**
+ * Deterioration-positive shortfall against the reference: POINTS BELOW 2019.
+ * Positive means fewer prime-age people are working than in 2019.
+ *
+ * A level, not a change. See REABSORPTION_REFERENCE_YEAR in config for why the
+ * change version was retired: the 2010-2019 baseline of changes is a decade of
+ * recovery, so any mature-expansion year scored as deteriorating against it.
+ */
 export function reabsorptionAxisOriented(pool) {
   const series = pool.fred.series ?? {};
   const epop = datedOf(series[REABSORPTION.primeAgeEpop]);
-  return changeOverMonths(epop, REABSORPTION_CHANGE_MONTHS)
-    .map(([m, v]) => [m, -v]); // employment rate falling = positive
+  const ref = reabsorptionReference(pool);
+  if (ref == null) return [];
+  return epop.map(([m, v]) => [m, ref - v]);
 }
 
 /**
@@ -927,7 +958,29 @@ export function buildAnalysisPayload(pool, extras = {}) {
         "hired in a control one is invisible to the exposed-vs-control gap but visible " +
         "here. None of these series requires knowing where any individual went.",
       unit: "see each component",
-      headline: r.headline,
+      headline: {
+        ...r.headline,
+        // What the axis is actually placed on, stated on the panel rather than
+        // left implicit. A level against a named year, in points, which a reader
+        // can check against their own sense of 2019.
+        reference_year: REABSORPTION_REFERENCE_YEAR,
+        reference_level: r.reference == null ? null : round2(r.reference),
+        points_below_reference: r.shortfall == null ? null : round2(r.shortfall),
+        level_reading: r.shortfall == null ? "no reference available"
+          : r.shortfall > 0
+            ? `${round2(r.shortfall)} points BELOW its ${REABSORPTION_REFERENCE_YEAR} level`
+            : `${round2(-r.shortfall)} points ABOVE its ${REABSORPTION_REFERENCE_YEAR} level`,
+        why_a_level_and_not_a_change:
+          `The level is compared with a fixed ${REABSORPTION_REFERENCE_YEAR} reference rather than scored as a ` +
+          `12-month change, because prime-age employment rose about 0.53 points a year ` +
+          `across 2010-2019 while the economy recovered from the financial crisis. ` +
+          `Against that decade, strongly positive changes were normal, so any ordinary ` +
+          `expansion year would score as deteriorating for reasons having nothing to do ` +
+          `with absorption. The trade-off is that a level is slow to register a fresh ` +
+          `turn from a high starting point, which is why the 12-month and 3-month ` +
+          `changes are reported beside it. Read the level for where things stand and the ` +
+          `changes for which way they are moving; they can legitimately disagree.`,
+      },
       secondary_readouts: r.secondary,
       reading_rule:
         "The HEADLINE places this axis, on its 12-month change. The three secondary " +

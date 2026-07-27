@@ -38,7 +38,10 @@
 // past the numbers. Neither is knowable if the state was never computed, and
 // neither is testable if the analyst was shown it first.
 
-import { PAIRED_STATE_AXIS_Z, REABSORPTION_CHANGE_MONTHS, BASELINE_START, BASELINE_END } from "../config.mjs";
+import {
+  ATTRIBUTION_AXIS_Z, REABSORPTION_SHORTFALL_POINTS, REABSORPTION_REFERENCE_YEAR,
+  BASELINE_START, BASELINE_END,
+} from "../config.mjs";
 // The dependency points THIS way on purpose: the state module reads the payload's
 // axes, and payload.mjs imports nothing from here. That is what keeps the state
 // out of the model's request — it is a structural guarantee rather than a
@@ -73,14 +76,21 @@ export const PAIRED_STATES = {
 };
 
 /**
- * Place one axis. [z] is deterioration-oriented against the FIXED baseline, so
- * positive always means "further toward displacement" whatever the underlying
- * series' sign convention. null means the axis could not be placed — which is
- * NOT the same as flat, and must never collapse into it.
+ * Place one axis against ITS OWN line.
+ *
+ * The two axes are different kinds of quantity and no longer share a threshold.
+ * Attribution is a differential between two industry groups, so a z against its
+ * own fixed baseline is the right scale. Reabsorption is an economy-wide
+ * employment LEVEL, measured in points below a fixed reference year. Forcing both
+ * onto one z read tidily and hid the difference.
+ *
+ * Both are deterioration-positive, so higher always means further toward
+ * displacement. null means the axis could not be placed, which is NOT the same as
+ * flat and must never collapse into it.
  */
-function axisMoving(z) {
-  if (z == null) return null;
-  return z >= PAIRED_STATE_AXIS_Z;
+function axisMoving(value, line) {
+  if (value == null) return null;
+  return value >= line;
 }
 
 /**
@@ -88,12 +98,14 @@ function axisMoving(z) {
  *
  * @param {number|null} attributionZ deterioration-oriented fixed-baseline z of the
  *   exposed-minus-control jobs differential (gap widening = positive)
- * @param {number|null} reabsorptionZ deterioration-oriented fixed-baseline z of the
- *   12-month change in prime-age employment-population (falling = positive)
+ * @param {number|null} reabsorptionShortfall points the prime-age (25-54)
+ *   employment-population ratio sits BELOW its reference-year average (falling
+ *   behind = positive). A level, not a change — see config for why the change
+ *   version was retired.
  */
-export function pairedState(attributionZ, reabsorptionZ) {
-  const widening = axisMoving(attributionZ);
-  const deteriorating = axisMoving(reabsorptionZ);
+export function pairedState(attributionZ, reabsorptionShortfall) {
+  const widening = axisMoving(attributionZ, ATTRIBUTION_AXIS_Z);
+  const deteriorating = axisMoving(reabsorptionShortfall, REABSORPTION_SHORTFALL_POINTS);
 
   // An unplaceable axis is reported as such. Guessing here would be the same
   // error as scoring against a truncated baseline: a confident answer resting on
@@ -114,17 +126,21 @@ export function pairedState(attributionZ, reabsorptionZ) {
       label: widening == null ? "cannot be placed" : widening ? "gap widening" : "gap flat",
     },
     reabsorption: {
-      z: reabsorptionZ == null ? null : Math.round(reabsorptionZ * 100) / 100,
+      pointsBelowReference: reabsorptionShortfall == null ? null : Math.round(reabsorptionShortfall * 100) / 100,
       moving: deteriorating,
       label: deteriorating == null ? "cannot be placed" : deteriorating ? "aggregate deteriorating" : "aggregate holding",
     },
-    axisThresholdZ: PAIRED_STATE_AXIS_Z,
+    attributionLineZ: ATTRIBUTION_AXIS_Z,
+    reabsorptionLinePoints: REABSORPTION_SHORTFALL_POINTS,
     definitions: {
-      widening: `the exposed-minus-control job-growth gap is at least ${PAIRED_STATE_AXIS_Z} standard ` +
+      widening: `the exposed-minus-control job-growth gap is at least ${ATTRIBUTION_AXIS_Z} standard ` +
         `deviation further below its ${BASELINE_START}..${BASELINE_END} average, that window fixed and never rolling`,
-      deteriorating: `the ${REABSORPTION_CHANGE_MONTHS}-month change in the prime-age (25-54) ` +
-        `employment-population ratio is at least ${PAIRED_STATE_AXIS_Z} standard deviation further ` +
-        `below its ${BASELINE_START}..${BASELINE_END} average change`,
+      deteriorating: `the prime-age (25-54) employment-population ratio is at least ` +
+        `${REABSORPTION_SHORTFALL_POINTS} points below its ${REABSORPTION_REFERENCE_YEAR} calendar-year average. A LEVEL, not ` +
+        `a change: 2010-2019 is a decade of recovery from the financial crisis, so ` +
+        `scoring changes against it made any ordinary expansion year read as ` +
+        `deterioration. The cost is that a level is slow to catch a fresh turn, which ` +
+        `is why the panel also reports 12-month and 3-month changes.`,
     },
   };
 }
@@ -136,14 +152,17 @@ export function pairedState(attributionZ, reabsorptionZ) {
  * than carried forward — a fabricated point on a path chart reads as a real
  * transition.
  */
-export function pairedPath(attributionOriented, reabsorptionOriented, zOf, months = 24) {
-  const reab = new Map(reabsorptionOriented);
+export function pairedPath(attributionOriented, reabsorptionShortfall, zOf, months = 24) {
+  const reab = new Map(reabsorptionShortfall);
   const out = [];
   for (const [m] of attributionOriented) {
     if (!reab.has(m)) continue;
+    // Attribution is z-scored against history up to and including this month, so a
+    // past point is placed with the information available then rather than with
+    // hindsight. Reabsorption is already a shortfall in points against a fixed
+    // reference, so it needs no scoring — it is read straight off.
     const aZ = zOf(attributionOriented.filter(([mm]) => mm <= m));
-    const rZ = zOf(reabsorptionOriented.filter(([mm]) => mm <= m));
-    out.push({ month: m, ...pairedState(aZ, rZ) });
+    out.push({ month: m, ...pairedState(aZ, reab.get(m)) });
   }
   return out.slice(-months);
 }
@@ -152,7 +171,8 @@ export function pairedPath(attributionOriented, reabsorptionOriented, zOf, month
 export function pairedStateFromPool(pool, months = 24) {
   const attribution = attributionAxisOriented(pool);
   const reabsorption = reabsorptionAxisOriented(pool);
-  const current = pairedState(fixedBaselineZ(attribution), fixedBaselineZ(reabsorption));
+  const latestShortfall = reabsorption.length ? reabsorption[reabsorption.length - 1][1] : null;
+  const current = pairedState(fixedBaselineZ(attribution), latestShortfall);
   return {
     ...current,
     path: pairedPath(attribution, reabsorption, fixedBaselineZ, months),

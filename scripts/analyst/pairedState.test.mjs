@@ -7,44 +7,75 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pairedState, pairedPath, PAIRED_STATES } from "./pairedState.mjs";
 import { buildAnalysisPayload } from "../payload.mjs";
-import { PAIRED_STATE_AXIS_Z } from "../config.mjs";
+import { ATTRIBUTION_AXIS_Z, REABSORPTION_SHORTFALL_POINTS } from "../config.mjs";
 
-const MOVING = PAIRED_STATE_AXIS_Z + 0.5;
-const FLAT = PAIRED_STATE_AXIS_Z - 0.5;
+// The axes are measured in DIFFERENT UNITS and have separate lines: attribution is
+// a z against its own fixed baseline, reabsorption is points below a fixed 2019
+// reference level. They briefly shared a threshold, which read tidily and hid the
+// fact that a two-industry differential and an economy-wide employment level are
+// not the same kind of quantity.
+const A_MOVING = ATTRIBUTION_AXIS_Z + 0.5;
+const A_FLAT = ATTRIBUTION_AXIS_Z - 0.5;
+const R_MOVING = REABSORPTION_SHORTFALL_POINTS + 0.5;
+const R_FLAT = REABSORPTION_SHORTFALL_POINTS - 0.5;
 
 test("the 2x2 truth table", () => {
-  assert.equal(pairedState(MOVING, FLAT).state, "REALLOCATION");
-  assert.equal(pairedState(MOVING, MOVING).state, "DISPLACEMENT");
-  assert.equal(pairedState(FLAT, MOVING).state, "NOT_AI");
-  assert.equal(pairedState(FLAT, FLAT).state, "STABLE");
+  assert.equal(pairedState(A_MOVING, R_FLAT).state, "REALLOCATION");
+  assert.equal(pairedState(A_MOVING, R_MOVING).state, "DISPLACEMENT");
+  assert.equal(pairedState(A_FLAT, R_MOVING).state, "NOT_AI");
+  assert.equal(pairedState(A_FLAT, R_FLAT).state, "STABLE");
 });
 
 test("the axis threshold is inclusive at exactly the registered line", () => {
   // A reading sitting exactly on the line counts as moving. Stated in a test
   // because "at or above" versus "above" silently changes which quadrant a
   // borderline month lands in, and that is the whole output of this module.
-  assert.equal(pairedState(PAIRED_STATE_AXIS_Z, FLAT).attribution.moving, true);
-  assert.equal(pairedState(FLAT, PAIRED_STATE_AXIS_Z).reabsorption.moving, true);
+  assert.equal(pairedState(ATTRIBUTION_AXIS_Z, R_FLAT).attribution.moving, true);
+  assert.equal(pairedState(A_FLAT, REABSORPTION_SHORTFALL_POINTS).reabsorption.moving, true);
 });
 
 test("a maximally negative gap with a healthy aggregate is REALLOCATION, not DISPLACEMENT", () => {
   // The failure this whole design exists to prevent. Perfect reallocation — every
   // worker re-employed in a control industry — produces the most negative
   // attribution reading obtainable, and it is NOT displacement.
+  // Attribution 6 sigma past its line; reabsorption 1 point ABOVE its 2019
+  // reference, i.e. a negative shortfall, so the aggregate is not deteriorating.
   const s = pairedState(6.0, -1.0);
   assert.equal(s.state, "REALLOCATION");
   assert.equal(s.attribution.label, "gap widening");
   assert.equal(s.reabsorption.label, "aggregate holding");
 });
 
+test("the reabsorption axis reads a LEVEL, so an ordinary expansion is not deterioration", () => {
+  // THE BUG THIS REPLACED. The axis first scored the 12-month CHANGE in prime-age
+  // employment against its 2010-2019 distribution. That decade is a continuous
+  // recovery from the financial crisis - the ratio rose 5.3 points, about +0.53 a
+  // year - so strongly positive changes were structurally normal in the baseline,
+  // and any mature-expansion year scored as deteriorating against it. On first real
+  // data the axis returned 1.77, most of which was "the recovery ended" rather than
+  // "absorption is failing".
+  //
+  // Against a fixed reference LEVEL there is no such artefact: sitting AT the 2019
+  // level is a shortfall of zero, whatever the recent rate of change has been.
+  const atReference = pairedState(A_MOVING, 0);
+  assert.equal(atReference.state, "REALLOCATION", "at its 2019 level the aggregate is holding");
+  assert.equal(atReference.reabsorption.moving, false);
+
+  // Above the 2019 level is a NEGATIVE shortfall and must stay comfortably clear.
+  assert.equal(pairedState(A_MOVING, -0.25).state, "REALLOCATION");
+
+  // A real shortfall past the line still registers, so the axis is not inert.
+  assert.equal(pairedState(A_MOVING, REABSORPTION_SHORTFALL_POINTS).state, "DISPLACEMENT");
+});
+
 test("an unplaceable axis is INDETERMINATE and never collapses to flat", () => {
   // A null z means no clean baseline exists. Reading it as "flat" would turn
   // missing history into a positive finding of stability.
-  assert.equal(pairedState(null, MOVING).state, "INDETERMINATE");
-  assert.equal(pairedState(MOVING, null).state, "INDETERMINATE");
+  assert.equal(pairedState(null, R_MOVING).state, "INDETERMINATE");
+  assert.equal(pairedState(A_MOVING, null).state, "INDETERMINATE");
   assert.equal(pairedState(null, null).state, "INDETERMINATE");
-  assert.equal(pairedState(null, MOVING).attribution.moving, null);
-  assert.equal(pairedState(null, MOVING).attribution.label, "cannot be placed");
+  assert.equal(pairedState(null, R_MOVING).attribution.moving, null);
+  assert.equal(pairedState(null, R_MOVING).attribution.label, "cannot be placed");
 });
 
 test("every state carries plain-language text", () => {
@@ -59,7 +90,7 @@ test("every state carries plain-language text", () => {
 test("the path drops months missing either axis rather than carrying forward", () => {
   const attribution = [["2026-01", 1], ["2026-02", 2], ["2026-03", 3]];
   const reabsorption = [["2026-01", 1], ["2026-03", 3]]; // 2026-02 absent
-  const path = pairedPath(attribution, reabsorption, () => MOVING, 24);
+  const path = pairedPath(attribution, reabsorption, () => A_MOVING, 24);
   assert.deepEqual(path.map((p) => p.month), ["2026-01", "2026-03"]);
 });
 
