@@ -680,9 +680,22 @@ export function reabsorptionDecomposition(pool) {
         ? "The employment share fell WITHOUT employment falling: more prime-age people are here, and the job market has not absorbed the increase. That is a different claim from people losing work."
         : "Employment grew at least as fast as the prime-age population.",
     caveat:
-      "Employment is seasonally adjusted and population is not, so do not subtract " +
-      "one from the other and expect the ratio's change exactly; read the two " +
-      "directions rather than the arithmetic.",
+      "READ THE DIRECTIONS, NOT THE MAGNITUDES, AND DISCOUNT THE POPULATION LEG " +
+      "HARDEST. The population series is not seasonally adjusted and, more " +
+      "importantly, the Census population controls are revised every January, which " +
+      "puts a LEVEL SHIFT into the series at the turn of each year: this series jumped " +
+      "about +1.9 million at January 2025 and fell about -1.5 million at January 2026, " +
+      "neither of which is people arriving or leaving. Any twelve-month comparison " +
+      "necessarily spans one of those revisions, so the population change here is " +
+      "partly an artefact and its size should not be quoted. Employment is seasonally " +
+      "adjusted and does not carry the same discontinuity. The published ratio itself " +
+      "is the reliable measure, because it is computed consistently within each " +
+      "control regime; this decomposition is a direction check on it, nothing more.",
+    what_this_does_and_does_not_settle:
+      "It can tell you whether employment is falling at all, which is the question " +
+      "that matters: if employment is down year-over-year then the share cannot be " +
+      "falling merely because more people arrived. It cannot tell you how much of the " +
+      "ratio's move each side contributed, and it should not be used that way.",
   };
 }
 
