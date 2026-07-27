@@ -4,7 +4,9 @@
 // Free API; runs weekly via GitHub Actions. Key from FRED_API_KEY.
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import {
-  DIFFERENTIALS, MACRO_SPREAD_IDS, REABSORPTION, BASELINE_START,
+  DIFFERENTIALS, MACRO_SPREAD_IDS, REABSORPTION, BASELINE_START, BASELINE_END,
+  BASELINE_FETCH_START, BASELINE_REQUIRED_START, BASELINE_START_SLACK_MONTHS,
+  BASELINE_MIN_READINGS,
 } from "./config.mjs";
 
 // Core series the original panels depend on (mirrors SeriesIds.ALL) — a
@@ -78,10 +80,13 @@ const start = new Date();
 start.setFullYear(start.getFullYear() - 10);
 const observationStart = start.toISOString().slice(0, 10);
 
-// Series that ARE z-scored start at the fixed baseline instead. Derived from the
-// registered constant so the fetch window can never drift from the window the
-// statistics claim to use — the failure this replaces was exactly that drift.
-const baselineFetchStart = `${BASELINE_START}-01`;
+// Series that ARE z-scored start a YEAR BEFORE the fixed baseline. The lead is not
+// slack, it is required: nearly every panel is derived (year-over-year, twelve-month
+// change, four-quarter change), so fetching from the baseline start would hand the
+// derivation a series whose first twelve months are missing and leave the baseline
+// beginning in 2011. Derived from the registered constant so the fetch window can
+// never drift from the window the statistics claim to use.
+const baselineFetchStart = `${BASELINE_FETCH_START}-01`;
 
 // A few series need a long history rather than either window above.
 // Worker share: pull the FULL series back to 1947 — the multi-decade decline
@@ -154,6 +159,24 @@ for (const id of OPTIONAL_IDS) {
 // record the actual start date") is only honest if the actual start is written
 // down somewhere a reader can check. A series with too few baseline readings is
 // not silently scored against a stub — payload.mjs reports no clean baseline.
+// ACCEPTANCE IS THE START DATE, NOT THE COUNT. A count check passes on
+// 2016-07..2019-12 alone, which is the late-cycle top of one expansion rather than
+// a neutral decade, so it would certify precisely the unrepresentative baseline the
+// fixed window was introduced to rule out. Coverage from BASELINE_REQUIRED_START is
+// the test; the actual start is recorded either way; a series that misses it FAILS
+// THE RUN rather than being quietly scored against whatever history it happens to
+// have.
+//
+// Every FRED series here was verified in CI (2026-07-26) to begin at or before
+// 2006-03, so with the fetch lead there is no legitimate reason for a miss. A miss
+// means a truncated pull, a renamed series, or a discontinued one, and none of those
+// should reach the analyst wearing a z-score.
+const monthsApart = (a, b) => {
+  const [ay, am] = a.split("-").map(Number);
+  const [by, bm] = b.split("-").map(Number);
+  return (by * 12 + bm) - (ay * 12 + am);
+};
+
 const baselineCoverage = {};
 for (const id of FIXED_BASELINE_IDS) {
   const obs = series[id];
@@ -162,20 +185,48 @@ for (const id of FIXED_BASELINE_IDS) {
     const ym = o.date.slice(0, 7);
     return ym >= BASELINE_START && ym <= BASELINE_END;
   });
+  const actualStart = inWindow.length ? inWindow[0].date.slice(0, 7) : null;
+  // Slack absorbs quarter-end dating (a quarterly series legitimately starts
+  // 2010-03) and nothing more than that.
+  const lateBy = actualStart ? monthsApart(BASELINE_REQUIRED_START, actualStart) : null;
   baselineCoverage[id] = {
-    baselineReadings: inWindow.length,
-    actualBaselineStart: inWindow.length ? inWindow[0].date.slice(0, 7) : null,
+    requiredBaselineStart: BASELINE_REQUIRED_START,
+    actualBaselineStart: actualStart,
     seriesStart: obs[0].date.slice(0, 7),
-    // True when the series simply does not reach the registered window. Not an
-    // error — postings and adoption genuinely postdate it — but it must travel.
-    startsAfterBaseline: obs[0].date.slice(0, 7) > BASELINE_START,
+    baselineReadings: inWindow.length,
+    startMonthsLate: lateBy,
+    coversBaseline: lateBy != null && lateBy <= BASELINE_START_SLACK_MONTHS,
   };
 }
-const thin = Object.entries(baselineCoverage).filter(([, c]) => c.baselineReadings < 36);
-if (thin.length) {
-  console.warn(
-    `WARN ${thin.length} series have fewer than 36 readings inside the fixed baseline ` +
-    `(${BASELINE_START}..${BASELINE_END}): ${thin.map(([id, c]) => `${id}=${c.baselineReadings}`).join(", ")}`,
+
+const missing = Object.entries(baselineCoverage).filter(([, c]) => !c.coversBaseline);
+if (missing.length) {
+  const detail = missing
+    .map(([id, c]) =>
+      `  ${id}: baseline starts ${c.actualBaselineStart ?? "NEVER"} ` +
+      `(series begins ${c.seriesStart}, required ${BASELINE_REQUIRED_START}, ` +
+      `${c.baselineReadings} readings in window)`)
+    .join("\n");
+  throw new Error(
+    `${missing.length} z-scored series do not cover the fixed baseline from ` +
+    `${BASELINE_REQUIRED_START}:\n${detail}\n` +
+    `All of these were verified to begin at or before 2006-03, so this is a truncated ` +
+    `or broken pull, not a short series. A z-score against a baseline that starts late ` +
+    `is the unrepresentative reading the fixed window exists to prevent, so the run ` +
+    `stops rather than publishing it. If a series has genuinely been discontinued or ` +
+    `rebased, that is a public re-registration: add it to BASELINE_EXEMPT_PANELS with ` +
+    `the reason.`,
+  );
+}
+// Secondary floor. Coverage is the acceptance test; this catches a series that
+// starts on time and is full of holes.
+const holey = Object.entries(baselineCoverage)
+  .filter(([, c]) => c.baselineReadings < BASELINE_MIN_READINGS);
+if (holey.length) {
+  throw new Error(
+    `${holey.length} series cover the baseline start but hold fewer than ` +
+    `${BASELINE_MIN_READINGS} readings inside it, which means gaps: ` +
+    `${holey.map(([id, c]) => `${id}=${c.baselineReadings}`).join(", ")}`,
   );
 }
 

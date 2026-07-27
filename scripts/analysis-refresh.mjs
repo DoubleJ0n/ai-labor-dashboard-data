@@ -33,7 +33,7 @@ import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES, HEAVY_REVISIO
 import { assembleNews } from "./analyst/news.mjs";
 import {
   PASS1_SYSTEM, PASS2_SYSTEM, buildPass1Message, buildPass2Message,
-  parsePass1, parsePass2, noteCompliance, FALSIFIER_HORIZON_DAYS,
+  parsePass1, parsePass2, noteCompliance, analysisCompliance, FALSIFIER_HORIZON_DAYS,
 } from "./analyst/prompt.mjs";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -363,7 +363,9 @@ async function runAnalyst(model) {
       rate: rateFor(model, finishedAt),
     },
     text: pass2.publishedNote,
+    fullAnalysis: pass2.fullAnalysis,
     compliance: noteCompliance(pass2.publishedNote),
+    analysisStats: analysisCompliance(pass2.fullAnalysis),
   };
 }
 
@@ -380,8 +382,10 @@ if (AB_RUN) {
       console.log(`tag line    : ${r.pass2.tagLine}`);
       console.log(`notification: ${r.pass2.notificationLine} (${r.pass2.notificationLine.length} chars)`);
       console.log(`pass 2 dissent: ${r.pass2.dissented ? r.pass2.dissentNote : "no"}`);
-      console.log(`note        : ${r.compliance.words} words, ${r.compliance.numbers} numbers` +
-        `${r.compliance.withinWordRange ? "" : " [OUTSIDE 400-500]"}${r.compliance.withinNumberCeiling ? "" : " [OVER 10 NUMBERS]"}`);
+      // Counts are DESCRIPTIVE now. Length is proportional to what changed and the
+      // number ceiling is retired, so there is no band to be outside of.
+      console.log(`note        : ${r.compliance.words} words (${r.compliance.lengthBand}), ${r.compliance.numbers} numbers`);
+      console.log(`full analysis: ${r.analysisStats.present ? `${r.analysisStats.words} words` : "ABSENT"}`);
       console.log(`tokens      : ${r.usage.totalInputTokens} in / ${r.usage.totalOutputTokens} out` +
         ` (pass1 ${r.usage.pass1.inputTokens}/${r.usage.pass1.outputTokens}, pass2 ${r.usage.pass2.inputTokens}/${r.usage.pass2.outputTokens})`);
       console.log(`cost        : $${r.usage.costUsd.toFixed(4)} at $${r.usage.rate.input}/$${r.usage.rate.output} per MTok${r.usage.rate.intro ? " (introductory)" : ""}`);
@@ -421,7 +425,11 @@ appendEntry(
     falsifierPlain: result.pass1.falsifierPlain,
     dissent: result.pass2.dissented ? result.pass2.dissentNote : null,
     analysis: result.text,
+    // The longer document, shown behind the "Full analysis" control. NOT the
+    // reasoning log, which stays out of the app entirely.
+    fullAnalysis: result.fullAnalysis,
     compliance: result.compliance,
+    analysisStats: result.analysisStats,
   },
   result,
 );
@@ -430,7 +438,8 @@ console.log(
   `analyst: ${result.pass1.verdict} "${result.pass2.tagLine}" (${dataMonth}); ` +
   `mechanical ${mechanical.mechanicalState}` +
   (result.pass2.dissented ? "; PASS 2 DISSENTED" : "") +
-  `; note ${result.compliance.words}w/${result.compliance.numbers}n` +
+  `; note ${result.compliance.words}w (${result.compliance.lengthBand})/${result.compliance.numbers}n` +
+  `; analysis ${result.analysisStats.present ? `${result.analysisStats.words}w` : "ABSENT"}` +
   ` — usage (log only): ${result.usage.totalInputTokens} in / ${result.usage.totalOutputTokens} out, ` +
   `est $${result.usage.costUsd.toFixed(4)}`,
 );
@@ -531,7 +540,8 @@ function appendEntry(entry, result) {
       [
         `# Published note ${dataMonth} (run ${entry.runAt})`,
         ``,
-        `Verdict: ${entry.verdict} | ${entry.compliance?.words ?? "?"} words | ${entry.compliance?.numbers ?? "?"} numbers`,
+        `Verdict: ${entry.verdict} | ${entry.compliance?.words ?? "?"} words (${entry.compliance?.lengthBand ?? "?"}) | ${entry.compliance?.numbers ?? "?"} numbers`,
+        `Counts are reported, not enforced: length is proportional to what changed and the number ceiling is retired.`,
         `Notification: ${entry.notificationLine}`,
         `Falsifier: ${entry.falsifierPlain ?? "(none)"}`,
         ``,
@@ -541,6 +551,33 @@ function appendEntry(entry, result) {
       ].join("\n") + "\n",
       "utf8",
     );
+    // The full analysis as its own file. Three documents, three files: the note is
+    // what most readers see, this is what the "Full analysis" control opens, and the
+    // reasoning log is the audit trail that is never surfaced to a reader. Keeping
+    // them separate on disk is what makes the gap between them reviewable.
+    if (entry.fullAnalysis) {
+      writeFileSync(
+        path.join(TRANSCRIPT_DIR, `${stem}.analysis.md`),
+        [
+          `# Full analysis ${dataMonth} (run ${entry.runAt})`,
+          ``,
+          `Verdict: ${entry.verdict} | ${entry.analysisStats?.words ?? "?"} words`,
+          `Reader-facing. The same argument as the published note, developed at length.`,
+          `This is NOT the reasoning log — see ${stem}.reasoning.md for that.`,
+          ``,
+          `---`,
+          ``,
+          entry.fullAnalysis,
+        ].join("\n") + "\n",
+        "utf8",
+      );
+    } else {
+      console.warn(
+        "WARN pass 2 returned no FULL_ANALYSIS block. The note and notification are " +
+        "unaffected and the run still publishes; the app's Full analysis control will " +
+        "be hidden for this month.",
+      );
+    }
   }
   writeFileSync(
     RUNS_PATH,
@@ -561,6 +598,7 @@ function appendEntry(entry, result) {
             falsifierPlain: entry.falsifierPlain,
             falsifierHorizonDays: FALSIFIER_HORIZON_DAYS,
             publishedNoteCompliance: entry.compliance,
+            fullAnalysisStats: entry.analysisStats,
             namedConfounder: entry.namedConfounder,
             mechanicalState: mechanical.mechanicalState,
             breadth: mechanical.breadth,
@@ -586,7 +624,7 @@ function appendEntry(entry, result) {
                   // The reasoning log lives HERE and only here: stored for audit,
                   // never published to the pool and never shown in the app.
                   pass1: { verdict: result.pass1.verdict, falsifier: result.pass1.falsifier, falsifierPlain: result.pass1.falsifierPlain, reasoningLog: result.pass1.reasoningLog, raw: result.rawPass1 },
-                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, publishedNote: result.pass2.publishedNote, raw: result.rawPass2 },
+                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, publishedNote: result.pass2.publishedNote, fullAnalysis: result.pass2.fullAnalysis, raw: result.rawPass2 },
                 }
               : null,
             usage: result?.usage ?? null,

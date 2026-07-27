@@ -22,7 +22,11 @@ test("config.mjs matches registered-values.json", () => {
   assert.equal(config.UNUSABLE_START, registered.unusableStart);
   assert.equal(config.UNUSABLE_END, registered.unusableEnd);
   assert.equal(config.BASELINE_MIN_READINGS, registered.baselineMinReadings);
+  assert.equal(config.BASELINE_REQUIRED_START, registered.baselineRequiredStart);
+  assert.equal(config.BASELINE_START_SLACK_MONTHS, registered.baselineStartSlackMonths);
+  assert.equal(config.BASELINE_FETCH_START, registered.baselineFetchStart);
   assert.equal(config.REABSORPTION_CHANGE_MONTHS, registered.reabsorptionChangeMonths);
+  assert.equal(config.REABSORPTION_FAST_CHANGE_MONTHS, registered.reabsorptionFastChangeMonths);
   assert.equal(config.PAIRED_STATE_AXIS_Z, registered.pairedStateAxisZ);
   assert.deepEqual(config.REABSORPTION, registered.reabsorption);
   assert.equal(config.PROD_BAND_LOW, registered.prodBandLowPct);
@@ -57,6 +61,37 @@ test("the rolling trailing window is gone and cannot come back", () => {
   assert.equal(config.COVID_END, undefined);
   assert.equal(config.LABOR_SHARE_BASELINE_QUARTERS, undefined, "Card 2 uses the fixed window now; a rolling-30-year constant must not survive");
   assert.equal(registered.laborShareBaselineQuarters, undefined);
+});
+
+// The bug this pins: nearly every panel is DERIVED (year-over-year, 12-month
+// change, 4-quarter change), so fetching from the baseline start hands the
+// derivation a series missing its first year and the baseline silently begins in
+// 2011. A reading count cannot catch that — 108 readings still clears 36 — which is
+// the whole reason acceptance moved to the start date.
+test("the fetch starts a full year before the baseline, for derived series", () => {
+  const [fy, fm] = config.BASELINE_FETCH_START.split("-").map(Number);
+  const [by, bm] = config.BASELINE_START.split("-").map(Number);
+  const lead = (by * 12 + bm) - (fy * 12 + fm);
+  assert.ok(lead >= 12, `fetch lead is ${lead} months; a 12-month derivation needs at least 12`);
+});
+
+test("acceptance is the start date, and the slack only covers quarter-end dating", () => {
+  assert.equal(config.BASELINE_REQUIRED_START, config.BASELINE_START);
+  assert.ok(config.BASELINE_START_SLACK_MONTHS <= 3, "more than a quarter of slack is not quarter-end dating");
+  // 2016-07..2019-12 is 42 monthly readings, so it CLEARS the count floor while
+  // being the late-cycle top of one expansion. Recorded as a test so nobody
+  // reintroduces the count as the acceptance test by arguing it is sufficient.
+  assert.ok(42 >= config.BASELINE_MIN_READINGS, "the count floor is satisfiable by 2016-07..2019-12 alone");
+});
+
+test("every exempt panel states a reason", () => {
+  for (const [panel, reason] of Object.entries(config.BASELINE_EXEMPT_PANELS)) {
+    assert.ok(reason && reason.length > 40, `${panel} needs a real reason, not a placeholder`);
+  }
+});
+
+test("the fast reabsorption horizon is shorter than the one that places the axis", () => {
+  assert.ok(config.REABSORPTION_FAST_CHANGE_MONTHS < config.REABSORPTION_CHANGE_MONTHS);
 });
 
 test("the fixed baseline is pre-treatment and the periods do not overlap", () => {

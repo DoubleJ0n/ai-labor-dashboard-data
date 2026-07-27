@@ -22,11 +22,13 @@
 // (audit-2026-07 findings 5, 6, 7, 9, 21).
 import {
   BASELINE_START, BASELINE_END, UNUSABLE_START, UNUSABLE_END, OBSERVATION_START,
-  BASELINE_MIN_READINGS, WATCH_MIN_HISTORY, WATCH_Z, BREAK_Z,
+  BASELINE_MIN_READINGS, BASELINE_REQUIRED_START, BASELINE_START_SLACK_MONTHS,
+  BASELINE_EXEMPT_PANELS, WATCH_MIN_HISTORY, WATCH_Z, BREAK_Z,
   PROD_BAND_LOW, PROD_BAND_HIGH, PROD_BREAK_RUN_QUARTERS,
   ADOPTION_RISING_LOOKBACK, TREND_DRIFT_Z, TREND_LOOKBACK_READINGS,
   DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS,
-  REABSORPTION, REABSORPTION_CHANGE_MONTHS, ELO_SCALE,
+  REABSORPTION, REABSORPTION_CHANGE_MONTHS, REABSORPTION_FAST_CHANGE_MONTHS,
+  ELO_SCALE,
 } from "./config.mjs";
 
 const sorted = (obs) => [...(obs ?? [])].sort((a, b) => a.date.localeCompare(b.date));
@@ -146,11 +148,26 @@ function stats(vals) {
 }
 
 /**
- * z of [latest] against a dated sample, with the minimum-readings rule applied.
- * Returns null rather than a number computed off a stub — a thin baseline has to
- * read as "no clean baseline exists", never as a quiet fallback.
+ * Does this sample actually COVER the baseline, starting when it is supposed to?
+ *
+ * This is the acceptance test, and it replaced a reading count because the count
+ * was passing on windows that should never have qualified: 36 monthly readings is
+ * satisfiable by 2016-07..2019-12 alone, which is the late-cycle top of one
+ * expansion rather than a neutral decade. Slack absorbs quarter-end dating only.
  */
-function zAgainst(latest, datedSample, minReadings = BASELINE_MIN_READINGS) {
+function baselineCovers(datedSample) {
+  if (!datedSample.length) return false;
+  return monthsBetween(BASELINE_REQUIRED_START, datedSample[0][0]) <= BASELINE_START_SLACK_MONTHS;
+}
+
+/**
+ * z of [latest] against a dated sample. Returns null rather than a number computed
+ * off an unrepresentative window — a baseline that starts late has to read as "no
+ * clean baseline exists", never as a quiet fallback.
+ */
+function zAgainst(latest, datedSample, opts = {}) {
+  const { requireCoverage = true, minReadings = BASELINE_MIN_READINGS } = opts;
+  if (requireCoverage && !baselineCovers(datedSample)) return null;
   const st = stats(datedSample.map(([, v]) => v));
   if (!st || st.n < minReadings || st.sd < 1e-9) return null;
   return (latest - st.mean) / st.sd;
@@ -203,22 +220,40 @@ function rangeOf(dated) {
   };
 }
 
-function longRun(dated) {
+function longRun(dated, panelName = null) {
   const base = baselineSample(dated);
   const full = usableSample(dated);
   const bst = stats(base.map(([, v]) => v));
   const fst = stats(full.map(([, v]) => v));
 
-  const fixed = !bst || bst.n < BASELINE_MIN_READINGS
+  // Acceptance is COVERAGE FROM THE REQUIRED START, not a reading count. The count
+  // was the original test and it was too weak to do the job: 36 monthly readings is
+  // satisfiable by 2016-07..2019-12 alone, so a series could pass while its entire
+  // "normal" was drawn from the late-cycle top of one expansion.
+  const covers = baselineCovers(base);
+  const enough = bst != null && bst.n >= BASELINE_MIN_READINGS;
+  const exemptReason = panelName ? BASELINE_EXEMPT_PANELS[panelName] ?? null : null;
+
+  const fixed = !covers || !enough
     ? {
         usable: false,
         readings: bst?.n ?? 0,
-        // The honest outcome for postings (begins 2020-02) and adoption (2025-11):
-        // they postdate the only clean control window this dashboard has.
-        note: `this series has only ${bst?.n ?? 0} readings inside the fixed baseline ` +
-          `(${BASELINE_START} to ${BASELINE_END}) and ${BASELINE_MIN_READINGS} are needed, so it has NO ` +
-          `clean pre-2020 baseline. Any deviation figure for it rests on history that ` +
-          `overlaps the period being judged; treat it as a level reading, not a deviation.`,
+        actual_baseline_start: base.length ? base[0][0] : null,
+        required_baseline_start: BASELINE_REQUIRED_START,
+        // A declared reason where one exists, so "cannot reach the baseline" is
+        // never indistinguishable from "something broke in the pull".
+        reason: exemptReason ??
+          (base.length
+            ? `this series' baseline starts at ${base[0][0]}, later than the required ` +
+              `${BASELINE_REQUIRED_START}, and no reason is on record for that`
+            : `this series has no readings at all inside ${BASELINE_START} to ${BASELINE_END}`),
+        note:
+          `NO CLEAN PRE-2020 BASELINE. A window that starts late is not a smaller version ` +
+          `of the right window, it is a different and unrepresentative one: the years most ` +
+          `often left over are 2016-2019, the top of the last expansion, which makes almost ` +
+          `anything today look weak by comparison. So no deviation figure is reported ` +
+          `against the fixed window here. Read this panel on its levels and its direction, ` +
+          `not on how unusual it is.`,
       }
     : {
         usable: true,
@@ -227,10 +262,11 @@ function longRun(dated) {
         ...rangeOf(base),
         readings: bst.n,
         window: `${base[0][0]} to ${base[base.length - 1][0]}, fixed and never rolling`,
-        // Honours the fallback rule: a series starting after 2010 uses the longest
-        // pre-2020 stretch it has, and the actual start is stated rather than implied.
-        window_truncated: base[0][0] > BASELINE_START
-          ? `this series does not reach ${BASELINE_START}; its baseline starts at ${base[0][0]}, the longest pre-2020 window available`
+        // Kept for the quarter-end case: a quarterly panel legitimately starts
+        // 2010-03, and stating it is cheaper than leaving a reader to wonder.
+        start_offset_note: base[0][0] !== BASELINE_START
+          ? `baseline starts ${base[0][0]} rather than ${BASELINE_START}, within the ` +
+            `${BASELINE_START_SLACK_MONTHS}-month allowance for quarter-end dating`
           : null,
       };
 
@@ -261,9 +297,13 @@ function longRun(dated) {
 function deviation(oriented) {
   if (!oriented.length) return null;
   const latest = oriented[oriented.length - 1][1];
+  // The fixed reading requires baseline coverage; the full-history reading does not,
+  // because it makes no claim to be a clean control in the first place.
   const zFixed = zAgainst(latest, baselineSample(oriented));
   // Latest excluded from its own comparison window, as before.
-  const zFull = zAgainst(latest, usableSample(oriented.slice(0, -1)), WATCH_MIN_HISTORY);
+  const zFull = zAgainst(latest, usableSample(oriented.slice(0, -1)), {
+    requireCoverage: false, minReadings: WATCH_MIN_HISTORY,
+  });
   if (zFixed == null && zFull == null) return null;
 
   // The divergence is the point of reporting both, so it is computed here rather
@@ -277,7 +317,9 @@ function deviation(oriented) {
     against_full_history: zFull == null ? null : round2(zFull),
     divergence: divergence == null ? null : round2(divergence),
     divergence_note: divergence == null
-      ? "only one of the two readings could be computed, so they cannot be compared"
+      ? "only one of the two readings could be computed, so they cannot be compared. " +
+        "If the fixed-baseline figure is the missing one, see this panel's " +
+        "long_run_context for why it has no clean baseline"
       : Math.abs(divergence) < 0.25
         ? "the two baselines agree, so this reading does not depend on which window is used"
         : divergence > 0
@@ -430,8 +472,13 @@ function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning
   }
   const changes = changeOverMonths(dated, REABSORPTION_CHANGE_MONTHS);
   const oriented = changes.map(([m, v]) => [m, orientSign * v]);
+  const fast = changeOverMonths(dated, REABSORPTION_FAST_CHANGE_MONTHS);
+  const fastOriented = fast.map(([m, v]) => [m, orientSign * v]);
   const latest = dated[dated.length - 1];
   const latestChange = changes.length ? changes[changes.length - 1] : null;
+  const latestFast = fast.length ? fast[fast.length - 1] : null;
+  const dirOf = (v) => (v == null ? "unknown" : Math.abs(v) < 1e-9 ? "flat" : v > 0 ? "rising" : "falling");
+
   return {
     series_id: seriesId,
     display_label: label,
@@ -440,12 +487,33 @@ function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning
     latest_value: round2(latest[1]),
     latest_date: latest[0],
     change_over_12_months: latestChange ? round2(latestChange[1]) : null,
-    direction: latestChange == null ? "unknown"
-      : Math.abs(latestChange[1]) < 1e-9 ? "flat"
-      : latestChange[1] > 0 ? "rising" : "falling",
+    direction: dirOf(latestChange?.[1]),
     deterioration_direction: orientSign > 0 ? "rising is deterioration" : "falling is deterioration",
     long_run_context_12m_changes: longRun(oriented),
     deviation_from_normal: deviation(oriented),
+    // The fast horizon. A twelve-month change is the right orientation for placing
+    // the axis and it is slow — a turn can take a year to appear in it — so the
+    // three-month change is carried alongside to make a recent inflection visible
+    // sooner. It is CONTEXT AND NOT A SECOND VOTE.
+    fast_horizon: {
+      months: REABSORPTION_FAST_CHANGE_MONTHS,
+      change: latestFast ? round2(latestFast[1]) : null,
+      direction: dirOf(latestFast?.[1]),
+      deviation_from_normal: deviation(fastOriented),
+      role:
+        `CONTEXT ONLY. The ${REABSORPTION_CHANGE_MONTHS}-month change above places this axis; this ` +
+        `${REABSORPTION_FAST_CHANGE_MONTHS}-month reading does not and must not be treated as a second ` +
+        `vote. Use it to notice a turn earlier than the headline can show one, and to say ` +
+        `whether the two horizons agree.`,
+      reading_rule:
+        `A ${REABSORPTION_FAST_CHANGE_MONTHS}-month change on a monthly series is noisy, and it is ` +
+        `not seasonally comparable to the ${REABSORPTION_CHANGE_MONTHS}-month figure. If it disagrees with ` +
+        `the headline, that is a hypothesis about a possible turn, not a finding. Say ` +
+        `which horizon you are citing whenever you cite either.`,
+      agrees_with_headline: latestFast && latestChange
+        ? Math.sign(latestFast[1]) === Math.sign(latestChange[1])
+        : null,
+    },
   };
 }
 
@@ -489,34 +557,33 @@ export function reabsorptionReadings(series) {
         "labour market; a rising long-term share means exits are not being caught.",
       ),
       {
-        series_id: `${REABSORPTION.hiresRate} minus ${REABSORPTION.quitsRate}`,
-        display_label: "Hiring pace against quitting pace",
-        unit: "rate points (percent of employment, per month)",
-        what_it_reads:
+        // Built through the shared helper so the spread gets the same dual-horizon
+        // treatment as every other component, then annotated with both legs: a net
+        // figure alone hides whether hiring fell or quitting rose.
+        ...reabsorptionComponent(
+          `${REABSORPTION.hiresRate} minus ${REABSORPTION.quitsRate}`,
+          "Hiring pace against quitting pace",
+          "rate points (percent of employment, per month)",
+          netHiring, -1,
           "Absorption against shedding. Hires above quits means the market is taking " +
           "on more people than are voluntarily leaving.",
+        ),
         hires_rate: hires.length ? round2(hires[hires.length - 1][1]) : null,
         quits_rate: quits.length ? round2(quits[quits.length - 1][1]) : null,
-        latest_value: netHiring.length ? round2(netHiring[netHiring.length - 1][1]) : null,
-        latest_date: netHiring.length ? netHiring[netHiring.length - 1][0] : null,
-        long_run_context_12m_changes: longRun(changeOverMonths(netHiring, REABSORPTION_CHANGE_MONTHS).map(([m, v]) => [m, -v])),
-        deviation_from_normal: deviation(changeOverMonths(netHiring, REABSORPTION_CHANGE_MONTHS).map(([m, v]) => [m, -v])),
-        deterioration_direction: "falling is deterioration",
+        both_sides_note:
+          "Name the moving side here too: this net figure falls both when hiring slows " +
+          "and when quitting accelerates, and those are different stories. The two " +
+          "underlying rates are given above.",
       },
-      {
-        series_id: `${REABSORPTION.u6} minus ${REABSORPTION.u3}`,
-        display_label: "Underemployment gap (U-6 minus U-3)",
-        unit: "percentage points",
-        what_it_reads:
-          "Whether people are landing but landing badly — part-time for economic " +
-          "reasons, or discouraged out of the count entirely. A displacement episode " +
-          "absorbed into worse work would widen this while the headline job count held.",
-        latest_value: underemployment.length ? round2(underemployment[underemployment.length - 1][1]) : null,
-        latest_date: underemployment.length ? underemployment[underemployment.length - 1][0] : null,
-        long_run_context_12m_changes: longRun(changeOverMonths(underemployment, REABSORPTION_CHANGE_MONTHS)),
-        deviation_from_normal: deviation(changeOverMonths(underemployment, REABSORPTION_CHANGE_MONTHS)),
-        deterioration_direction: "rising is deterioration",
-      },
+      reabsorptionComponent(
+        `${REABSORPTION.u6} minus ${REABSORPTION.u3}`,
+        "Underemployment gap (U-6 minus U-3)",
+        "percentage points",
+        underemployment, +1,
+        "Whether people are landing but landing badly — part-time for economic " +
+        "reasons, or discouraged out of the count entirely. A displacement episode " +
+        "absorbed into worse work would widen this while the headline job count held.",
+      ),
     ],
     componentVintages: {
       [REABSORPTION.primeAgeEpop]: epop.length ? epop[epop.length - 1][0] : null,
@@ -863,10 +930,15 @@ export function buildAnalysisPayload(pool, extras = {}) {
       headline: r.headline,
       secondary_readouts: r.secondary,
       reading_rule:
-        "The HEADLINE places this axis; the three secondary readouts are context and do " +
-        "not decide it on their own. This mirrors the rest of the dashboard, where " +
-        "supplemental panels inform but do not vote, and it avoids an unregistered " +
-        "composite index built out of four series with different vintages.",
+        "The HEADLINE places this axis, on its 12-month change. The three secondary " +
+        "readouts are context and do not decide it on their own. This mirrors the rest of " +
+        "the dashboard, where supplemental panels inform but do not vote, and it avoids an " +
+        "unregistered composite index built out of four series with different vintages. " +
+        "Every component also carries a 3-month fast_horizon, which is context for the " +
+        "same reason and at one further remove: it exists to reveal a turn sooner than a " +
+        "12-month change can, and a 3-month move on a noisy monthly series is precisely " +
+        "what should not be able to move a verdict by itself. Where the two horizons " +
+        "disagree, say so and say which one you are citing.",
       measurement_basis:
         `Every component here is scored as a ${REABSORPTION_CHANGE_MONTHS}-month CHANGE, not as a level. ` +
         `These are trending level series and the fixed baseline opens in the ` +
@@ -957,7 +1029,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       spread_change_over_6_months: last && pp.length > 6 ? Math.round(last.spread - pp[pp.length - 7].spread) : null,
       latest_date: last ? last.date.slice(0, 7) : null,
       prior_reading: priorReading(pp.map((p) => [p.date.slice(0, 7), p.spread])),
-      long_run_context: longRun(pp.map((p) => [p.date.slice(0, 7), p.spread])),
+      long_run_context: longRun(pp.map((p) => [p.date.slice(0, 7), p.spread]), "job_postings_spread"),
       deviation_from_normal: deviation(pp.map((p) => [p.date.slice(0, 7), -p.spread])),
       history_caveat: "this series begins February 2020, so it has no pre-pandemic baseline and a shorter calm history than the other panels",
       streak: streakString(pp.map((p) => [p.date.slice(0, 7), -p.spread]), "monthly"),

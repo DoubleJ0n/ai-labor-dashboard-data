@@ -9,8 +9,12 @@
   "observationStart": "2023-01",
   "unusableStart": "2020-01",
   "unusableEnd": "2022-12",
+  "baselineRequiredStart": "2010-01",
+  "baselineStartSlackMonths": 3,
+  "baselineFetchStart": "2009-01",
   "baselineMinReadings": 36,
   "reabsorptionChangeMonths": 12,
+  "reabsorptionFastChangeMonths": 3,
   "pairedStateAxisZ": 1.0,
   "reabsorption": {
     "primeAgeEpop": "LNS12300060",

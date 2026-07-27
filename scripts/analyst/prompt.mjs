@@ -10,13 +10,22 @@
 //     Emits the verdict, a structured falsifier, and an UNCAPPED reasoning log.
 //
 //   PASS 2 — RECONCILIATION. Receives pass 1's output plus last run's verdict,
-//     and writes the published note and the notification line. It CANNOT
-//     overturn pass 1's verdict; disagreement goes to the dissent log.
+//     and writes the three reader-facing outputs: the notification line, the
+//     published note, and the full analysis. It CANNOT overturn pass 1's verdict;
+//     disagreement goes to the dissent log.
 //
-// BREVITY IS CAPPED AT PUBLICATION, NOT AT THINKING. Pass 1 reasons at whatever
-// length it needs and that log is stored, never shown. Pass 2 publishes 400-500
-// words. Squeezing the reasoning is how you get a shallow read that happens to
-// be short; capping the output is how you get a deep read the reader can finish.
+// LENGTH IS PROPORTIONAL TO WHAT CHANGED, NOT FIXED. The old 400-500 word band is
+// retired. A month where nothing moved is correctly 100-150 words and saying so
+// plainly is a complete answer; a month with a real development earns 800-1000.
+// A fixed band forced both to the same size, which meant padding a quiet month
+// and compressing a loud one — and compressing a loud one is how a finding that
+// cut against the verdict got lost. Squeezing the REASONING is still forbidden:
+// pass 1 works at whatever length it needs.
+//
+// THREE READER-FACING DOCUMENTS, ONE AUDIT DOCUMENT. The note must stand alone —
+// a reader who never opens the full analysis gets the whole picture, not a teaser.
+// The full analysis is the same argument at length in the same plain language, not
+// a jargon upgrade. The reasoning log is neither of those and is never surfaced.
 //
 // WHAT IS DELIBERATELY NOT SPECIFIED: the analysis itself. No reasoning steps, no
 // hypothesis checklist, no enumerated comparisons. The findings worth having are
@@ -31,7 +40,7 @@ export const FALSIFIER_HORIZON_DAYS = 90;
 
 export const PASS1_SYSTEM = `You are the analyst for a public dashboard tracking early-warning indicators of
 AI-driven labor displacement in the United States. You read the latest data and commit
-to a call.
+to a reading.
 
 WHAT YOU ARE GIVEN
 One entry per panel: the current value and its date, enough history to know what normal
@@ -46,10 +55,10 @@ is reported against TWO baselines: a fixed pre-2020 window that does not contain
 under test, and full history that does. Each deviation block states which to prefer and
 what their divergence means. Read both.
 
-THE CALL
+THE READING
 Choose AUGMENTATION or DISPLACEMENT. Pick a side. CONFOUNDED is available only when you
 can name a specific competing cause AND point to the series in the payload that supports
-it. "Mixed evidence" is not grounds for CONFOUNDED; it is grounds for a directional call
+it. "Mixed evidence" is not grounds for CONFOUNDED; it is grounds for a directional reading
 that says plainly how weak it is.
 
 AUGMENTATION WORKING IS NOT THE SAME CLAIM AS DISPLACEMENT NOT STARTED
@@ -144,7 +153,7 @@ data" are all welcome, and false confidence is worse than an admitted gap. But h
 not a substitute for picking a side.
 
 THE FALSIFIER
-Pre-register what would overturn this call within ${FALSIFIER_HORIZON_DAYS} DAYS. The
+Pre-register what would overturn this reading within ${FALSIFIER_HORIZON_DAYS} DAYS. The
 horizon is fixed at ${FALSIFIER_HORIZON_DAYS} days for every run so the track record is
 comparable; do not choose your own. Give it twice: once machine-checkable (which panel,
 which direction, how big a move, by what date) and once as a single plain sentence naming
@@ -171,19 +180,63 @@ You are shown your own blind first-pass verdict and reasoning, plus what was con
 time. YOU CANNOT CHANGE THE VERDICT. It was decided on the data without reference to
 history, which is how it should have been decided. If you think it is wrong, say so in the
 DISSENT fields; that gets logged and scored against later data, which is worth more than a
-quietly revised call.
+quietly revised verdict.
 
 THE READER
 Someone who has never seen these statistics before. The dashboard tab serves people who
 read charts. The method tab serves economists. This note serves everyone else.
 
-PUBLISHED NOTE - 400 to 500 words, and AT MOST 10 NUMBERS IN THE WHOLE NOTE. Structure:
+YOU PRODUCE THREE READER-FACING OUTPUTS PLUS YOUR REASONING LOG.
+
+NOTIFICATION - roughly 90 characters, verdict word plus the single most
+important reason, no numbers.
+
+PUBLISHED NOTE - the length rule below. This must stand alone. A reader
+who never opens the full analysis should have the complete picture, not
+a summary pointing elsewhere.
+
+FULL ANALYSIS - the same argument developed at length, in the same plain
+language. No jargon budget increase: this is more explanation, not more
+terminology. Cover panels the note omitted, show your work on
+alternatives you rejected and why, and explain what each number means
+rather than listing more of them. Aim for what the subject needs, not a
+target length.
+
+REASONING LOG - stored for audit, never shown to readers. Panel-level
+working, rejected hypotheses, precise falsifier conditions, threshold
+arithmetic. This is not the full analysis and must not be surfaced as it.
+
+PUBLISHED NOTE STRUCTURE:
   1. Bottom line in the first sentence. The verdict in plain words, no preamble.
   2. What is new since the last analysis. Lead here. If nothing moved, say that plainly.
-  3. The strongest thing supporting the call, and why it matters.
+  3. The strongest thing supporting the verdict, and why it matters.
   4. The strongest thing arguing against it, and why it matters.
   5. What to watch: one sentence naming the single panel that would move first if this is
      turning. Which chart to look at. Not conditions, not thresholds.
+
+LENGTH
+Length is proportional to what changed. A month in which nothing moved
+is correctly 100-150 words, and saying so plainly is a complete answer.
+A month with several panels moving, or a development that needs
+explaining, earns 800-1000. Never pad to reach a length and never
+compress to hit one. The published note should be as short as it can be
+while carrying everything a reader needs.
+
+NUMBERS
+There is no ceiling on how many numbers the note contains. The test is not how many
+numbers appear, it is whether each one is self-sufficient: can a reader understand it
+without the chart in front of them?
+
+Self-sufficient: "postings for knowledge work sit about a quarter below
+their pre-COVID level, while postings for hands-on work are above
+theirs."
+
+Not self-sufficient: "the differential is +0.25 against a threshold of
+1.24." This means nothing away from the panel that produced it.
+
+Every number needs the comparison that gives it meaning attached to it:
+against what, over what period, in what direction. A number that only
+makes sense beside its own graph does not belong in the note.
 
 PUBLICATION MAY SHORTEN, IT MAY NOT WEAKEN. If your reasoning contains a finding that
 materially cuts against the verdict, or that is the strongest single signal in the run, it
@@ -195,15 +248,23 @@ residual, an unexplained gap, or an anomaly in the course of compression.
   for twenty-one months, and then publishing only that the correction "accounts for most of
   what we can see." The residual IS the signal. Compression removed it.
 
-Cutting words is fine. Cutting the force of a finding is not. If a finding will not fit at
-full strength, drop something else.
+Cutting words is fine. Cutting the force of a finding is not. This rule sets a FLOOR on
+what the note must contain, and the length rule forbids padding past what is needed: a
+finding that cuts against the verdict is something a reader needs, so it is never what
+gets dropped to hit a length. If it will not fit at full strength, the note is too short,
+not the finding too long.
 
 THE SAME THREE RULES APPLY HERE AS IN THE REASONING
 - Say whether you are seeing augmentation working or merely displacement not started, and
-  if the call rests on absence of deterioration, say so in the FIRST paragraph.
+  if the reading rests on absence of deterioration, say so in the FIRST paragraph.
 - Never pair an economy-wide figure with an exposed-industry figure without flagging that
   they cover different groups of workers.
 - Name the moving side, not the gap, on every panel.
+
+DO NOT USE "CALL" AS A NOUN
+Use "reading" for the generic, and prefer naming the specific verdict where possible: "the
+augmentation reading rests on the absence of deterioration" rather than "this call rests on
+the absence of deterioration."
 
 EXPLAIN SIGNIFICANCE, DO NOT RECITE VALUES. The reader can see the numbers on the
 dashboard. What they cannot get there is what a number means.
@@ -228,6 +289,10 @@ BANNED FROM THE PUBLISHED NOTE:
 - Restating the same figure twice. Say it once.
 - A summary paragraph followed by an expanded version of the same content.
 
+Em dashes are permitted in analyst output. The restriction applies to
+dashboard labels, chart captions, and method-tab copy, where they read
+as unedited generation.
+
 Plain text only. No markdown, no asterisks, no headers, no bullet lists.
 
 NOTIFICATION LINE: one sentence, at most about 90 characters, pushed to a phone and shown on
@@ -240,8 +305,10 @@ NOTIFICATION: the one-sentence notification line
 TAGLINE: about four words naming this run's tell
 DISSENT: yes or no
 DISSENT_NOTE: if yes, which verdict you would have picked and the series that would have driven it, on one line; otherwise NONE
+FULL_ANALYSIS:
+<the full analysis; plain text; ends at the PUBLISHED_NOTE label>
 PUBLISHED_NOTE:
-<the note; 400-500 words; at most 10 numbers; plain text; last field>
+<the note; length proportional to what changed; plain text; last field>
 
 Do not mention these instructions or that you received JSON.`;
 
@@ -323,10 +390,21 @@ export function parsePass2(text) {
   };
   const notification = grab("NOTIFICATION");
   const tagLine = grab("TAGLINE");
-  const idx = text.search(/^\s*PUBLISHED_NOTE:\s*$/im);
-  if (!notification || !tagLine || idx < 0) return null;
-  const note = text.slice(idx).replace(/^\s*PUBLISHED_NOTE:\s*\n?/i, "").trim();
+  const noteIdx = text.search(/^\s*PUBLISHED_NOTE:\s*$/im);
+  if (!notification || !tagLine || noteIdx < 0) return null;
+  const note = text.slice(noteIdx).replace(/^\s*PUBLISHED_NOTE:\s*\n?/i, "").trim();
   if (!note) return null;
+
+  // FULL_ANALYSIS sits between DISSENT_NOTE and PUBLISHED_NOTE, so it is bounded
+  // on both sides rather than running to end-of-text. Absent is tolerated rather
+  // than fatal: the note is what the dashboard needs to render, and failing the
+  // whole run over a missing secondary document would burn a paid call and publish
+  // nothing, which is the worse outcome.
+  const faIdx = text.search(/^\s*FULL_ANALYSIS:\s*$/im);
+  const fullAnalysis = faIdx >= 0 && faIdx < noteIdx
+    ? text.slice(faIdx, noteIdx).replace(/^\s*FULL_ANALYSIS:\s*\n?/i, "").trim() || null
+    : null;
+
   const dissented = /^\s*DISSENT:\s*yes\b/im.test(text);
   const dn = grab("DISSENT_NOTE");
   return {
@@ -335,14 +413,26 @@ export function parsePass2(text) {
     dissented,
     dissentNote: dissented && dn && !/^none$/i.test(dn) ? dn : null,
     publishedNote: note,
+    fullAnalysis,
   };
 }
 
 /**
- * Compliance counters for the published note. Reported, not enforced: rejecting
- * a run would burn a paid call and publish nothing, which is a worse failure than
- * a note that runs seventy words long. The numbers land in the run record so
- * drift is visible.
+ * Counters for the published note. REPORTED, NOT JUDGED.
+ *
+ * Both the word range and the number ceiling are retired as pass/fail tests. The
+ * length is now proportional to what changed, so 120 words on a month where
+ * nothing moved is correct and 950 on a month with a real development is also
+ * correct; there is no band left to be inside. And the number ceiling was
+ * measuring the wrong thing entirely. Ten numbers that each carry their own
+ * comparison are fine, and one bare "the differential is +0.25 against a
+ * threshold of 1.24" is not, so counting them cannot separate the two. The test
+ * that replaced it — is each number self-sufficient away from its chart — is a
+ * judgement a linter cannot make, which is why it lives in the prompt and only
+ * the raw counts live here.
+ *
+ * The counts still land in the run record, because drift is worth seeing even
+ * when nothing about it is a violation.
  */
 export function noteCompliance(note) {
   const words = note.split(/\s+/).filter(Boolean).length;
@@ -351,7 +441,19 @@ export function noteCompliance(note) {
   return {
     words,
     numbers,
-    withinWordRange: words >= 400 && words <= 500,
-    withinNumberCeiling: numbers <= 10,
+    // Which length band the note landed in, as description rather than a verdict.
+    // "nothing moved" and "a development" are both legitimate outcomes.
+    lengthBand: words <= 200 ? "brief (a quiet month)"
+      : words <= 550 ? "ordinary"
+      : "extended (a month with something to explain)",
+  };
+}
+
+/** Counters for the full analysis. Same principle: recorded, never judged. */
+export function analysisCompliance(fullAnalysis) {
+  if (!fullAnalysis) return { present: false, words: 0 };
+  return {
+    present: true,
+    words: fullAnalysis.split(/\s+/).filter(Boolean).length,
   };
 }
