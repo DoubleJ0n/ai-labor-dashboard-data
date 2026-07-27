@@ -29,17 +29,44 @@
 // so a reader can tell "nowhere near it" from "just missed it" — those are very
 // different pieces of evidence about the same NOT_FIRED.
 
-/** Pull a numeric field off a panel by name, tolerating nesting one level deep. */
+/**
+ * Pull a numeric field off a panel by name.
+ *
+ * Accepts three forms, because the first live run showed the analyst reaching for one
+ * this did not support. Asked to name "the exact numeric field on that panel", it
+ * wrote `headline.change_over_12_months` — a dotted path, which is the obvious thing
+ * to write when the payload nests, and which resolved UNCHECKABLE. That defeated the
+ * entire purpose of making the falsifier structured, and the fault was the reader's
+ * for being narrower than the format it advertised.
+ *
+ *   1. an exact key on the panel
+ *   2. a DOTTED PATH, walked as far as it goes
+ *   3. a bare name found one level deep, kept so earlier falsifiers still resolve
+ */
 export function readPanelField(panels, panelName, field) {
   const p = panels.find((x) => x.panel === panelName);
   if (!p) return { ok: false, why: `panel "${panelName}" is not in the current payload` };
+
   if (Object.prototype.hasOwnProperty.call(p, field)) {
     const v = p[field];
     if (typeof v === "number") return { ok: true, value: v };
     return { ok: false, why: `field "${field}" on "${panelName}" is not a number` };
   }
-  // One level of nesting, so a falsifier can name a field inside headline or
-  // deviation_from_normal without needing dotted-path support.
+
+  if (field.includes(".")) {
+    let node = p;
+    for (const part of field.split(".")) {
+      // Names the part that is MISSING rather than the one where the walk noticed,
+      // which is one step later and points at the wrong key in the error.
+      if (node == null || typeof node !== "object" || !(part in node)) {
+        return { ok: false, why: `path "${field}" on "${panelName}" runs out at "${part}"` };
+      }
+      node = node[part];
+    }
+    if (typeof node === "number") return { ok: true, value: node, via: field };
+    return { ok: false, why: `path "${field}" on "${panelName}" does not end at a number` };
+  }
+
   for (const [k, v] of Object.entries(p)) {
     if (v && typeof v === "object" && !Array.isArray(v) && typeof v[field] === "number") {
       return { ok: true, value: v[field], via: k };

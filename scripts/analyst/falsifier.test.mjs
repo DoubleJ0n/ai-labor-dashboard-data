@@ -65,6 +65,67 @@ test("both conditions must hold, which is what buys the discrimination", () => {
   assert.equal(r.conditions[1].met, false);
 });
 
+test("a DOTTED path resolves, which the first live run needed", () => {
+  // Regression. The first real run wrote `headline.change_over_12_months`, which is
+  // the obvious thing to write when the payload nests, and the reader only handled
+  // bare names — so the first structured falsifier scored UNCHECKABLE and the whole
+  // point of making it machine-checkable was lost on run one.
+  const nested = [{
+    panel: "reabsorption",
+    headline: { change_over_12_months: -0.5, fast_horizon: { change: -0.5 } },
+  }];
+  const one = readPanelField(nested, "reabsorption", "headline.change_over_12_months");
+  assert.equal(one.ok, true);
+  assert.equal(one.value, -0.5);
+
+  // Two levels deep works too, so the format does not quietly cap at one.
+  const two = readPanelField(nested, "reabsorption", "headline.fast_horizon.change");
+  assert.equal(two.ok, true);
+  assert.equal(two.value, -0.5);
+
+  // A path that runs out says where, rather than reporting a bare not-found.
+  const bad = readPanelField(nested, "reabsorption", "headline.nope.change");
+  assert.equal(bad.ok, false);
+  assert.match(bad.why, /runs out at "nope"/);
+
+  // A path ending on an object rather than a number is refused, not coerced.
+  const obj = readPanelField(nested, "reabsorption", "headline.fast_horizon");
+  assert.equal(obj.ok, false);
+  assert.match(obj.why, /does not end at a number/);
+});
+
+test("the actual first-run falsifier is scorable end to end", () => {
+  // Verbatim from the live run, so this test fails if the shape it depends on moves.
+  const live = {
+    panel: "reabsorption",
+    field: "headline.change_over_12_months",
+    comparator: "at_or_above",
+    value: -0.2,
+    also: {
+      panel: "exposed_vs_control_jobs",
+      field: "differential_exposed_minus_control",
+      comparator: "at_or_above",
+      value: -1.75,
+    },
+    by: "2026-10-24",
+    scorable: true,
+  };
+  const panels = [
+    { panel: "reabsorption", headline: { change_over_12_months: -0.5 } },
+    { panel: "exposed_vs_control_jobs", differential_exposed_minus_control: -2.5 },
+  ];
+  const open = resolveFalsifier(live, panels, "2026-08-01");
+  assert.equal(open.outcome, "NOT_YET_DUE", "must be scorable, not UNCHECKABLE");
+  assert.equal(open.conditions.length, 2);
+
+  // Both legs improving is what would overturn a displacement reading.
+  const recovered = [
+    { panel: "reabsorption", headline: { change_over_12_months: 0.1 } },
+    { panel: "exposed_vs_control_jobs", differential_exposed_minus_control: -1.0 },
+  ];
+  assert.equal(resolveFalsifier(live, recovered, "2026-11-01").outcome, "FIRED");
+});
+
 test("a nested field is found one level deep", () => {
   const nested = readPanelField(PANELS, "exposed_vs_control_jobs", "against_fixed_pre2020_baseline");
   assert.equal(nested.ok, true);
