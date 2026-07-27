@@ -1037,13 +1037,34 @@ export function buildAnalysisPayload(pool, extras = {}) {
     });
   }
 
-  // --- Worker share of income (Card 2; audit-2026-07 finding 1 re-registration) ---
-  // GDICOMP/GDI, a true percent of national income, quarterly back to 1947.
-  // Registered rule: the change over LABOR_SHARE_CHANGE_QUARTERS quarters,
-  // z-scored against its own trailing LABOR_SHARE_BASELINE_QUARTERS history of
-  // such changes, COVID-excluded, latest excluded — acceleration, not level,
-  // with no fitted trend line (the old post-1980 detrend on PRS85006173 is
-  // retired; its reading depended on the fit window).
+  // --- Worker share of income (Card 2) ---
+  //
+  // NO THRESHOLD. RE-REGISTERED 2026-07-27, and the alarm is deleted rather than
+  // retuned.
+  //
+  // The old rule scored the 4-quarter change against a 2-sigma trigger. It could
+  // not mean what an alarm implies. This series has fallen for more than forty
+  // years, from 58.7 percent in 1970 to 51.0 now, for reasons that predate AI by
+  // decades: globalisation, union decline, capital deepening, the shift to
+  // intangibles. Against that, "falling faster than usual" is a statement about
+  // the business cycle, not about AI. Ordinary recessions have already produced
+  // 4-quarter declines of -2.18 (2009-12) and -1.59 (2010-03), both past the -1.4
+  // the trigger was set at, so the alarm fired on recessions and could never
+  // discriminate. Two independent analyst runs then chose this panel for their
+  // falsifier precisely BECAUSE it was the only one with clean history, and both
+  // had to bolt a "control industries still growing" condition onto it to stop it
+  // firing on a downturn. The threshold was doing harm.
+  //
+  // What replaces it is description with no verdict attached: where the level sits
+  // in its own record, how fast it has drifted over several EXPLICIT fixed
+  // horizons, and where the current 4-quarter change falls in the distribution of
+  // all such changes. The analyst reads it and decides what it is worth.
+  //
+  // Deliberately NOT a fitted trend line. The audit retired one on this panel
+  // (finding 1) because its reading depended on the fit window, and re-introducing
+  // one under the name "deviation from trend" would repeat that mistake with
+  // better manners. Several stated horizons cannot hide a window choice: they show
+  // it.
   {
     const share = laborShareSeries(series);
     const last = share.length ? share[share.length - 1] : null;
@@ -1052,12 +1073,31 @@ export function buildAnalysisPayload(pool, extras = {}) {
       changes.push([quarterEndMonth(share[i].date), share[i].value - share[i - LABOR_SHARE_CHANGE_QUARTERS].value]);
     }
     const latestChange = changes.length ? changes[changes.length - 1][1] : null;
-    // Was a trailing 30-year window (LABOR_SHARE_BASELINE_QUARTERS, retired):
-    // now the same fixed 2010-2019 window as every other panel, which for a
-    // quarterly series is 40 readings — above the 36 minimum, but only just, and
-    // the payload says so via long_run_context_4q_changes.readings.
-    const trigger = twoSigmaTrigger(changes, false);
     const decl = declineStreakQuarters(share);
+
+    // Drift over fixed look-backs, in quarters. Every horizon is named, so the
+    // reader can see that a "fast" recent decline against a slow secular one is a
+    // different claim from a fast one against a fast one.
+    const driftOver = (quarters) => {
+      if (share.length <= quarters) return null;
+      const a = share[share.length - 1 - quarters];
+      const b = share[share.length - 1];
+      return {
+        from_date: quarterEndMonth(a.date),
+        from_value: round1(a.value),
+        change: round2(b.value - a.value),
+        change_per_year: round2((b.value - a.value) / (quarters / 4)),
+      };
+    };
+
+    // Where the current 4-quarter change sits among ALL such changes on record.
+    // A percentile, not a threshold: it says how ordinary the move is without
+    // asserting that any particular rank means anything.
+    const changeVals = changes.map(([, v]) => v);
+    const rank = latestChange == null ? null
+      : changeVals.filter((v) => v < latestChange).length;
+    const percentile = rank == null || changeVals.length === 0 ? null
+      : Math.round((rank / changeVals.length) * 100);
     panels.push({
       panel: "worker_share_of_income",
       series_id: "GDICOMP/GDI",
@@ -1072,9 +1112,46 @@ export function buildAnalysisPayload(pool, extras = {}) {
       // 4-quarter CHANGES (which is what the rule actually tests).
       long_run_context_level: longRun(share.map((p) => [quarterEndMonth(p.date), p.value])),
       long_run_context_4q_changes: longRun(changes),
-      deviation_from_normal: deviation(changes.map(([m, v]) => [m, -v])),
+      // NO deviation_from_normal block here, and its absence is deliberate: that
+      // block carries an alarm_line and an attention_line, which is the thing this
+      // panel is no longer entitled to.
       streak: last ? `${decl} consecutive quarterly ${decl === 1 ? "decline" : "declines"}` : null,
-      threshold: { change_trigger: round1(trigger), rule: `the alarm is the share falling over ${LABOR_SHARE_CHANGE_QUARTERS} quarters ${BREAK_Z} standard deviations faster than the ${BASELINE_START} to ${BASELINE_END} norm of such changes; acceleration, not level, is the tell` },
+      trend_context: {
+        drift_over_1_year: driftOver(4),
+        drift_over_5_years: driftOver(20),
+        drift_over_10_years: driftOver(40),
+        drift_over_20_years: driftOver(80),
+        drift_over_40_years: driftOver(160),
+        // Named for what it counts rather than as a bare "percentile", which is
+        // ambiguous about direction and easy to state backwards.
+        percent_of_past_changes_that_fell_faster: percentile,
+        percentile_note: percentile == null ? null
+          : `Of every ${LABOR_SHARE_CHANGE_QUARTERS}-quarter change on record, ${percentile} percent fell FASTER ` +
+            `than the current one, so the current one is in the fastest ${percentile} percent ` +
+            `of declines this series has produced. This is a rank, not a threshold: no ` +
+            `rank here is registered as meaning anything, and it is given so you can say ` +
+            `whether a move is ordinary rather than so you can call it an alarm.`,
+        how_to_read:
+          "Compare the recent horizons against the long ones. A one-year decline that " +
+          "matches the forty-year pace is the secular drift continuing. A one-year " +
+          "decline several times the forty-year pace is something else, though not " +
+          "necessarily something AI did.",
+      },
+      threshold: {
+        rule:
+          "NO THRESHOLD. This panel has no alarm line, no trigger and no deviation score, " +
+          "and that is a deliberate re-registration rather than missing data. The share " +
+          "has declined for more than forty years for reasons that predate AI, so " +
+          `"falling faster than usual" is a business-cycle statement rather than an ` +
+          "AI one: ordinary recessions produced 4-quarter falls of -2.18 in 2009 and " +
+          "-1.59 in 2010, faster than anything AI has yet been accused of. Any trigger " +
+          "set here fires on recessions. Read the level, the streak and the drift " +
+          "horizons, say what you think they mean, and do not treat the absence of a " +
+          "threshold as either reassurance or alarm.",
+        population_caveat:
+          "This is ECONOMY-WIDE. It covers every industry, so it cannot be evidence " +
+          "about AI-exposed work specifically, whatever it does.",
+      },
     });
   }
 

@@ -155,16 +155,33 @@ not a substitute for picking a side.
 THE FALSIFIER
 Pre-register what would overturn this reading within ${FALSIFIER_HORIZON_DAYS} DAYS. The
 horizon is fixed at ${FALSIFIER_HORIZON_DAYS} days for every run so the track record is
-comparable; do not choose your own. Give it twice: once machine-checkable (which panel,
-which direction, how big a move, by what date) and once as a single plain sentence naming
-which chart moves first.
+comparable; do not choose your own. Give it twice: once in the structured fields below, and once as a single plain sentence
+naming which chart moves first.
+
+THE STRUCTURED FORM IS CHECKED BY MACHINE ON A LATER RUN, so it has to be mechanical. Name
+a panel, a numeric field on that panel, a comparator and a value. Prose in these fields
+cannot be evaluated and will be recorded as an unscorable prediction, which is the same as
+not having made one.
+
+You may add ONE secondary condition, and for most falsifiers here you should. A single
+threshold on a single panel usually cannot separate displacement from an ordinary
+downturn, and a second condition is what buys the discrimination - typically requiring the
+control industries to still be healthy, so a general slump does not trip a test that is
+supposed to detect something AI-specific. Both conditions must hold for the falsifier to
+fire.
 
 OUTPUT - exactly this line-delimited format, nothing before the first label:
 VERDICT: AUGMENTATION or DISPLACEMENT or CONFOUNDED
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
 FALSIFIER_PANEL: the panel name from the payload
-FALSIFIER_DIRECTION: rises or falls
-FALSIFIER_MAGNITUDE: the threshold value with its unit
+FALSIFIER_FIELD: the exact numeric field name on that panel, as it appears in the JSON
+FALSIFIER_COMPARATOR: at_or_below or at_or_above
+FALSIFIER_VALUE: a bare number, no unit and no words
+FALSIFIER_UNIT: the unit, for the reader only
+FALSIFIER_ALSO_PANEL: second condition's panel, or NONE
+FALSIFIER_ALSO_FIELD: second condition's numeric field, or NONE
+FALSIFIER_ALSO_COMPARATOR: at_or_below or at_or_above, or NONE
+FALSIFIER_ALSO_VALUE: a bare number, or NONE
 FALSIFIER_BY: the date, ${FALSIFIER_HORIZON_DAYS} days out
 FALSIFIER_PLAIN: one sentence naming which chart moves first
 REASONING_LOG:
@@ -261,10 +278,20 @@ THE SAME THREE RULES APPLY HERE AS IN THE REASONING
   they cover different groups of workers.
 - Name the moving side, not the gap, on every panel.
 
-DO NOT USE "CALL" AS A NOUN
-Use "reading" for the generic, and prefer naming the specific verdict where possible: "the
-augmentation reading rests on the absence of deterioration" rather than "this call rests on
-the absence of deterioration."
+NAME THE THING RATHER THAN POINTING AT IT
+"Call", "reading", "verdict" and "view" are all perfectly good words and none of them is
+banned. What to avoid is a noun that makes the reader reconstruct what it refers to. Name
+the specific claim instead:
+
+  Vague:  "the evidence supports my call"
+  Named:  "the evidence supports the augmentation reading"
+
+  Vague:  "this call rests on the absence of deterioration"
+  Named:  "the augmentation reading rests on the absence of deterioration"
+
+The test is whether a reader who lands on that sentence cold knows what is being referred
+to without scrolling back. This matters most for "this", "that" and "it" at the start of a
+sentence, which are the usual culprits.
 
 EXPLAIN SIGNIFICANCE, DO NOT RECITE VALUES. The reader can see the numbers on the
 dashboard. What they cannot get there is what a number means.
@@ -288,10 +315,6 @@ BANNED FROM THE PUBLISHED NOTE:
   not an assessment of the instrument.
 - Restating the same figure twice. Say it once.
 - A summary paragraph followed by an expanded version of the same content.
-
-Em dashes are permitted in analyst output. The restriction applies to
-dashboard labels, chart captions, and method-tab copy, where they read
-as unedited generation.
 
 Plain text only. No markdown, no asterisks, no headers, no bullet lists.
 
@@ -325,8 +348,8 @@ export function buildPass1Message(panels, changes, newsText) {
   );
 }
 
-/** Pass 2's user message: pass 1's work + last run's call. */
-export function buildPass2Message(pass1, priorEntry, changes) {
+/** Pass 2's user message: pass 1's work, last run's verdict, and the falsifier record. */
+export function buildPass2Message(pass1, priorEntry, changes, falsifierRecord = null) {
   return JSON.stringify(
     {
       this_run: {
@@ -347,6 +370,11 @@ export function buildPass2Message(pass1, priorEntry, changes) {
           }
         : null,
       what_changed_since_last_analysis: changes,
+      // The record of what previous runs predicted and whether it happened. Given
+      // to pass 2 rather than pass 1 on purpose: pass 1 must reach its verdict on
+      // the data alone, and knowing that the last three falsifiers went unfired is
+      // exactly the kind of prior that anchors a blind read.
+      falsifier_track_record: falsifierRecord,
     },
     null, 2,
   );
@@ -367,15 +395,60 @@ export function parsePass1(text) {
   const named = conf && !/^none$/i.test(conf) ? conf : null;
   // A CONFOUNDED verdict with no named cause fails its own evidentiary bar.
   if (verdict === "CONFOUNDED" && !named) return null;
+  // Structured so a later run can actually evaluate it. The previous free-text
+  // "magnitude" field held prose like "at or below -3.5 percentage points (one
+  // full standard deviation past its calm-period mean)", which no code can score —
+  // so three months of pre-registered predictions were never checked against
+  // anything. A prediction nobody scores is not a prediction.
+  const num = (label) => {
+    const raw = grab(label);
+    if (raw == null || /^none$/i.test(raw)) return null;
+    const m = /-?\d+(?:\.\d+)?/.exec(raw);
+    return m ? Number(m[0]) : null;
+  };
+  const cmp = (label) => {
+    const raw = (grab(label) ?? "").toLowerCase();
+    return raw === "at_or_below" || raw === "at_or_above" ? raw : null;
+  };
+  const str = (label) => {
+    const raw = grab(label);
+    return raw == null || /^none$/i.test(raw) ? null : raw;
+  };
+
+  const primary = {
+    panel: str("FALSIFIER_PANEL"),
+    field: str("FALSIFIER_FIELD"),
+    comparator: cmp("FALSIFIER_COMPARATOR"),
+    value: num("FALSIFIER_VALUE"),
+    unit: str("FALSIFIER_UNIT"),
+  };
+  const alsoPanel = str("FALSIFIER_ALSO_PANEL");
+  const secondary = alsoPanel
+    ? {
+        panel: alsoPanel,
+        field: str("FALSIFIER_ALSO_FIELD"),
+        comparator: cmp("FALSIFIER_ALSO_COMPARATOR"),
+        value: num("FALSIFIER_ALSO_VALUE"),
+      }
+    : null;
+
+  const usable = (c) =>
+    c != null && c.panel != null && c.field != null && c.comparator != null && c.value != null;
+
   return {
     verdict,
     confounder: named,
     falsifier: {
-      panel: grab("FALSIFIER_PANEL"),
-      direction: grab("FALSIFIER_DIRECTION"),
-      magnitude: grab("FALSIFIER_MAGNITUDE"),
+      ...primary,
+      also: usable(secondary) ? secondary : null,
       by: grab("FALSIFIER_BY"),
       horizonDays: FALSIFIER_HORIZON_DAYS,
+      // Recorded rather than enforced. A malformed falsifier must not fail the run
+      // and lose the note, but it must not be silently filed as a real prediction
+      // either — resolution reports it as UNCHECKABLE and the reason travels.
+      scorable: usable(primary),
+      unscorableReason: usable(primary) ? null
+        : "the structured fields were incomplete or non-numeric, so this prediction cannot be evaluated",
     },
     falsifierPlain: grab("FALSIFIER_PLAIN"),
     reasoningLog,

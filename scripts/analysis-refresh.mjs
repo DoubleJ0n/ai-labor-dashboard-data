@@ -29,6 +29,7 @@ import {
 } from "./payload.mjs";
 import { deriveVerdict } from "./analyst/verdict.mjs";
 import { pairedStateFromPool } from "./analyst/pairedState.mjs";
+import { resolveOutstanding } from "./analyst/falsifier.mjs";
 import { DATA_INTEGRITY_MAX_STALE_MONTHS, VERDICT_CRITICAL_SERIES, HEAVY_REVISION_MAX_PP } from "./config.mjs";
 import { assembleNews } from "./analyst/news.mjs";
 import {
@@ -145,6 +146,11 @@ const votes = votingPanelStates(pool, extras);
 // payload.test.mjs asserts this value never reaches the request body.
 const paired = pairedStateFromPool(pool);
 
+// Score every prior run's falsifier against TODAY's panels, before the model is
+// called. Until now these were pre-registered and never checked, which produced
+// the appearance of a track record and none of the substance. The resolved record
+// goes to pass 2 so the analyst sees its own history rather than being told it
+// has one.
 const jobsPanel = payload.find((p) => p.panel === "exposed_vs_control_jobs");
 const latestLaborMonth = jobsPanel?.latest_date ?? null;
 
@@ -157,6 +163,12 @@ const runsLog = existsSync(RUNS_PATH)
   ? JSON.parse(readFileSync(RUNS_PATH, "utf8"))
   : { schemaVersion: 1, description: "Append-only Analyst run history. Every run, nothing overwritten.", runs: [] };
 const runs = runsLog.runs ?? [];
+
+// Score every prior falsifier against TODAY's panels. Every falsifier written
+// before 2026-07-27 carried a free-text magnitude and resolves as UNCHECKABLE,
+// which is the honest starting point: the record begins now rather than being
+// backfilled with predictions nobody could evaluate.
+const falsifierRecord = resolveOutstanding(runs, payload, nowIso());
 
 /** The most recent logged run, whatever data month it belongs to. */
 const priorEntry = entries.length ? entries[entries.length - 1] : null;
@@ -289,7 +301,7 @@ function pass2Request(model, pass1) {
     thinking: { type: "adaptive" },
     output_config: { effort: EFFORT },
     system: PASS2_SYSTEM,
-    messages: [{ role: "user", content: buildPass2Message(pass1, priorEntry, changes) }],
+    messages: [{ role: "user", content: buildPass2Message(pass1, priorEntry, changes, falsifierRecord) }],
   };
 }
 
@@ -302,6 +314,10 @@ if (DRY_RUN) {
   console.log("=== DRY RUN (no model call, nothing written) ===");
   console.log(`mechanical state : ${mechanical.mechanicalState} | breadth ${mechanical.breadth} | gainsVisible ${mechanical.gainsVisible}`);
   console.log(`labor votes      : jobs=${votes.jobs} wages=${votes.wages} postings=${votes.postings}`);
+  console.log(`falsifiers       : ${falsifierRecord.summary}`);
+  for (const r of falsifierRecord.resolutions) {
+    console.log(`  ${r.dataMonth} ${r.verdict}: ${r.outcome} — ${r.reason}`);
+  }
   console.log(`paired state     : ${paired.state} (${paired.attribution.label} + ${paired.reabsorption.label}) — NOT sent to the model`);
   console.log(`  attribution z  : ${paired.attribution.z ?? "cannot be placed"}`);
   console.log(`  reabsorption z : ${paired.reabsorption.z ?? "cannot be placed"}`);
@@ -587,7 +603,12 @@ function appendEntry(entry, result) {
         description: runsLog.description,
         lastRefreshed: entry.runAt,
         runs: [
-          ...runs,
+          ...runs.map((r) => {
+            const res = falsifierRecord.resolutions.find((x) => x.runAt === r.runAt);
+            if (!res || res.outcome === "NOT_YET_DUE") return r;
+            const { runAt, dataMonth, verdict, ...outcome } = res;
+            return { ...r, falsifierResolution: outcome };
+          }),
           {
             runAt: entry.runAt,
             dataMonth,
@@ -609,6 +630,11 @@ function appendEntry(entry, result) {
             // placement cannot.
             pairedState: paired,
             pairedStateAgreesWithVerdict: agreementWith(paired.state, entry.verdict),
+            // Opened unresolved; a later run settles it. Storing the slot now means
+            // the shape is present from the first run rather than appearing later
+            // and making early runs look like they were never scored.
+            falsifierResolution: { outcome: "NOT_YET_DUE", reason: "registered this run" },
+            falsifierRecordAtRun: falsifierRecord.tally,
             inputHash,
             // Oscillation is MEASURED, not suppressed. A two-consecutive-periods
             // confirmation rule would delay a real turn as readily as it damps a
