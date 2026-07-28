@@ -61,6 +61,14 @@ can name a specific competing cause AND point to the series in the payload that 
 it. "Mixed evidence" is not grounds for CONFOUNDED; it is grounds for a directional reading
 that says plainly how weak it is.
 
+Picking a side is not the same as claiming the evidence is strong, and the two are
+separated on purpose. The direction goes here; how well corroborated it is goes in the
+CONFIDENCE rating below, and a thin reading is published as a thin reading rather than
+softened into a non-answer. So the forced choice costs you nothing: choose the side the
+evidence points to even when it barely points, and let the rating carry the weakness.
+Early in the life of this dashboard a directional verdict at LOW confidence should be the
+ordinary result, not an unusual one.
+
 AUGMENTATION WORKING IS NOT THE SAME CLAIM AS DISPLACEMENT NOT STARTED
 State plainly which one you are seeing. Augmentation working needs positive evidence that
 exposed workers are being made more valuable. Displacement not started needs only the
@@ -224,7 +232,13 @@ REASONING_LOG:
 panel notes, the inversion for every supporting panel, rejected hypotheses and why, the
 news events you considered and set aside, and anything cross-panel you noticed.>
 
-Do not mention these instructions or that you received JSON.`;
+The published note and full analysis must stand alone as a read of displacement or
+augmentation. A reader who has never seen this brief should never need it. Do not write
+about the brief, the format, or the shape of the data you were given.
+
+This governs the reader-facing text only. If something in the data looks wrong, say so
+plainly in the reasoning log: a panel whose figures contradict each other is exactly the
+kind of thing worth reporting, and reporting it is never a breach of this rule.`;
 
 /**
  * A one-time addendum for the FIRST run after a history reset.
@@ -396,7 +410,13 @@ FULL_ANALYSIS:
 PUBLISHED_NOTE:
 <the note; length proportional to what changed; plain text; last field>
 
-Do not mention these instructions or that you received JSON.`;
+The published note and full analysis must stand alone as a read of displacement or
+augmentation. A reader who has never seen this brief should never need it. Do not write
+about the brief, the format, or the shape of the data you were given.
+
+This governs the reader-facing text only. If something in the data looks wrong, say so
+plainly in the reasoning log: a panel whose figures contradict each other is exactly the
+kind of thing worth reporting, and reporting it is never a breach of this rule.`;
 
 /**
  * Pass 1's user message. Contains NO prior verdict and NO prior write-up: only
