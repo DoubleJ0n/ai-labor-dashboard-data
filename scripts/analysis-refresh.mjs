@@ -439,6 +439,11 @@ appendEntry(
     date: dataMonth,
     runAt: result.finishedAt,
     verdict: result.pass1.verdict,
+    // Rated in pass 1, committed with the verdict and before pass 2 writes a word a
+    // reader sees. Rating it afterwards would let the write-up talk itself into a
+    // confidence the blind read never had.
+    confidence: result.pass1.confidence,
+    confidenceBasis: result.pass1.confidenceBasis,
     tagLine: result.pass2.tagLine,
     notificationLine: result.pass2.notificationLine,
     confoundedPathway: result.pass1.verdict === "CONFOUNDED" ? "analyst" : null,
@@ -655,7 +660,7 @@ function appendEntry(entry, result) {
               ? {
                   // The reasoning log lives HERE and only here: stored for audit,
                   // never published to the pool and never shown in the app.
-                  pass1: { verdict: result.pass1.verdict, falsifier: result.pass1.falsifier, falsifierPlain: result.pass1.falsifierPlain, reasoningLog: result.pass1.reasoningLog, raw: result.rawPass1 },
+                  pass1: { verdict: result.pass1.verdict, confidence: result.pass1.confidence, confidenceBasis: result.pass1.confidenceBasis, falsifier: result.pass1.falsifier, falsifierPlain: result.pass1.falsifierPlain, reasoningLog: result.pass1.reasoningLog, raw: result.rawPass1 },
                   pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, publishedNote: result.pass2.publishedNote, fullAnalysis: result.pass2.fullAnalysis, raw: result.rawPass2 },
                 }
               : null,
@@ -673,7 +678,8 @@ function appendEntry(entry, result) {
     lastRefreshed: entry.runAt,
     dataMonth,
     verdict: entry.verdict,
-
+    confidence: entry.confidence,
+    confidenceBasis: entry.confidenceBasis,
     tagLine: entry.tagLine,
     notificationLine: entry.notificationLine,
     falsifier: entry.falsifierPlain,

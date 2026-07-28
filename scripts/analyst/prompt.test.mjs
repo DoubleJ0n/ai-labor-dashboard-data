@@ -111,3 +111,34 @@ Working here.`;
   // CONFOUNDED without a named cause fails its own evidentiary bar.
   assert.equal(parsePass1(ok.replace("AUGMENTATION", "CONFOUNDED")), null);
 });
+
+test("confidence fails safe: anything that is not an explicit HIGH reads LOW", () => {
+  const base = `VERDICT: DISPLACEMENT
+CONFOUNDER: NONE
+FALSIFIER_PANEL: exposed_vs_control_jobs
+FALSIFIER_FIELD: differential_exposed_minus_control
+FALSIFIER_COMPARATOR: at_or_above
+FALSIFIER_VALUE: -1.5
+FALSIFIER_BY: 2026-10-24
+FALSIFIER_PLAIN: the jobs chart moves first
+REASONING_LOG:
+Working here.`;
+
+  // The rating gates how the verdict is DISPLAYED: HIGH shows red, LOW caps at
+  // amber. So the failure mode of an unreadable rating has to be under-claiming.
+  // A missing, malformed or invented rating must never produce a red the analyst
+  // did not actually assert.
+  assert.equal(parsePass1(base).confidence, "LOW", "absent rating must not read HIGH");
+  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: MEDIUM\nVERDICT:")).confidence, "LOW");
+  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: very high\nVERDICT:")).confidence, "LOW");
+
+  // And an explicit HIGH is honoured, case-insensitively, or the rating would be
+  // unreachable and every verdict would show amber forever.
+  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: HIGH\nVERDICT:")).confidence, "HIGH");
+  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: high\nVERDICT:")).confidence, "HIGH");
+
+  const withBasis = parsePass1(
+    base.replace("VERDICT:", "CONFIDENCE: LOW\nCONFIDENCE_BASIS: jobs corroborates; postings refutes\nVERDICT:"),
+  );
+  assert.equal(withBasis.confidenceBasis, "jobs corroborates; postings refutes");
+});

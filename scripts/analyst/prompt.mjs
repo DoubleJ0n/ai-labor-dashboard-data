@@ -170,8 +170,43 @@ control industries to still be healthy, so a general slump does not trip a test 
 supposed to detect something AI-specific. Both conditions must hold for the falsifier to
 fire.
 
+CONFIDENCE. Rate the verdict HIGH or LOW, and rate it on the evidence rather than on how
+alarming the verdict sounds.
+
+HIGH means SEVERAL INDEPENDENT PANELS point the same way and none of the others
+materially refutes that reading.
+
+LOW means at least one panel is genuinely elevated in that direction and nothing clearly
+contradicts it, but the corroboration is thin: the movement rests on a small number of
+recent readings, or a contributing series is noisy enough that a month or two could
+reverse it, or a panel that would normally corroborate is silent.
+
+Rules, and the first two matter most:
+
+A single panel moving, however sharply, is never HIGH.
+
+If a panel that would normally corroborate is instead pointing the other way, name it and
+let it hold the rating down. A leading indicator moving against the verdict is the
+strongest reason to rate LOW, because it is the panel most likely to be right first.
+
+Distinguish a signal that persists across many months from one resting on the latest
+reading or two. The panels carry full series, long-run context and streak counts; a
+twelve-month change whose entire movement sits inside the last quarter is one quarter of
+evidence, not a year of it, and should be described that way.
+
+Name the panels on both sides. A rating without named panels cannot be checked by anyone
+and is worth nothing.
+
+A DISPLACEMENT verdict at LOW confidence is a legitimate and expected output, and early
+on it should be the common one. LOW is not a hedge or a softening; it is the accurate
+description of thin evidence, and rating thin evidence HIGH to sound decisive is the one
+failure this rating exists to prevent. It changes how the verdict is displayed, not
+whether it is published.
+
 OUTPUT - exactly this line-delimited format, nothing before the first label:
 VERDICT: AUGMENTATION or DISPLACEMENT or CONFOUNDED
+CONFIDENCE: HIGH or LOW
+CONFIDENCE_BASIS: one line naming the panels that corroborate and the panels that refute or fail to corroborate
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
 FALSIFIER_PANEL: the panel name from the payload
 FALSIFIER_FIELD: the exact numeric field name on that panel, as it appears in the JSON
@@ -438,6 +473,15 @@ export function parsePass1(text) {
   if (!VERDICT_NAMES.includes(verdict) || idx < 0) return null;
   const reasoningLog = text.slice(idx).replace(/^\s*REASONING_LOG:\s*\n?/i, "").trim();
   if (!reasoningLog) return null;
+  // Confidence gates how the verdict is DISPLAYED, so a missing or unparseable
+  // rating must not silently become the permissive one. Anything that is not an
+  // explicit HIGH is treated as LOW, which caps the display at amber: the failure
+  // mode of an unreadable rating should be under-claiming, never a red the analyst
+  // never actually asserted.
+  const confidenceRaw = (grab("CONFIDENCE") ?? "").toUpperCase();
+  const confidence = confidenceRaw === "HIGH" ? "HIGH" : "LOW";
+  const confidenceBasis = grab("CONFIDENCE_BASIS") ?? "";
+
   const conf = grab("CONFOUNDER");
   const named = conf && !/^none$/i.test(conf) ? conf : null;
   // A CONFOUNDED verdict with no named cause fails its own evidentiary bar.
@@ -484,6 +528,8 @@ export function parsePass1(text) {
 
   return {
     verdict,
+    confidence,
+    confidenceBasis,
     confounder: named,
     falsifier: {
       ...primary,
