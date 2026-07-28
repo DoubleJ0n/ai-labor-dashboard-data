@@ -369,9 +369,25 @@ Do not mention these instructions or that you received JSON.`;
  * two-pass structure. The mechanical stoplight is withheld for the same reason
  * the rule-based lights exist - they have to be able to disagree.
  */
-export function buildPass1Message(panels, changes, newsText) {
+export function buildPass1Message(panels, changes, newsText, isFirstRun = false) {
   return JSON.stringify(
-    { panels, what_changed_since_last_analysis: changes, news_package: newsText },
+    {
+      panels,
+      // OMITTED ENTIRELY ON A FIRST RUN, not merely disclaimed.
+      //
+      // Clearing the verdict archive does not clear the pool's stored prior readings,
+      // so the first published run still had a full what-changed block to read and
+      // duly wrote about what had moved. The addendum telling it not to was arguing
+      // against evidence sitting in the same message, and evidence wins. To a reader
+      // opening the app for the first time, "little has changed" answers a question
+      // they never asked, against a baseline they cannot see.
+      //
+      // There is genuinely nothing to report here on a first run: no verdict has been
+      // published, so no published number has moved. Sending the block at all was the
+      // error.
+      ...(isFirstRun ? {} : { what_changed_since_last_analysis: changes }),
+      news_package: newsText,
+    },
     null, 2,
   );
 }
@@ -397,7 +413,10 @@ export function buildPass2Message(pass1, priorEntry, changes, falsifierRecord = 
             key_numbers: priorEntry.panelHeadlines ?? null,
           }
         : null,
-      what_changed_since_last_analysis: changes,
+      // Same omission as pass 1 when there is no prior run: priorEntry being null is
+      // exactly the first-run condition, and a what-changed block with nothing to
+      // change against is what produced a first release reading as "nothing new".
+      ...(priorEntry ? { what_changed_since_last_analysis: changes } : {}),
       // The record of what previous runs predicted and whether it happened. Given
       // to pass 2 rather than pass 1 on purpose: pass 1 must reach its verdict on
       // the data alone, and knowing that the last three falsifiers went unfired is

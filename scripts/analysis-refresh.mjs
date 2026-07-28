@@ -292,7 +292,7 @@ function pass1Request(model) {
     thinking: { type: "adaptive" },
     output_config: { effort: EFFORT },
     system: PASS1_SYSTEM,
-    messages: [{ role: "user", content: buildPass1Message(payload, changes, news.text) }],
+    messages: [{ role: "user", content: buildPass1Message(payload, changes, news.text, !priorEntry) }],
   };
 }
 function pass2Request(model, pass1) {
