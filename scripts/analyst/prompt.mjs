@@ -117,8 +117,16 @@ against your verdict is older than the evidence supporting it, say so, because t
 counterweight cannot yet reflect a recent turn.
 
 YOUR FALSIFIER MUST DISCRIMINATE
-It must name a reading that the non-AI explanations in the panel metadata cannot already
-produce. Before committing to a threshold, check whether those confounders have
+The condition you register has to be one that only the ABSENCE of displacement produces.
+The non-AI explanations in the panel metadata are all deterioration mechanisms, so they
+push these series the same way displacement does, and a falsifier they could also trip
+tells you nothing when it fires.
+
+Note the direction of travel, because it is the opposite of a TRIGGER THRESHOLD. A trigger
+fires toward displacement and must exclude confounders that could push a series that far.
+Your falsifier fires when displacement is absent, so what it must exclude is a confounder
+that could produce the RECOVERY. The paragraph below is about trigger thresholds and is
+given as the worked example of the idea, not as a rule to apply to your falsifier. Before committing to a threshold, check whether those confounders have
 historically driven the series to that level. If the 2021-22 correction already pushed a
 series to -42.7, then -40 does not discriminate: it would fire on a second correction just
 as readily as on displacement. Choose a threshold, a rate of change, or a combination of
@@ -399,6 +407,12 @@ BANNED FROM THE PUBLISHED NOTE:
 - Any commentary on the dashboard's own quality. No "this is the strongest panel", no
   "these are the series purpose-built to detect displacement". The reader wants the signal,
   not an assessment of the instrument.
+  ONE EXCEPTION, which overrides this ban. If a panel the verdict actually rests on carries
+  figures that contradict each other, or the news package reports that a release was rushed,
+  revised, or otherwise unreliable, say so plainly in the note. A reader trusting a number
+  is owed the knowledge that the number was not trustworthy that month. That is not an
+  assessment of the instrument, it is part of the finding, and the rule against weakening a
+  finding beats this one.
 - Restating the same figure twice. Say it once.
 - A summary paragraph followed by an expanded version of the same content.
 
@@ -455,9 +469,14 @@ kind of thing worth reporting, and reporting it is never a breach of this rule.`
  * two-pass structure. The mechanical stoplight is withheld for the same reason
  * the rule-based lights exist - they have to be able to disagree.
  */
-export function buildPass1Message(panels, changes, newsText, isFirstRun = false) {
+export function buildPass1Message(panels, changes, newsText, isFirstRun = false, runDate = null) {
   return JSON.stringify(
     {
+      // The date this run happened, and the anchor FALSIFIER_BY counts 90 days from.
+      // Without it the horizon was measured from nothing: two runs a month apart both
+      // chose the same expiry date, which makes the track record ambiguous in exactly
+      // the place it is supposed to be mechanical.
+      run_date: runDate,
       panels,
       // OMITTED ENTIRELY ON A FIRST RUN, not merely disclaimed.
       //

@@ -53,6 +53,32 @@ export function readPanelField(panels, panelName, field) {
     return { ok: false, why: `field "${field}" on "${panelName}" is not a number` };
   }
 
+  // "secondary.<name>.<field>" — the supporting readouts ship as an ARRAY, so no plain
+  // dotted path can reach them and a falsifier registered against one was unresolvable.
+  // Matched on the component's own falsifier_key rather than its position, so reordering
+  // the array cannot silently repoint a stored prediction at a different series.
+  if (field.startsWith("secondary.")) {
+    const [, name, ...rest] = field.split(".");
+    const list = Array.isArray(p.secondary_readouts) ? p.secondary_readouts : [];
+    const c = list.find((x) => x.falsifier_key === `secondary.${name}`);
+    if (!c) {
+      const known = list.map((x) => x.falsifier_key).filter(Boolean).join(", ") || "none";
+      return { ok: false, why: `"${panelName}" has no secondary readout named "${name}" (available: ${known})` };
+    }
+    // Default to the same headline quantity the panel is placed on, so a falsifier can
+    // name the series alone without also having to know the field spelling.
+    const leaf = rest.length ? rest.join(".") : "change_over_12_months";
+    let node = c;
+    for (const part of leaf.split(".")) {
+      if (node == null || typeof node !== "object" || !(part in node)) {
+        return { ok: false, why: `secondary readout "${name}" on "${panelName}" has no field "${part}"` };
+      }
+      node = node[part];
+    }
+    if (typeof node === "number") return { ok: true, value: node };
+    return { ok: false, why: `secondary readout "${name}" field "${leaf}" is not a number` };
+  }
+
   if (field.includes(".")) {
     let node = p;
     for (const part of field.split(".")) {

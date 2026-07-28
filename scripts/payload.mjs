@@ -402,7 +402,7 @@ function streakString(oriented, cadence) {
   const tail = censored
     ? ` — the streak reaches the start of the observation window (${OBSERVATION_START}), so it may be longer than this`
     : "";
-  return `${prefix}${consecutive} consecutive ${cadence} ${noun} ${condition} (${elapsed(months)}), ${drift}${tail}`;
+  return `${prefix}${consecutive} consecutive ${cadence} ${noun} ${condition} (spanning ${elapsed(months)}), ${drift}${tail}`;
 }
 
 /**
@@ -467,9 +467,20 @@ export function fixedBaselineZ(oriented) {
  * deterioration and -1 when a FALLING value does, so every returned z is
  * deterioration-positive and the components can be read against one line.
  */
-function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning) {
+/**
+ * The name a falsifier cites to point at one of these.
+ *
+ * These ship as an unlabelled array, so a reading living in a supporting series had no
+ * address. An analyst wanting to register "long-term unemployment falls back below 25"
+ * could not write down which number that was, and had to retreat to the headline even
+ * when a supporting series carried the real story. Keyed by the component itself so the
+ * key travels with the number rather than depending on array position, which would
+ * silently repoint if the order ever changed.
+ */
+function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning, key = null) {
+  const falsifierKey = key ? `secondary.${key}` : null;
   if (!dated.length) {
-    return { series_id: seriesId, display_label: label, available: false, note: "series absent from the pool this run" };
+    return { series_id: seriesId, falsifier_key: falsifierKey, display_label: label, available: false, note: "series absent from the pool this run" };
   }
   const changes = changeOverMonths(dated, REABSORPTION_CHANGE_MONTHS);
   const oriented = changes.map(([m, v]) => [m, orientSign * v]);
@@ -482,6 +493,7 @@ function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning
 
   return {
     series_id: seriesId,
+    falsifier_key: falsifierKey,
     display_label: label,
     unit,
     what_it_reads: meaning,
@@ -574,6 +586,7 @@ export function reabsorptionReadings(series) {
         "percent of the unemployed", ltu, +1,
         "Whether the people leaving are failing to land. Short spells mean a working " +
         "labour market; a rising long-term share means exits are not being caught.",
+        "long_term_unemployed_share",
       ),
       {
         // Built through the shared helper so the spread gets the same dual-horizon
@@ -586,6 +599,7 @@ export function reabsorptionReadings(series) {
           netHiring, -1,
           "Absorption against shedding. Hires above quits means the market is taking " +
           "on more people than are voluntarily leaving.",
+          "hires_minus_quits",
         ),
         hires_rate: hires.length ? round2(hires[hires.length - 1][1]) : null,
         quits_rate: quits.length ? round2(quits[quits.length - 1][1]) : null,
@@ -602,6 +616,7 @@ export function reabsorptionReadings(series) {
         "Whether people are landing but landing badly — part-time for economic " +
         "reasons, or discouraged out of the count entirely. A displacement episode " +
         "absorbed into worse work would widen this while the headline job count held.",
+        "u6_minus_u3",
       ),
     ],
     componentVintages: {
@@ -1025,7 +1040,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       long_run_context: longRun(pts.map((p) => [p.month, p.diff])),
       deviation_from_normal: deviation(pts.map((p) => [p.month, -p.diff])),
       streak: streakString(pts.map((p) => [p.month, -p.diff]), "monthly"),
-      threshold: { differential_trigger: round2(trigger), rule: `the attribution line is the exposed-minus-control gap falling two standard deviations below its ${BASELINE_START} to ${BASELINE_END} average (a wide but steady gap is not the signal; the gap widening is). Crossing it means AI-exposed work is diverging, not that anyone was displaced` },
+      threshold: { differential_trigger: round2(trigger), rule: `the attribution line is the exposed-minus-control gap falling two standard deviations below its ${BASELINE_START} to ${BASELINE_END} average. This fires on the LEVEL of the gap, not on whether it is still widening: a gap parked past the line keeps counting. Whether a stalled gap or a widening one is the newsworthy part is a judgement left to the analyst rather than wired into the trigger. Crossing it means AI-exposed work is diverging, not that anyone was displaced` },
     });
   }
 
@@ -1076,6 +1091,11 @@ export function buildAnalysisPayload(pool, extras = {}) {
           `changes are reported beside it. Read the level for where things stand and the ` +
           `changes for which way they are moving; they can legitimately disagree.`,
       },
+      // NAMED so a falsifier can point at one. These ship as an unlabelled array, so a
+      // reading that lives in a supporting series had no address: an analyst wanting to
+      // register "long-term unemployment falls back below 25" could not write down which
+      // number it meant, and had to fall back to the headline even when a supporting
+      // series was the real story. The key is what a falsifier cites.
       secondary_readouts: r.secondary,
       reading_rule:
         "The HEADLINE places this axis, on its 12-month change. The three secondary " +

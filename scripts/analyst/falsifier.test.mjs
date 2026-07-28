@@ -183,3 +183,34 @@ test("a settled resolution is not re-litigated on a later run", () => {
   assert.equal(out.resolutions[0].outcome, "FIRED");
   assert.equal(out.tally.FIRED, 1);
 });
+
+test("a falsifier can name a secondary readout", () => {
+  // These ship as an array, so before they carried a key no dotted path could reach
+  // them: a prediction about long-term unemployment had no way to say so and had to
+  // retreat to the headline. Matched on the key rather than array position, so
+  // reordering cannot silently repoint a stored prediction at a different series.
+  const panels = [{
+    panel: "reabsorption",
+    headline: { change_over_12_months: -0.5 },
+    secondary_readouts: [
+      { falsifier_key: "secondary.long_term_unemployed_share", change_over_12_months: 4, latest_value: 27.3 },
+      { falsifier_key: "secondary.hires_minus_quits", change_over_12_months: 0.1, latest_value: 1.4 },
+    ],
+  }];
+
+  assert.deepEqual(readPanelField(panels, "reabsorption", "secondary.long_term_unemployed_share"), { ok: true, value: 4 });
+  // Bare name defaults to the quantity the panel is placed on.
+  assert.deepEqual(readPanelField(panels, "reabsorption", "secondary.hires_minus_quits"), { ok: true, value: 0.1 });
+  // A deeper field still resolves.
+  assert.deepEqual(readPanelField(panels, "reabsorption", "secondary.hires_minus_quits.latest_value"), { ok: true, value: 1.4 });
+
+  // An unknown name names what IS available, so a malformed prediction is diagnosable
+  // rather than a bare failure.
+  const miss = readPanelField(panels, "reabsorption", "secondary.made_up");
+  assert.equal(miss.ok, false);
+  assert.ok(miss.why.includes("secondary.long_term_unemployed_share"), miss.why);
+
+  // Reordering must not change what a stored prediction resolves to.
+  const reordered = [{ ...panels[0], secondary_readouts: [...panels[0].secondary_readouts].reverse() }];
+  assert.deepEqual(readPanelField(reordered, "reabsorption", "secondary.long_term_unemployed_share"), { ok: true, value: 4 });
+});
