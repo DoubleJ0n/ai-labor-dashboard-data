@@ -395,10 +395,32 @@ BANNED FROM THE PUBLISHED NOTE:
 
 Plain text only. No markdown, no asterisks, no headers, no bullet lists.
 
-NOTIFICATION LINE: one sentence, at most about 90 characters, pushed to a phone and shown on
-a home-screen widget. The verdict word plus the single most important reason, and NO
-NUMBERS: a wrong number in a notification is worse than a vague one. Pattern:
-  New results are in: augmentation verdict citing no major shifts in the labor market
+NOTIFICATION LINE: one sentence, at most about 90 characters, pushed to a phone and shown
+on a home-screen widget. It has to work with no chart beside it and no way to correct a
+misreading once it is on a lock screen, so every word has to earn its place.
+
+Do not open with "New results are in" or any equivalent. The notification arriving is
+already the news, and those words cost a quarter of the budget to say nothing.
+
+LEAD WITH WHAT CHANGED. A verdict moving from one side to the other is the most
+newsworthy thing that can happen here and belongs at the front of the sentence. If the
+verdict held, lead with what moved underneath it, or with the change in confidence.
+
+NUMBERS ARE ALLOWED, AND THE TEST IS THE SAME ONE THE NOTE USES: can a reader understand
+it with nothing else in front of them?
+
+  Usable: a headline rate or level a reader could confirm on the dashboard in one tap, or
+  a count of what moved. "Unemployment at 5.1% drove higher confidence in displacement".
+  "Four series updated; the reading moved from displacement to augmentation".
+
+  Not usable: derived statistics. Differentials, standard deviations, spreads, thresholds
+  and percentiles are meaningless without the scale that produced them, and a reader who
+  checks one and cannot reproduce it has been misled rather than informed.
+
+EVERY NUMBER MUST COME FROM THE PAYLOAD. Do not round to a memorable figure, do not
+approximate for rhythm, and do not carry a number over from a previous run. A wrong
+figure anywhere is bad; a wrong figure in a notification is the one place it cannot be
+seen in context or corrected.
 
 OUTPUT - exactly this line-delimited format, nothing before the first label:
 NOTIFICATION: the one-sentence notification line
