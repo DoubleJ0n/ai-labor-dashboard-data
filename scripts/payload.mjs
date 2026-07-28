@@ -490,7 +490,17 @@ function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning
     change_over_12_months: latestChange ? round2(latestChange[1]) : null,
     direction: dirOf(latestChange?.[1]),
     deterioration_direction: orientSign > 0 ? "rising is deterioration" : "falling is deterioration",
-    long_run_context_12m_changes: longRun(oriented),
+    // RAW changes, matching change_over_12_months directly above and every other
+    // panel in this payload, which all pass raw values to long_run_context and orient
+    // only the deviation.
+    //
+    // This previously passed the ORIENTED series, so the panel showed a raw latest
+    // reading beside a sign-flipped baseline. The first live reader compared the two,
+    // got a number that contradicted the reported deviation, and correctly reported
+    // the panel as internally inconsistent. The arithmetic was right; the
+    // presentation was a trap, and two adjacent fields in opposite sign conventions
+    // is a defect whether or not anything downstream divides them.
+    long_run_context_12m_changes: longRun(changes),
     deviation_from_normal: deviation(oriented),
     // The fast horizon. A twelve-month change is the right orientation for placing
     // the axis and it is slow — a turn can take a year to appear in it — so the

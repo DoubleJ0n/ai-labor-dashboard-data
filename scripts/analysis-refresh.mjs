@@ -682,7 +682,22 @@ function appendEntry(entry, result) {
     mechanicalState: mechanical.mechanicalState,
     breadth: mechanical.breadth,
     text: entry.analysis,
+    fullAnalysis: entry.fullAnalysis,
     inputsFingerprint: inputHash,
+    // THE ACTUAL INSTRUCTIONS, shipped so a reader can check them.
+    //
+    // A verifier's first fair question about an AI-written verdict is whether the
+    // question was rigged — whether the prompt tells it what to conclude. The only
+    // answer that settles it is the text itself, so the app carries it.
+    //
+    // Published FROM THE RUN rather than copied into the app, which is the whole
+    // point: this is the exact string that produced the verdict above it, so the two
+    // cannot drift. A copy pasted into the client would be a claim about the prompt;
+    // this is the prompt.
+    promptPass1: PASS1_SYSTEM,
+    promptPass2: priorEntry ? PASS2_SYSTEM : PASS2_SYSTEM + FIRST_RUN_ADDENDUM,
+    promptModel: result?.model ?? null,
+    promptEffort: result?.effort ?? null,
   });
 
   // Notification fires on NEW ANALYSIS only, never on a data refresh — this is
