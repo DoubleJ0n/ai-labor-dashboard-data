@@ -690,6 +690,13 @@ export function reabsorptionDecomposition(pool) {
         ? "The employment share fell WITHOUT employment falling: more prime-age people are here, and the job market has not absorbed the increase. That is a different claim from people losing work."
         : "Employment grew at least as fast as the prime-age population.",
     caveat:
+      "THIS IS NOT COMPARABLE TO THE PAYROLL FIGURE IN THE NEWS PACKAGE, and the two " +
+      "will look wildly inconsistent if read side by side. This decomposition is the " +
+      "household survey (CPS), restricted to ages 25 to 54, over twelve months. The " +
+      "payroll headline is the establishment survey (CES), all ages, over one month. " +
+      "Three different things differ at once, so a large negative here sitting beside " +
+      "a small positive there is not a contradiction and neither figure is wrong. Do " +
+      "not net them, and do not describe one as refuting the other. " +
       "READ THE DIRECTIONS, NOT THE MAGNITUDES, AND DISCOUNT THE POPULATION LEG " +
       "HARDEST. The population series is not seasonally adjusted and, more " +
       "importantly, the Census population controls are revised every January, which " +
@@ -978,7 +985,15 @@ export function buildAnalysisPayload(pool, extras = {}) {
       // resolved a falsifier that had not actually been met.
       exposed_value: round2(last?.exposed),
       control_value: round2(last?.control),
+      // Rounded once from the unrounded series, not derived from the two figures
+      // above, so it stays the most accurate value for the resolver to compare.
       differential_exposed_minus_control: round2(last?.diff),
+      rounding_note:
+        "exposed_value and control_value are each rounded to two decimals for display. " +
+        "differential_exposed_minus_control is computed from the unrounded series and " +
+        "rounded once, so it can differ from the subtraction of the two figures above " +
+        "by up to 0.01. That is rounding, not an inconsistency, and the differential is " +
+        "the figure to reason from.",
       latest_date: last?.month ?? null,
       prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
       // A fact about what this instrument can and cannot see, carried with every
@@ -1105,9 +1120,23 @@ export function buildAnalysisPayload(pool, extras = {}) {
       series_id: "CES average hourly earnings, same exposed vs control industries as the jobs panel",
       display_label: "Pay: AI-exposed vs control industries",
       unit: "percent (year-over-year pay growth)",
-      exposed_value: round1(last?.exposed),
-      control_value: round1(last?.control),
+      // 2dp on the sides, up from 1dp. At 1dp this panel published 4.6 and 3.5 beside
+      // a differential of 1.11, a gap of 0.01 that looked like an arithmetic error.
+      // The jobs panel was fixed for this; the wages panel was missed.
+      exposed_value: round2(last?.exposed),
+      control_value: round2(last?.control),
+      // Computed at full precision and rounded once, NOT derived from the two rounded
+      // sides above. This is the field a falsifier registers against, so it carries
+      // the most accurate value available rather than one degraded to make the
+      // subtraction display neatly. The two can therefore still differ by 0.01, which
+      // is what rounding_note exists to say out loud.
       differential_exposed_minus_control: round2(last?.diff),
+      rounding_note:
+        "exposed_value and control_value are each rounded to two decimals for display. " +
+        "differential_exposed_minus_control is computed from the unrounded series and " +
+        "rounded once, so it can differ from the subtraction of the two figures above " +
+        "by up to 0.01. That is rounding, not an inconsistency, and the differential is " +
+        "the figure to reason from.",
       latest_date: last?.month ?? null,
       prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
       // A fact about the instrument, not a competing explanation, so it travels
@@ -1158,15 +1187,19 @@ export function buildAnalysisPayload(pool, extras = {}) {
       exposed_vs_own_prepandemic_baseline: last ? round1(last.exposed - 100) : null,
       control_value: last ? round1(last.control) : null,
       control_vs_own_prepandemic_baseline: last ? round1(last.control - 100) : null,
-      spread_exposed_minus_control: last ? Math.round(last.spread) : null,
-      spread_change_over_6_months: last && pp.length > 6 ? Math.round(last.spread - pp[pp.length - 7].spread) : null,
+      // 2dp, not integer. This is a registerable falsifier field, and at integer
+      // precision a true -27.6 publishes as -28 and can resolve a trigger of -28 that
+      // was never actually met. That is the same failure the jobs panel was fixed for.
+      // The source data carries a decimal, so nothing here is invented.
+      spread_exposed_minus_control: last ? round2(last.spread) : null,
+      spread_change_over_6_months: last && pp.length > 6 ? round2(last.spread - pp[pp.length - 7].spread) : null,
       latest_date: last ? last.date.slice(0, 7) : null,
       prior_reading: priorReading(pp.map((p) => [p.date.slice(0, 7), p.spread])),
       long_run_context: longRun(pp.map((p) => [p.date.slice(0, 7), p.spread]), "job_postings_spread"),
       deviation_from_normal: deviation(pp.map((p) => [p.date.slice(0, 7), -p.spread])),
       history_caveat: "this series begins February 2020, so it has no pre-pandemic baseline and a shorter calm history than the other panels",
       streak: streakString(pp.map((p) => [p.date.slice(0, 7), -p.spread]), "monthly"),
-      threshold: { spread_trigger: trigger == null ? null : Math.round(trigger), rule: "postings lead hiring, so a spread two standard deviations below its calm-period average is an early version of the jobs alarm" },
+      threshold: { spread_trigger: trigger == null ? null : round2(trigger), rule: "postings lead hiring, so a spread two standard deviations below its calm-period average is an early version of the jobs alarm" },
     });
   }
 
@@ -1316,7 +1349,9 @@ export function buildAnalysisPayload(pool, extras = {}) {
       display_label: "Firms using AI in any business function",
       unit: "percent (of firms)",
       latest_value: last ? round1(last.pct) : null,
-      latest_date: last?.date ?? null,
+      // YYYY-MM, matching prior_reading and full_series just below. This alone
+      // shipped a full ISO date, so anything comparing them found no match.
+      latest_date: last?.date?.slice(0, 7) ?? null,
       prior_reading: priorReading(ap.map((p) => [p.date.slice(0, 7), p.pct])),
       full_series: ap.map((p) => ({ date: p.date.slice(0, 7), value: round1(p.pct) })),
       // The size-class cut. Previously the artifact told the analyst to check
