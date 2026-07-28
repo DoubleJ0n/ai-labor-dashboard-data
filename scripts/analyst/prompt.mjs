@@ -187,43 +187,54 @@ control industries to still be healthy, so a general slump does not trip a test 
 supposed to detect something AI-specific. Both conditions must hold for the falsifier to
 fire.
 
-CONFIDENCE. Rate the verdict HIGH or LOW, and rate it on the evidence rather than on how
-alarming the verdict sounds.
+CONFIDENCE. Rate the verdict LOW, MEDIUM or HIGH. This is YOUR judgement of how much
+weight the reading can bear, and it is not a checklist to be scored.
 
-HIGH means SEVERAL INDEPENDENT PANELS point the same way and none of the others
-materially refutes that reading.
+  LOW    - real but thin. Something is there and nothing clearly contradicts it, but you
+           would not be surprised to be wrong in a month.
+  MEDIUM - the picture is coherent and you believe it, with a specific gap or fragility
+           you can name.
+  HIGH   - you think this is what is happening, and you would defend it against a
+           sceptic who had all the same data.
 
-LOW means at least one panel is genuinely elevated in that direction and nothing clearly
-contradicts it, but the corroboration is thin: the movement rests on a small number of
-recent readings, or a contributing series is noisy enough that a month or two could
-reverse it, or a panel that would normally corroborate is silent.
+Rate it on the evidence, never on how alarming the verdict sounds. A DISPLACEMENT
+verdict at LOW is a legitimate output and early on should be the common one. Equally,
+do not park at LOW to be safe: if the picture is genuinely convincing, say so.
 
-Rules, and the first two matter most:
+WHAT THE RATING IS PROTECTING AGAINST is being fooled by bad data. That is the real
+hazard, and it is not the same as thin evidence. A single dramatic reading can be a
+survey error; several correlated readings can be wrong together. So before rating HIGH,
+answer these three, and answer them in CONFIDENCE_BASIS:
 
-A single panel moving, however sharply, is never HIGH.
+  Does the signal persist, or does it rest on the latest reading or two? A twelve-month
+  change whose entire movement sits inside the last quarter is one quarter of evidence,
+  not a year of it.
 
-If a panel that would normally corroborate is instead pointing the other way, name it and
-let it hold the rating down. A leading indicator moving against the verdict is the
-strongest reason to rate LOW, because it is the panel most likely to be right first.
+  Does a genuinely different source agree? Two cuts of the same survey are one
+  measurement reported twice, not two measurements. Three of the reabsorption readouts
+  come from the household survey; agreement among those is weaker than it looks.
 
-Distinguish a signal that persists across many months from one resting on the latest
-reading or two. The panels carry full series, long-run context and streak counts; a
-twelve-month change whose entire movement sits inside the last quarter is one quarter of
-evidence, not a year of it, and should be described that way.
+  Is anything that leads this pointing the other way? Job postings turning up while
+  employment falls is the clearest case, because postings usually move first and are
+  therefore the most likely to be right first.
 
-Name the panels on both sides. A rating without named panels cannot be checked by anyone
-and is worth nothing.
+THESE ARE DOUBTS TO ANSWER, NOT CONDITIONS TO SATISFY. If one of them is unmet and you
+still judge the reading strong, say HIGH and say plainly which one is unmet and why it
+does not change your mind. A picture can be convincing because it hangs together across
+panels that individually barely moved, or because one panel moved in a way that is
+unmistakably AI-shaped. Neither of those would survive a checklist, and both can be
+right. What you may not do is rate HIGH while leaving an unanswered doubt unmentioned.
 
-A DISPLACEMENT verdict at LOW confidence is a legitimate and expected output, and early
-on it should be the common one. LOW is not a hedge or a softening; it is the accurate
-description of thin evidence, and rating thin evidence HIGH to sound decisive is the one
-failure this rating exists to prevent. It changes how the verdict is displayed, not
-whether it is published.
+Name the panels on both sides, always. A rating nobody can check is worth nothing, and
+the reason a doubt did not move you is the part a reader most needs.
+
+The rating changes how the verdict is DISPLAYED, not whether it is published. LOW and
+MEDIUM are shown as a watch; HIGH is shown at full strength.
 
 OUTPUT - exactly this line-delimited format, nothing before the first label:
 VERDICT: AUGMENTATION or DISPLACEMENT or CONFOUNDED
-CONFIDENCE: HIGH or LOW
-CONFIDENCE_BASIS: one line naming the panels that corroborate and the panels that refute or fail to corroborate
+CONFIDENCE: LOW or MEDIUM or HIGH
+CONFIDENCE_BASIS: one line naming the panels that corroborate, the panels that refute or fail to corroborate, and any of the three doubts above that is unmet
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
 FALSIFIER_PANEL: the panel name from the payload
 FALSIFIER_FIELD: the numeric field on that panel, spelled exactly as the JSON spells it. Use a dotted path when the panel nests, e.g. headline.change_over_12_months, so a panel carrying the same field name on several components is addressed unambiguously
@@ -548,8 +559,10 @@ export function parsePass1(text) {
   // explicit HIGH is treated as LOW, which caps the display at amber: the failure
   // mode of an unreadable rating should be under-claiming, never a red the analyst
   // never actually asserted.
-  const confidenceRaw = (grab("CONFIDENCE") ?? "").toUpperCase();
-  const confidence = confidenceRaw === "HIGH" ? "HIGH" : "LOW";
+  const confidenceRaw = (grab("CONFIDENCE") ?? "").trim().toUpperCase();
+  const confidence = confidenceRaw === "HIGH" ? "HIGH"
+    : confidenceRaw === "MEDIUM" ? "MEDIUM"
+    : "LOW";
   const confidenceBasis = grab("CONFIDENCE_BASIS") ?? "";
 
   const conf = grab("CONFOUNDER");

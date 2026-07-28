@@ -129,7 +129,11 @@ Working here.`;
   // A missing, malformed or invented rating must never produce a red the analyst
   // did not actually assert.
   assert.equal(parsePass1(base).confidence, "LOW", "absent rating must not read HIGH");
-  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: MEDIUM\nVERDICT:")).confidence, "LOW");
+  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: MEDIUM\nVERDICT:")).confidence, "MEDIUM");
+  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: medium\nVERDICT:")).confidence, "MEDIUM");
+  // An abbreviation is not a rating. MEDIUM displays as a watch anyway, so degrading it
+  // to LOW costs nothing; what must never happen is an unknown value reaching HIGH.
+  assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: MED\nVERDICT:")).confidence, "LOW");
   assert.equal(parsePass1(base.replace("VERDICT:", "CONFIDENCE: very high\nVERDICT:")).confidence, "LOW");
 
   // And an explicit HIGH is honoured, case-insensitively, or the rating would be
