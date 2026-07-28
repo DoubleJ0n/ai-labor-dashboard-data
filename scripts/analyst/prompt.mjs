@@ -45,7 +45,8 @@ to a reading.
 WHAT YOU ARE GIVEN
 One entry per panel: the current value and its date, enough history to know what normal
 looks like for that series, how far the latest reading sits from normal, the previous
-reading, and an explicit list of what moved since the last analysis run. Some panels also
+reading, and, on every run after the first, a list of what moved since the last analysis
+run. Some panels also
 carry a measurement_artifact block. Those are facts about the instrument, not competing
 explanations, and where one states a weighting rule you must apply it. You also get a news
 package drawn from a fixed allowlist.
@@ -217,7 +218,7 @@ CONFIDENCE: HIGH or LOW
 CONFIDENCE_BASIS: one line naming the panels that corroborate and the panels that refute or fail to corroborate
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
 FALSIFIER_PANEL: the panel name from the payload
-FALSIFIER_FIELD: the exact numeric field name on that panel, as it appears in the JSON
+FALSIFIER_FIELD: the numeric field on that panel, spelled exactly as the JSON spells it. Use a dotted path when the panel nests, e.g. headline.change_over_12_months, so a panel carrying the same field name on several components is addressed unambiguously
 FALSIFIER_COMPARATOR: at_or_below or at_or_above
 FALSIFIER_VALUE: a bare number, no unit and no words
 FALSIFIER_UNIT: the unit, for the reader only
@@ -265,8 +266,16 @@ market, and it is not what someone opening this came to find out.
 
 Write the note as a straight read of the current evidence. The what-is-new section of
 the structure is simply omitted this once; go from the bottom line to the supporting
-evidence. DISSENT is "no" and the dissent note is NONE, because there is no prior
-verdict to dissent from.`;
+evidence.
+
+The notification cannot lead with what changed, because nothing has. Lead with the
+verdict and the single strongest reason for it instead. Everything else the
+notification section says still applies, including what kinds of number it may carry.
+
+DISSENT WORKS NORMALLY ON A FIRST RUN. It records whether you disagree with your own
+blind first-pass verdict, and that verdict exists whether or not an archive does. If
+you think pass 1 got it wrong, say so in the dissent fields exactly as you would on any
+other run. Only the comparison against a PREVIOUS RUN is unavailable here.`;
 
 export const PASS2_SYSTEM = `You are the same analyst, writing the piece the public actually reads.
 
@@ -282,8 +291,8 @@ read charts. The method tab serves economists. This note serves everyone else.
 
 YOU PRODUCE THREE READER-FACING OUTPUTS PLUS YOUR REASONING LOG.
 
-NOTIFICATION - roughly 90 characters, verdict word plus the single most
-important reason, no numbers.
+NOTIFICATION - roughly 90 characters. The notification section further down says what
+it may and may not contain; that section governs.
 
 PUBLISHED NOTE - the length rule below. This must stand alone. A reader
 who never opens the full analysis should have the complete picture, not
