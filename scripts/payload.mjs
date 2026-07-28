@@ -223,7 +223,22 @@ function rangeOf(dated) {
 
 function longRun(dated, panelName = null) {
   const base = baselineSample(dated);
-  const full = usableSample(dated);
+  // THE SAME SAMPLE THE FULL-HISTORY Z IS COMPUTED ON, latest excluded.
+  //
+  // These are printed side by side: an average and spread here, and next to them a
+  // figure saying how unusual today is against that history. They were computed over
+  // slightly different sets of months, because deviation() correctly leaves the latest
+  // reading out of its own comparison window while this described every reading
+  // including it. So a reader checking the arithmetic got a number close to but not
+  // equal to the published one, which looks exactly like a bug.
+  //
+  // Excluding it here is the honest fix: it makes the printed stats describe the window
+  // the z actually used. The alternative, back-solving a mean and standard deviation
+  // that reproduce the published z, would be inventing figures to make a sum work.
+  //
+  // The fixed pre-2020 baseline needs no such treatment: it ends in 2019 and never
+  // contains the latest reading in the first place.
+  const full = usableSample(dated.slice(0, -1));
   const bst = stats(base.map(([, v]) => v));
   const fst = stats(full.map(([, v]) => v));
 
@@ -279,7 +294,7 @@ function longRun(dated, panelName = null) {
           standard_deviation: round2(fst.sd),
           ...rangeOf(full),
           readings: fst.n,
-          window: `every reading from ${full[0][0]} onward with ${UNUSABLE_START} to ${UNUSABLE_END} excluded`,
+          window: `every reading from ${full[0][0]} to ${full[full.length - 1][0]} with ${UNUSABLE_START} to ${UNUSABLE_END} excluded, and the latest reading held out so it is not compared against itself`,
           contamination_note:
             `This window CONTAINS the period under test (${OBSERVATION_START} onward), so it is not an ` +
             `independent control. It is reported so the two can be compared, not as the ` +
