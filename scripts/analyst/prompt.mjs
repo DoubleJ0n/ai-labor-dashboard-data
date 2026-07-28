@@ -51,10 +51,16 @@ carry a measurement_artifact block. Those are facts about the instrument, not co
 explanations, and where one states a weighting rule you must apply it. You also get a news
 package drawn from a fixed allowlist.
 
-Each panel also carries a panel_role saying what it is capable of establishing. Deviation
-is reported against TWO baselines: a fixed pre-2020 window that does not contain the period
-under test, and full history that does. Each deviation block states which to prefer and
-what their divergence means. Read both.
+SOME panels carry a panel_role saying what that panel is capable of establishing, and
+where one is present it binds. Where a panel reports a deviation from normal, it reports
+it against TWO baselines: a fixed pre-2020 window that does not contain the period under
+test, and full history that does. Read both, and read the note saying which to prefer.
+
+Not every panel has either of those. Several have no deviation block at all, and on at
+least one the fixed-window figure is null because that series does not reach back far
+enough to have a clean baseline. Absent is not zero and it is not normal: a panel that
+does not report a deviation is telling you it cannot, so do not treat its silence as a
+reading either way.
 
 THE READING
 Choose AUGMENTATION or DISPLACEMENT. Pick a side. CONFOUNDED is available only when you
@@ -85,9 +91,12 @@ with every worker re-employed would widen it just as much as mass
 displacement would.
 
 Before concluding displacement, check whether the aggregate labor market
-absorbed the outflow. Prime-age employment-population ratio, long-term
-unemployed share, hires against quits. If the gap is widening while
-those hold steady, workers are moving rather than being removed.
+absorbed the outflow. The reabsorption panel is where that lives: a headline
+measure that places the axis, plus supporting readouts for long-term
+unemployment, hiring against quitting, and the underemployment gap. That panel
+states which of them decides and which are context, and it binds. If the gap is
+widening while absorption holds steady, workers are moving rather than being
+removed.
 
 THREE POPULATIONS, NEVER SILENTLY MIXED
 Every figure belongs to exactly one of: exposed industries, control industries, or
@@ -117,22 +126,39 @@ against your verdict is older than the evidence supporting it, say so, because t
 counterweight cannot yet reflect a recent turn.
 
 YOUR FALSIFIER MUST DISCRIMINATE
-The condition you register has to be one that only the ABSENCE of displacement produces.
-The non-AI explanations in the panel metadata are all deterioration mechanisms, so they
-push these series the same way displacement does, and a falsifier they could also trip
-tells you nothing when it fires.
 
-Note the direction of travel, because it is the opposite of a TRIGGER THRESHOLD. A trigger
-fires toward displacement and must exclude confounders that could push a series that far.
-Your falsifier fires when displacement is absent, so what it must exclude is a confounder
-that could produce the RECOVERY. The paragraph below is about trigger thresholds and is
-given as the worked example of the idea, not as a rule to apply to your falsifier. Before committing to a threshold, check whether those confounders have
-historically driven the series to that level. If the 2021-22 correction already pushed a
-series to -42.7, then -40 does not discriminate: it would fire on a second correction just
-as readily as on displacement. Choose a threshold, a rate of change, or a combination of
-panels that displacement produces and the confounder does not. If no discriminating
-falsifier exists on your preferred panel, say so plainly and move to another panel or a
-compound condition.
+Register the condition under which YOUR OWN VERDICT, whichever one you picked, would turn
+out to be wrong. If you read displacement, that is the labour market absorbing people
+again. If you read augmentation, that is displacement appearing. If you read confounded,
+it is the named cause resolving while the pattern persists. Everything below applies the
+same way to all three; read "your verdict" wherever a direction seems implied.
+
+THE TEST. A falsifier is worthless if anything other than your verdict being wrong could
+trip it. So ask what else could carry this series to this level: an ordinary rebound, a
+seasonal artefact, a data revision, or any confounder named in the panel metadata. Then
+pick a threshold, a rate of change, or a combination of panels that only your verdict
+being wrong would produce.
+
+WORKED EXAMPLE, and note it concerns a TRIGGER, which fires toward displacement rather
+than away from it. The idea transfers; the direction does not. Say you want a trigger at
+-40 on a series. Check the confounders first: if the 2021-22 hiring correction already
+drove that series to -42.7 on its own, then -40 discriminates nothing, because a second
+correction trips it exactly as readily as displacement would. Apply the same discipline in
+whichever direction your own falsifier points.
+
+If no discriminating falsifier exists on your preferred panel, say so plainly and move to
+another panel or to a compound condition.
+
+IT ALSO HAS TO BE ABLE TO FIRE. A condition nothing could reach returns "not fired" every
+time, tells nobody anything, and looks like rigour while costing you nothing. That is the
+cheapest way to fake accountability in this system, so it is checked:
+
+  State the recent range, or the standard deviation, of the field you chose, and say why
+  your threshold is reachable inside the horizon. The panels carry what you need.
+
+  Pick a panel that will actually publish before FALSIFIER_BY. Several series here are
+  quarterly and already some months old, and a 90-day window on one of those can close
+  without a single new observation, which is not a test of anything.
 
 NAME THE MOVING SIDE ON EVERY PANEL
 The rule against gap-framing applies to all panels, not only employment. A spread or a
@@ -237,28 +263,24 @@ CONFIDENCE: LOW or MEDIUM or HIGH
 CONFIDENCE_BASIS: one line naming the panels that corroborate, the panels that refute or fail to corroborate, and any of the three doubts above that is unmet
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
 FALSIFIER_PANEL: the panel name from the payload
-FALSIFIER_FIELD: the numeric field on that panel, spelled exactly as the JSON spells it. Use a dotted path when the panel nests, e.g. headline.change_over_12_months, so a panel carrying the same field name on several components is addressed unambiguously
+FALSIFIER_FIELD: the numeric field on that panel. Spell it exactly as the JSON spells it, using a dotted path where the panel nests, e.g. headline.change_over_12_months. Where a panel carries a list of sub-readings, each one gives its own address in its falsifier_key field, e.g. secondary.long_term_unemployed_share; use that string, optionally with a dotted field after it, and NOT the array name. If the field you want has no such address, choose another field, because an unaddressable one is scored as no prediction at all
 FALSIFIER_COMPARATOR: at_or_below or at_or_above
 FALSIFIER_VALUE: a bare number, no unit and no words
-FALSIFIER_UNIT: the unit, for the reader only
+FALSIFIER_UNIT: the unit, so a later run can confirm it is comparing like with like
 FALSIFIER_ALSO_PANEL: second condition's panel, or NONE
 FALSIFIER_ALSO_FIELD: second condition's numeric field, or NONE
 FALSIFIER_ALSO_COMPARATOR: at_or_below or at_or_above, or NONE
 FALSIFIER_ALSO_VALUE: a bare number, or NONE
-FALSIFIER_BY: the date, ${FALSIFIER_HORIZON_DAYS} days out
+FALSIFIER_BY: the date ${FALSIFIER_HORIZON_DAYS} days after run_date, which is given at the top of the payload
 FALSIFIER_PLAIN: one sentence naming which chart moves first
 REASONING_LOG:
 <your full working. Uncapped: this is stored for audit and never shown to readers. Panel by
 panel notes, the inversion for every supporting panel, rejected hypotheses and why, the
 news events you considered and set aside, and anything cross-panel you noticed.>
 
-The published note and full analysis must stand alone as a read of displacement or
-augmentation. A reader who has never seen this brief should never need it. Do not write
-about the brief, the format, or the shape of the data you were given.
-
-This governs the reader-facing text only. If something in the data looks wrong, say so
-plainly in the reasoning log: a panel whose figures contradict each other is exactly the
-kind of thing worth reporting, and reporting it is never a breach of this rule.`;
+Nothing you write here is shown to a reader, so write for the record rather than for an
+audience. If something in the data looks wrong, say so: a panel whose figures contradict
+each other is exactly the kind of thing worth reporting.`;
 
 /**
  * A one-time addendum for the FIRST run after a history reset.
