@@ -694,8 +694,17 @@ function appendEntry(entry, result) {
     // point: this is the exact string that produced the verdict above it, so the two
     // cannot drift. A copy pasted into the client would be a claim about the prompt;
     // this is the prompt.
+    // The addendum ships as its OWN field rather than pre-concatenated into
+    // promptPass2. The first run tells the analyst it has no prior run to compare
+    // against, which is true once and then never again, so a reader who opened the
+    // app on week one would otherwise see a prompt that is not the prompt the next
+    // verdict gets. Split, promptPass2 is the every-run text — which is also
+    // exactly what next week will be sent — and the addendum is visibly labelled as
+    // applying to this run only. Concatenate the two to reconstruct what was
+    // actually sent; the app says so where it prints them.
     promptPass1: PASS1_SYSTEM,
-    promptPass2: priorEntry ? PASS2_SYSTEM : PASS2_SYSTEM + FIRST_RUN_ADDENDUM,
+    promptPass2: PASS2_SYSTEM,
+    promptPass2FirstRunAddendum: priorEntry ? "" : FIRST_RUN_ADDENDUM,
     promptModel: result?.model ?? null,
     promptEffort: result?.effort ?? null,
   });

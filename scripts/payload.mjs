@@ -967,9 +967,18 @@ export function buildAnalysisPayload(pool, extras = {}) {
         "economic one, which is why it is necessary. It cannot say whether work was " +
         "destroyed. Pair it with the reabsorption panel before concluding anything.",
       unit: "percent (year-over-year job growth)",
-      exposed_value: round1(last?.exposed),
-      control_value: round1(last?.control),
-      differential_exposed_minus_control: round1(last?.diff),
+      // 2dp on all three, not 1dp. At 1dp the two sides did not sum to the
+      // differential sitting beneath them (-1.3 and 1.3 against -2.5), which is the
+      // first arithmetic a careful reader checks; the first live reader to check it
+      // reported the panel as internally broken, and was right to.
+      //
+      // The differential and its trigger matter more than readability here because
+      // the falsifier resolver compares them numerically. At 1dp a true -2.549
+      // published as -2.5 against a trigger of -2.5 scored as "at or above" and
+      // resolved a falsifier that had not actually been met.
+      exposed_value: round2(last?.exposed),
+      control_value: round2(last?.control),
+      differential_exposed_minus_control: round2(last?.diff),
       latest_date: last?.month ?? null,
       prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
       // A fact about what this instrument can and cannot see, carried with every
@@ -1001,7 +1010,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       long_run_context: longRun(pts.map((p) => [p.month, p.diff])),
       deviation_from_normal: deviation(pts.map((p) => [p.month, -p.diff])),
       streak: streakString(pts.map((p) => [p.month, -p.diff]), "monthly"),
-      threshold: { differential_trigger: round1(trigger), rule: `the attribution line is the exposed-minus-control gap falling two standard deviations below its ${BASELINE_START} to ${BASELINE_END} average (a wide but steady gap is not the signal; the gap widening is). Crossing it means AI-exposed work is diverging, not that anyone was displaced` },
+      threshold: { differential_trigger: round2(trigger), rule: `the attribution line is the exposed-minus-control gap falling two standard deviations below its ${BASELINE_START} to ${BASELINE_END} average (a wide but steady gap is not the signal; the gap widening is). Crossing it means AI-exposed work is diverging, not that anyone was displaced` },
     });
   }
 
@@ -1098,7 +1107,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       unit: "percent (year-over-year pay growth)",
       exposed_value: round1(last?.exposed),
       control_value: round1(last?.control),
-      differential_exposed_minus_control: round1(last?.diff),
+      differential_exposed_minus_control: round2(last?.diff),
       latest_date: last?.month ?? null,
       prior_reading: priorReading(pts.map((p) => [p.month, p.diff])),
       // A fact about the instrument, not a competing explanation, so it travels
@@ -1128,7 +1137,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       long_run_context: longRun(pts.map((p) => [p.month, p.diff])),
       deviation_from_normal: deviation(pts.map((p) => [p.month, -p.diff])),
       streak: streakString(pts.map((p) => [p.month, -p.diff]), "monthly"),
-      threshold: { differential_trigger: round1(trigger), rule: "the alarm is exposed pay growth falling two standard deviations below control's, off the calm-period average" },
+      threshold: { differential_trigger: round2(trigger), rule: "the alarm is exposed pay growth falling two standard deviations below control's, off the calm-period average" },
     });
   }
 
