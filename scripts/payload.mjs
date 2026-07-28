@@ -495,7 +495,7 @@ export function fixedBaselineZ(oriented) {
 function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning, key = null) {
   const falsifierKey = key ? `secondary.${key}` : null;
   if (!dated.length) {
-    return { series_id: seriesId, falsifier_key: falsifierKey, display_label: label, available: false, note: "series absent from the pool this run" };
+    return { series_id: seriesId, overturn_key: falsifierKey, display_label: label, available: false, note: "series absent from the pool this run" };
   }
   const changes = changeOverMonths(dated, REABSORPTION_CHANGE_MONTHS);
   const oriented = changes.map(([m, v]) => [m, orientSign * v]);
@@ -508,7 +508,7 @@ function reabsorptionComponent(seriesId, label, unit, dated, orientSign, meaning
 
   return {
     series_id: seriesId,
-    falsifier_key: falsifierKey,
+    overturn_key: falsifierKey,
     display_label: label,
     unit,
     what_it_reads: meaning,

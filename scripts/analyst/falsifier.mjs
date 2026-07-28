@@ -55,14 +55,14 @@ export function readPanelField(panels, panelName, field) {
 
   // "secondary.<name>.<field>" — the supporting readouts ship as an ARRAY, so no plain
   // dotted path can reach them and a falsifier registered against one was unresolvable.
-  // Matched on the component's own falsifier_key rather than its position, so reordering
+  // Matched on the component's own overturn_key rather than its position, so reordering
   // the array cannot silently repoint a stored prediction at a different series.
   if (field.startsWith("secondary.")) {
     const [, name, ...rest] = field.split(".");
     const list = Array.isArray(p.secondary_readouts) ? p.secondary_readouts : [];
-    const c = list.find((x) => x.falsifier_key === `secondary.${name}`);
+    const c = list.find((x) => x.overturn_key === `secondary.${name}`);
     if (!c) {
-      const known = list.map((x) => x.falsifier_key).filter(Boolean).join(", ") || "none";
+      const known = list.map((x) => x.overturn_key).filter(Boolean).join(", ") || "none";
       return { ok: false, why: `"${panelName}" has no secondary readout named "${name}" (available: ${known})` };
     }
     // Default to the same headline quantity the panel is placed on, so a falsifier can

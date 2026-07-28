@@ -184,7 +184,7 @@ test("a settled resolution is not re-litigated on a later run", () => {
   assert.equal(out.tally.FIRED, 1);
 });
 
-test("a falsifier can name a secondary readout", () => {
+test("a prediction can name a secondary readout", () => {
   // These ship as an array, so before they carried a key no dotted path could reach
   // them: a prediction about long-term unemployment had no way to say so and had to
   // retreat to the headline. Matched on the key rather than array position, so
@@ -193,8 +193,8 @@ test("a falsifier can name a secondary readout", () => {
     panel: "reabsorption",
     headline: { change_over_12_months: -0.5 },
     secondary_readouts: [
-      { falsifier_key: "secondary.long_term_unemployed_share", change_over_12_months: 4, latest_value: 27.3 },
-      { falsifier_key: "secondary.hires_minus_quits", change_over_12_months: 0.1, latest_value: 1.4 },
+      { overturn_key: "secondary.long_term_unemployed_share", change_over_12_months: 4, latest_value: 27.3 },
+      { overturn_key: "secondary.hires_minus_quits", change_over_12_months: 0.1, latest_value: 1.4 },
     ],
   }];
 

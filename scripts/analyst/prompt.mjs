@@ -125,7 +125,7 @@ without stating the gap and what it implies. In particular: if the evidence argu
 against your verdict is older than the evidence supporting it, say so, because the
 counterweight cannot yet reflect a recent turn.
 
-YOUR FALSIFIER MUST DISCRIMINATE
+WHAT WOULD OVERTURN THIS READING
 
 Register the condition under which YOUR OWN VERDICT, whichever one you picked, would turn
 out to be wrong. If you read displacement, that is the labour market absorbing people
@@ -133,7 +133,7 @@ again. If you read augmentation, that is displacement appearing. If you read con
 it is the named cause resolving while the pattern persists. Everything below applies the
 same way to all three; read "your verdict" wherever a direction seems implied.
 
-THE TEST. A falsifier is worthless if anything other than your verdict being wrong could
+THE TEST. The condition is worthless if anything other than your verdict being wrong could
 trip it. So ask what else could carry this series to this level: an ordinary rebound, a
 seasonal artefact, a data revision, or any confounder named in the panel metadata. Then
 pick a threshold, a rate of change, or a combination of panels that only your verdict
@@ -144,9 +144,9 @@ than away from it. The idea transfers; the direction does not. Say you want a tr
 -40 on a series. Check the confounders first: if the 2021-22 hiring correction already
 drove that series to -42.7 on its own, then -40 discriminates nothing, because a second
 correction trips it exactly as readily as displacement would. Apply the same discipline in
-whichever direction your own falsifier points.
+whichever direction your own condition points.
 
-If no discriminating falsifier exists on your preferred panel, say so plainly and move to
+If no such condition exists on your preferred panel, say so plainly and move to
 another panel or to a compound condition.
 
 IT ALSO HAS TO BE ABLE TO FIRE. A condition nothing could reach returns "not fired" every
@@ -156,7 +156,7 @@ cheapest way to fake accountability in this system, so it is checked:
   State the recent range, or the standard deviation, of the field you chose, and say why
   your threshold is reachable inside the horizon. The panels carry what you need.
 
-  Pick a panel that will actually publish before FALSIFIER_BY. Several series here are
+  Pick a panel that will actually publish before OVERTURN_BY. Several series here are
   quarterly and already some months old, and a 90-day window on one of those can close
   without a single new observation, which is not a test of anything.
 
@@ -195,8 +195,8 @@ Hedge where a hedge is warranted. "I suspect", "this could be", "I can't tell fr
 data" are all welcome, and false confidence is worse than an admitted gap. But hedging is
 not a substitute for picking a side.
 
-THE FALSIFIER
-Pre-register what would overturn this reading within ${FALSIFIER_HORIZON_DAYS} DAYS. The
+THE DATED PREDICTION
+Write down now what would show this reading to be wrong, within ${FALSIFIER_HORIZON_DAYS} DAYS. The
 horizon is fixed at ${FALSIFIER_HORIZON_DAYS} days for every run so the track record is
 comparable; do not choose your own. Give it twice: once in the structured fields below, and once as a single plain sentence
 naming which chart moves first.
@@ -206,12 +206,12 @@ a panel, a numeric field on that panel, a comparator and a value. Prose in these
 cannot be evaluated and will be recorded as an unscorable prediction, which is the same as
 not having made one.
 
-You may add ONE secondary condition, and for most falsifiers here you should. A single
+You may add ONE secondary condition, and for most readings here you should. A single
 threshold on a single panel usually cannot separate displacement from an ordinary
 downturn, and a second condition is what buys the discrimination - typically requiring the
 control industries to still be healthy, so a general slump does not trip a test that is
-supposed to detect something AI-specific. Both conditions must hold for the falsifier to
-fire.
+supposed to detect something AI-specific. Both conditions must hold before the reading is
+overturned.
 
 CONFIDENCE. Rate the verdict LOW, MEDIUM or HIGH. This is YOUR judgement of how much
 weight the reading can bear, and it is not a checklist to be scored.
@@ -262,17 +262,17 @@ VERDICT: AUGMENTATION or DISPLACEMENT or CONFOUNDED
 CONFIDENCE: LOW or MEDIUM or HIGH
 CONFIDENCE_BASIS: one line naming the panels that corroborate, the panels that refute or fail to corroborate, and any of the three doubts above that is unmet
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
-FALSIFIER_PANEL: the panel name from the payload
-FALSIFIER_FIELD: the numeric field on that panel. Spell it exactly as the JSON spells it, using a dotted path where the panel nests, e.g. headline.change_over_12_months. Where a panel carries a list of sub-readings, each one gives its own address in its falsifier_key field, e.g. secondary.long_term_unemployed_share; use that string, optionally with a dotted field after it, and NOT the array name. If the field you want has no such address, choose another field, because an unaddressable one is scored as no prediction at all
-FALSIFIER_COMPARATOR: at_or_below or at_or_above
-FALSIFIER_VALUE: a bare number, no unit and no words
-FALSIFIER_UNIT: the unit, so a later run can confirm it is comparing like with like
-FALSIFIER_ALSO_PANEL: second condition's panel, or NONE
-FALSIFIER_ALSO_FIELD: second condition's numeric field, or NONE
-FALSIFIER_ALSO_COMPARATOR: at_or_below or at_or_above, or NONE
-FALSIFIER_ALSO_VALUE: a bare number, or NONE
-FALSIFIER_BY: the date ${FALSIFIER_HORIZON_DAYS} days after run_date, which is given at the top of the payload
-FALSIFIER_PLAIN: one sentence naming which chart moves first
+OVERTURN_PANEL: the panel name from the payload
+OVERTURN_FIELD: the numeric field on that panel. Spell it exactly as the JSON spells it, using a dotted path where the panel nests, e.g. headline.change_over_12_months. Where a panel carries a list of sub-readings, each one gives its own address in its overturn_key field, e.g. secondary.long_term_unemployed_share; use that string, optionally with a dotted field after it, and NOT the array name. If the field you want has no such address, choose another field, because an unaddressable one is scored as no prediction at all
+OVERTURN_COMPARATOR: at_or_below or at_or_above
+OVERTURN_VALUE: a bare number, no unit and no words
+OVERTURN_UNIT: the unit, so a later run can confirm it is comparing like with like
+OVERTURN_ALSO_PANEL: second condition's panel, or NONE
+OVERTURN_ALSO_FIELD: second condition's numeric field, or NONE
+OVERTURN_ALSO_COMPARATOR: at_or_below or at_or_above, or NONE
+OVERTURN_ALSO_VALUE: a bare number, or NONE
+OVERTURN_BY: the date ${FALSIFIER_HORIZON_DAYS} days after run_date, which is given at the top of the payload
+OVERTURN_PLAIN: one sentence naming which chart moves first
 REASONING_LOG:
 <your full working. Uncapped: this is stored for audit and never shown to readers. Panel by
 panel notes, the inversion for every supporting panel, rejected hypotheses and why, the
@@ -347,7 +347,7 @@ rather than listing more of them. Aim for what the subject needs, not a
 target length.
 
 REASONING LOG - stored for audit, never shown to readers. Panel-level
-working, rejected hypotheses, precise falsifier conditions, threshold
+working, rejected hypotheses, the exact conditions you registered, threshold
 arithmetic. This is not the full analysis and must not be surfaced as it.
 
 PUBLISHED NOTE STRUCTURE:
@@ -505,7 +505,7 @@ kind of thing worth reporting, and reporting it is never a breach of this rule.`
 export function buildPass1Message(panels, changes, newsText, isFirstRun = false, runDate = null) {
   return JSON.stringify(
     {
-      // The date this run happened, and the anchor FALSIFIER_BY counts 90 days from.
+      // The date this run happened, and the anchor OVERTURN_BY counts 90 days from.
       // Without it the horizon was measured from nothing: two runs a month apart both
       // chose the same expiry date, which makes the track record ambiguous in exactly
       // the place it is supposed to be mechanical.
@@ -537,8 +537,8 @@ export function buildPass2Message(pass1, priorEntry, changes, falsifierRecord = 
       this_run: {
         verdict: pass1.verdict,
         named_confounder: pass1.confounder,
-        falsifier: pass1.falsifier,
-        falsifier_plain: pass1.falsifierPlain,
+        what_would_overturn_it: pass1.falsifier,
+        what_would_overturn_it_plain: pass1.falsifierPlain,
         reasoning_log: pass1.reasoningLog,
       },
       last_run: priorEntry
@@ -547,7 +547,7 @@ export function buildPass2Message(pass1, priorEntry, changes, falsifierRecord = 
             verdict: priorEntry.verdict,
             tag_line: priorEntry.tagLine,
             named_confounder: priorEntry.namedConfounder ?? null,
-            falsifier: priorEntry.falsifier ?? null,
+            what_would_overturn_it: priorEntry.falsifier ?? null,
             key_numbers: priorEntry.panelHeadlines ?? null,
           }
         : null,
@@ -559,7 +559,7 @@ export function buildPass2Message(pass1, priorEntry, changes, falsifierRecord = 
       // to pass 2 rather than pass 1 on purpose: pass 1 must reach its verdict on
       // the data alone, and knowing that the last three falsifiers went unfired is
       // exactly the kind of prior that anchors a blind read.
-      falsifier_track_record: falsifierRecord,
+      how_past_predictions_turned_out: falsifierRecord,
     },
     null, 2,
   );
@@ -612,19 +612,19 @@ export function parsePass1(text) {
   };
 
   const primary = {
-    panel: str("FALSIFIER_PANEL"),
-    field: str("FALSIFIER_FIELD"),
-    comparator: cmp("FALSIFIER_COMPARATOR"),
-    value: num("FALSIFIER_VALUE"),
-    unit: str("FALSIFIER_UNIT"),
+    panel: str("OVERTURN_PANEL"),
+    field: str("OVERTURN_FIELD"),
+    comparator: cmp("OVERTURN_COMPARATOR"),
+    value: num("OVERTURN_VALUE"),
+    unit: str("OVERTURN_UNIT"),
   };
-  const alsoPanel = str("FALSIFIER_ALSO_PANEL");
+  const alsoPanel = str("OVERTURN_ALSO_PANEL");
   const secondary = alsoPanel
     ? {
         panel: alsoPanel,
-        field: str("FALSIFIER_ALSO_FIELD"),
-        comparator: cmp("FALSIFIER_ALSO_COMPARATOR"),
-        value: num("FALSIFIER_ALSO_VALUE"),
+        field: str("OVERTURN_ALSO_FIELD"),
+        comparator: cmp("OVERTURN_ALSO_COMPARATOR"),
+        value: num("OVERTURN_ALSO_VALUE"),
       }
     : null;
 
@@ -639,7 +639,7 @@ export function parsePass1(text) {
     falsifier: {
       ...primary,
       also: usable(secondary) ? secondary : null,
-      by: grab("FALSIFIER_BY"),
+      by: grab("OVERTURN_BY"),
       horizonDays: FALSIFIER_HORIZON_DAYS,
       // Recorded rather than enforced. A malformed falsifier must not fail the run
       // and lose the note, but it must not be silently filed as a real prediction
@@ -648,7 +648,7 @@ export function parsePass1(text) {
       unscorableReason: usable(primary) ? null
         : "the structured fields were incomplete or non-numeric, so this prediction cannot be evaluated",
     },
-    falsifierPlain: grab("FALSIFIER_PLAIN"),
+    falsifierPlain: grab("OVERTURN_PLAIN"),
     reasoningLog,
   };
 }
