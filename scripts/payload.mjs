@@ -17,6 +17,35 @@
 // NOTE: mechanical verdict LABELS (Steady/Watch/Break) are deliberately NOT in
 // the payload — the analysis is an independent read of the same numbers, not a
 // paraphrase of the stoplight. Streaks are worded as conditions, not verdicts.
+//
+// --- panel_role: THE VOCABULARY ---------------------------------------------
+//
+// Every panel carries one, as of 2026-07-28. The prompt says a role BINDS where it
+// is present, which made a missing role the most permissive state available: a panel
+// with no role ran unconstrained, and the panels most likely to be over-read were
+// exactly the ones that had never been given one. So the audit closed the gap rather
+// than leaving the strongest claim to silence.
+//
+// A role says what a panel CAN ESTABLISH. It is never a verdict, and none of these
+// strings may collide with a four-corner state name — the paired-state test asserts
+// that, because a role field carrying the answer would be the withheld state arriving
+// under a different label. (Named indirectly on purpose: that same test greps this
+// file for any mention of the withheld module, which is how the blindness stays a
+// structural guarantee rather than a convention.)
+//
+//   ATTRIBUTION         can show something is specific to AI-exposed work; cannot
+//                       show work was destroyed
+//   REABSORPTION        can show whether the outflow landed; cannot attribute
+//   COMPOSITION_CONTROL can say whether an average moved because pay changed or
+//                       because the population under it did
+//   DEPLOYMENT_GATE     can permit a displacement reading; can never cause one
+//   CONFOUNDER_CHECK    can name a competing cause; decides nothing itself
+//   GAINS_TEST          can show whether the promised productivity gains are visible
+//   DESCRIPTIVE         reports a quantity with no threshold and no vote
+//   does_not_contribute shown for context, counted in nothing
+//
+// The lower-case odd one out is deliberate: it is the string the demotion brief
+// specified, and matching it exactly is worth more than tidy casing.
 
 // All registered values come from config.mjs — one home, no per-file copies
 // (audit-2026-07 findings 5, 6, 7, 9, 21).
@@ -29,6 +58,7 @@ import {
   DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS,
   REABSORPTION, REABSORPTION_CHANGE_MONTHS, REABSORPTION_FAST_CHANGE_MONTHS,
   REABSORPTION_REFERENCE_YEAR, REABSORPTION_SHORTFALL_POINTS,
+  INDIVIDUAL_WAGE_GROWTH,
   ELO_SCALE,
 } from "./config.mjs";
 
@@ -403,11 +433,25 @@ function streakString(oriented, cadence) {
   const [ey, em] = states[states.length - 1][0].split("-").map(Number);
   const months = (ey * 12 + em) - (sy * 12 + sm);
 
-  let drift = "holding roughly flat";
+  // THE DRIFT PHRASE NAMES ITS OWN WINDOW (2026-07-29).
+  //
+  // It used to read "holding roughly flat" with no window attached, sitting a few lines
+  // from a prior_reading that could show a large one-month move. Both were true — the
+  // drift is measured over TREND_LOOKBACK_READINGS, so a sharp latest reading is
+  // legitimately flat across four — but printed together with no window stated they
+  // read as a contradiction, and an analyst dry run duly reported the panel as
+  // internally inconsistent. It was the third time an unstated window on this dashboard
+  // has been mistaken for an arithmetic error.
+  //
+  // The fix is to say which window the phrase describes, not to delete the phrase. A
+  // four-reading drift and a one-month move are different facts and a reader is
+  // entitled to both.
+  const over = `over the last ${TREND_LOOKBACK_READINGS} readings`;
+  let drift = `holding roughly flat ${over}`;
   if (zs.length >= TREND_LOOKBACK_READINGS) {
     const d = zs[zs.length - 1] - zs[zs.length - TREND_LOOKBACK_READINGS];
-    if (d > TREND_DRIFT_Z) drift = "drifting further toward weakness";
-    else if (d < -TREND_DRIFT_Z) drift = "recovering";
+    if (d > TREND_DRIFT_Z) drift = `drifting further toward weakness ${over}`;
+    else if (d < -TREND_DRIFT_Z) drift = `recovering ${over}`;
   }
   const condition = current === "steady"
     ? "inside the range its own 2010s history defined"
@@ -568,6 +612,7 @@ export function reabsorptionReadings(series) {
   const quits = datedOf(series[REABSORPTION.quitsRate]);
   const u6 = datedOf(series[REABSORPTION.u6]);
   const u3 = datedOf(series[REABSORPTION.u3]);
+  const layoffs = datedOf(series[REABSORPTION.layoffsRate]);
   const netHiring = spreadOf(hires, quits);
   const underemployment = spreadOf(u6, u3);
 
@@ -623,6 +668,36 @@ export function reabsorptionReadings(series) {
           "and when quitting accelerates, and those are different stories. The two " +
           "underlying rates are given above.",
       },
+      {
+        // STRUCTURAL OR CYCLICAL — the distinction nothing else here can draw.
+        //
+        // Read this one WITH the hiring pace directly above it, never on its own.
+        // Low hires and NORMAL layoffs is a frozen market: firms are not replacing
+        // the people who leave, and the cost lands almost entirely on whoever is
+        // trying to get in, which is what an AI-driven contraction in entry-level
+        // work would look like. Low hires and ELEVATED layoffs is an ordinary
+        // cycle: firms are shedding staff they already have. The reabsorption
+        // headline reads the same on both, because an employment ratio cannot say
+        // which side of the ledger moved.
+        ...reabsorptionComponent(
+          REABSORPTION.layoffsRate,
+          "Pace of layoffs and discharges",
+          "rate points (percent of employment, per month)",
+          layoffs, +1,
+          "Whether people are being pushed out, as opposed to simply not being hired. " +
+          "Paired with the hiring pace above this separates a frozen labour market " +
+          "from a shedding one.",
+          "layoffs_rate",
+        ),
+        reading_rule_with_hires:
+          "PAIR THIS WITH THE HIRING PACE ABOVE BEFORE SAYING ANYTHING ABOUT IT. Weak " +
+          "hiring alongside layoffs at or below their norm is a FROZEN market: exits " +
+          "are not being replaced, and the burden falls on entrants rather than on " +
+          "incumbents. Weak hiring alongside ELEVATED layoffs is a CYCLICAL " +
+          "contraction: firms are shedding people they already employ. Those are " +
+          "different economies with different implications for an AI reading, and the " +
+          "headline employment ratio is identical in both.",
+      },
       reabsorptionComponent(
         `${REABSORPTION.u6} minus ${REABSORPTION.u3}`,
         "Underemployment gap (U-6 minus U-3)",
@@ -639,6 +714,7 @@ export function reabsorptionReadings(series) {
       [REABSORPTION.longTermUnemployedShare]: ltu.length ? ltu[ltu.length - 1][0] : null,
       [REABSORPTION.hiresRate]: hires.length ? hires[hires.length - 1][0] : null,
       [REABSORPTION.quitsRate]: quits.length ? quits[quits.length - 1][0] : null,
+      [REABSORPTION.layoffsRate]: layoffs.length ? layoffs[layoffs.length - 1][0] : null,
       [REABSORPTION.u6]: u6.length ? u6[u6.length - 1][0] : null,
     },
   };
@@ -973,6 +1049,15 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "labor_productivity",
       series_id: "PRS85006091",
       display_label: "Labor productivity, output per hour",
+      panel_role: "GAINS_TEST",
+      panel_role_note:
+        "Whether the productivity gains AI is supposed to deliver are visible in the " +
+        "aggregate at all. It is ECONOMY-WIDE, so it can never attribute anything to " +
+        "AI-exposed work, and it is slow and heavily revised. Read it as a check on " +
+        "the augmentation story rather than as evidence for or against displacement: " +
+        "gains showing up is what augmentation working would look like; gains absent " +
+        "is consistent with several things, including the technology being too new to " +
+        "register.",
       unit: "percent (change from a year earlier)",
       latest_value: round1(last?.value),
       latest_date: last ? quarterEndMonth(last.date) : null,
@@ -1113,7 +1198,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       // series was the real story. The key is what a falsifier cites.
       secondary_readouts: r.secondary,
       reading_rule:
-        "The HEADLINE places this axis, on its 12-month change. The three secondary " +
+        "The HEADLINE places this axis, on its 12-month change. The four secondary " +
         "readouts are context and do not decide it on their own. This mirrors the rest of " +
         "the dashboard, where supplemental panels inform but do not vote, and it avoids an " +
         "unregistered composite index built out of four series with different vintages. " +
@@ -1154,6 +1239,15 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "exposed_vs_control_wages",
       series_id: "CES average hourly earnings, same exposed vs control industries as the jobs panel",
       display_label: "Pay: AI-exposed vs control industries",
+      panel_role: "ATTRIBUTION",
+      panel_role_note:
+        "The same exposed-versus-control cut as the jobs panel, on pay instead of " +
+        "headcount, so it carries the same limit: it can show something is specific " +
+        "to AI-exposed work and it cannot show that work was destroyed. It carries one " +
+        "further limit the jobs panel does not, and it is severe — this is an AVERAGE " +
+        "over a group whose membership changes, so it can move with nobody's pay " +
+        "changing at all. See measurement_artifact, and check it against the " +
+        "individual_wage_growth panel before leaning on it.",
       unit: "percent (year-over-year pay growth)",
       // 2dp on the sides, up from 1dp. At 1dp this panel published 4.6 and 3.5 beside
       // a differential of 1.11, a gap of 0.01 that looked like an arithmetic error.
@@ -1185,11 +1279,41 @@ export function buildAnalysisPayload(pool, extras = {}) {
           "nobody receiving a raise. Average hourly earnings jumped sharply in April 2020 for " +
           "exactly this reason. The control group includes leisure and hospitality, which is " +
           "low-wage and growing, pushing the control average down for the same mechanical reason.",
+        // COMPOSITION, SPELLED OUT AND GIVEN A CROSS-CHECK (2026-07-28).
+        //
+        // The rule above already said to discount this panel when exposed employment
+        // is falling, and it was not enough, because it named no mechanism and
+        // offered nothing to check the figure against. This panel currently shows
+        // exposed pay growing about 1.1 points FASTER than control, which is the
+        // single strongest piece of evidence against a displacement reading — and it
+        // is exactly the number a hiring freeze would produce with nobody receiving
+        // a raise. An analyst that cannot tell those apart should not be citing it.
+        composition_artifact:
+          "THIS IS AN AGGREGATE INDUSTRY AVERAGE AND THE POPULATION UNDER IT CAN " +
+          "CHANGE. The mechanism to work through: if entry-level hiring in exposed " +
+          "industries stops, the workers who remain skew senior, and average pay " +
+          "across the group RISES with no individual getting a raise and no employer " +
+          "bidding for anyone. The average went up because the juniors left the " +
+          "denominator. That effect is largest precisely when hiring patterns are " +
+          "shifting, which is the condition this dashboard exists to detect, so the " +
+          "artifact is worst exactly where the panel matters most.",
+        composition_cross_check:
+          "The individual_wage_growth panel is the control for this, and it is the " +
+          "reason that panel exists. It follows THE SAME PEOPLE twelve months apart, " +
+          "so composition cannot move it. Compare the two before citing this one: if " +
+          "this panel shows exposed pay accelerating while the individual-level " +
+          "tracker is flat or falling, the acceleration here is telling you who is " +
+          "left rather than who was paid more. The cross-check is economy-wide, so it " +
+          "cannot confirm an exposed-industry story on its own — it can only tell you " +
+          "whether the aggregate reading survives the composition question.",
         weighting_rule:
           "Weight this panel by the sign of exposed employment change. If exposed employment is " +
           "RISING, the composition story cannot explain rising pay and this is clean evidence. If " +
           "exposed employment is FALLING, this panel cannot distinguish augmentation from " +
-          "displacement and must not be cited as strong support for either.",
+          "displacement and must not be cited as strong support for either. Where the " +
+          "individual-level tracker disagrees with this panel, treat the composition " +
+          "question as unresolved and let it weaken this reading rather than reporting " +
+          "the figure at face value.",
         exposed_employment_yoy_percent: round2(exposedEmploymentYoY(series)),
         exposed_employment_direction:
           exposedEmploymentYoY(series) == null ? "unknown"
@@ -1205,15 +1329,123 @@ export function buildAnalysisPayload(pool, extras = {}) {
     });
   }
 
+  // --- Individual-level wage growth: stayers vs switchers (new 2026-07-28) ---
+  //
+  // THE COMPOSITION CONTROL on the panel directly above. Every other pay reading
+  // here is an industry average, and an average moves when the GROUP changes even if
+  // no individual's pay does. This tracker follows the same people twelve months
+  // apart and reports the median of their own wage changes, so composition cannot
+  // move it. Where the two disagree, the disagreement IS the finding.
+  {
+    const stayer = datedOf(series[INDIVIDUAL_WAGE_GROWTH.jobStayer]);
+    const switcher = datedOf(series[INDIVIDUAL_WAGE_GROWTH.jobSwitcher]);
+    const premium = spreadOf(switcher, stayer);
+    const lastStayer = stayer.length ? stayer[stayer.length - 1] : null;
+    const lastSwitcher = switcher.length ? switcher[switcher.length - 1] : null;
+    const lastPremium = premium.length ? premium[premium.length - 1] : null;
+    // ABSENCE IS STATED, NEVER SHIPPED AS NULLS. These two series were wired
+    // 2026-07-28 and reach the pool on the next FRED refresh, so between those two
+    // events this panel has no data. A panel of bare nulls reads as "no wage growth"
+    // rather than "not measured", and the whole point of this one is to be the check
+    // another panel is weighed against — a silently empty check would quietly restore
+    // the reading it exists to qualify.
+    const available = stayer.length > 0 && switcher.length > 0;
+    panels.push({
+      panel: "individual_wage_growth",
+      ...(available ? {} : {
+        available: false,
+        unavailable_reason:
+          "The Atlanta Fed wage tracker series are wired but are not in the data pool " +
+          "yet; they arrive on the next FRED refresh. TREAT THIS AS MISSING, NOT AS " +
+          "ZERO AND NOT AS REASSURANCE. This panel is the composition control on the " +
+          "exposed-vs-control pay panel, so while it is absent the composition " +
+          "question on that panel is UNRESOLVED rather than answered, and its " +
+          "figures should be weakened accordingly rather than read at face value.",
+      }),
+      as_of: lastStayer?.[0] ?? null,
+      series_id: `${INDIVIDUAL_WAGE_GROWTH.jobStayer} (job stayers), ${INDIVIDUAL_WAGE_GROWTH.jobSwitcher} (job switchers) — Atlanta Fed Wage Growth Tracker, 12-month moving average of the unweighted median hourly wage growth`,
+      display_label: "Pay growth for the same people: stayers vs switchers",
+      panel_role: "COMPOSITION_CONTROL",
+      panel_role_note:
+        "This is the composition-immune cross-check on the exposed-vs-control pay " +
+        "panel, and it is economy-wide rather than exposed-industry, so it CANNOT " +
+        "attribute anything to AI-exposed work by itself. What it can do is tell you " +
+        "whether a move in an industry AVERAGE is people being paid differently or " +
+        "different people being in the average. Use it that way and not as a fourth " +
+        "vote. It also carries the cleanest reading available on whether people who " +
+        "move jobs are landing WELL.",
+      unit: "percent (median wage growth over the past year, same individuals)",
+      job_stayer_value: round2(lastStayer?.[1]),
+      job_switcher_value: round2(lastSwitcher?.[1]),
+      switcher_premium: round2(lastPremium?.[1]),
+      latest_date: lastStayer?.[0] ?? null,
+      prior_reading: priorReading(premium),
+      switcher_premium_reading: lastPremium == null ? "no reading available"
+        : lastPremium[1] > 0
+          ? `Switchers are ahead of stayers by ${round2(lastPremium[1])} points, so changing ` +
+            `jobs currently pays. That is what OPPORTUNITY-DRIVEN mobility looks like: ` +
+            `people are moving because somewhere else is bidding for them.`
+          : `Switchers are BEHIND stayers by ${round2(-lastPremium[1])} points, so people who ` +
+            `change jobs are taking less than those who stay. That is what FORCED mobility ` +
+            `looks like, and it is the pattern a displacement episode absorbed into worse ` +
+            `work would produce while the headline employment count held up.`,
+      measurement_artifact: {
+        text:
+          "This is a CPS-based measure, and the CPS has been degraded through this " +
+          "period. Response rates fell through late 2025, OCTOBER 2025 IS MISSING " +
+          "ENTIRELY from both series at source, and the confidence intervals around " +
+          "these medians are wider than usual as a result. It is also a MEDIAN of " +
+          "individual wage changes rather than a mean, so it says nothing about the " +
+          "tails: a collapse concentrated in a minority of workers is exactly the " +
+          "shape this measure would miss.",
+        weighting_rule:
+          "Read moves of a couple of tenths as noise, especially across the October " +
+          "2025 hole. What this panel is FOR is the comparison against the " +
+          "exposed_vs_control_wages panel, which is an industry average and can move " +
+          "on composition alone. If that panel shows exposed pay accelerating while " +
+          "this one is flat or falling, the industry figure is probably telling you " +
+          "who is left rather than who got a raise.",
+        population_caveat:
+          "ECONOMY-WIDE. It covers every industry and cannot be cut to exposed versus " +
+          "control, so it can never be evidence about AI-exposed work specifically.",
+      },
+      long_run_context_switcher_premium: longRun(premium),
+      // Deterioration-oriented: the switcher premium SHRINKING is the direction that
+      // means mobility is turning forced, so a falling premium reads positive here.
+      deviation_from_normal: deviation(premium.map(([m, v]) => [m, -v])),
+      streak: streakString(premium.map(([m, v]) => [m, -v]), "monthly"),
+      threshold: {
+        rule:
+          "NO THRESHOLD AND NO ALARM LINE, deliberately. This panel exists to " +
+          "disqualify or corroborate another panel's reading, not to fire on its own, " +
+          "and a trigger here would invite exactly the fourth-vote reading the " +
+          "panel_role forbids. Read the level, the spread and the direction.",
+      },
+    });
+  }
+
   // --- Job postings spread (Indeed; both sides) ---
   {
     const pp = extras.postingsPoints ?? [];
     const last = pp[pp.length - 1] ?? null;
-    const trigger = twoSigmaTrigger(pp.map((p) => [p.date.slice(0, 7), p.spread]), false);
+    // No twoSigmaTrigger call here any more. It returned null anyway — this series
+    // cannot cover the fixed baseline — and computing a line only to discard it
+    // invited someone to "fix" the null by falling back to a contaminated window,
+    // which is exactly what the app was doing. See the threshold block below.
     panels.push({
       panel: "job_postings_spread",
       series_id: "Indeed Hiring Lab job postings, exposed knowledge-work occupations vs control hands-on occupations",
       display_label: "Job postings: exposed vs control occupations",
+      panel_role: "ATTRIBUTION",
+      panel_role_note:
+        "Attribution, and the earliest of the three: postings move before headcount " +
+        "does, which is what makes this the panel most likely to be right first when " +
+        "it disagrees with the others. It is also cut by OCCUPATION rather than " +
+        "industry, so it is a better proxy for exposure than the jobs panel — a fact " +
+        "worth stating whenever the two disagree. What it cannot do is establish " +
+        "displacement, and it cannot even establish a current condition from its level " +
+        "alone: see measurement_artifact, because this spread opened in 2022 and has " +
+        "been flat since, so the change is the signal and the level is history.",
       unit: "index points, each side against its OWN February 2020 level = 100",
       // Both sides are sent as levels, not just the spread, and the baseline is
       // stated per side: a spread of -28 is a very different fact when exposed
@@ -1233,8 +1465,90 @@ export function buildAnalysisPayload(pool, extras = {}) {
       long_run_context: longRun(pp.map((p) => [p.date.slice(0, 7), p.spread]), "job_postings_spread"),
       deviation_from_normal: deviation(pp.map((p) => [p.date.slice(0, 7), -p.spread])),
       history_caveat: "this series begins February 2020, so it has no pre-pandemic baseline and a shorter calm history than the other panels",
+      // WHICH SIDE MOVED, AND WHERE THE DEMAND WENT.
+      //
+      // Promoted to first-class fields 2026-07-29, at the same time the trigger was
+      // deleted. The spread alone cannot say whether knowledge-work demand collapsed
+      // or hands-on demand surged, and those are different economies. Both sides are
+      // already given above against their own pre-pandemic level; this states the
+      // reading they support, because it is the closest thing on this dashboard to a
+      // direct observation of demand ROTATING rather than disappearing.
+      both_sides_reading: (() => {
+        if (!last) return "no reading available";
+        const ex = round1(last.exposed - 100);
+        const co = round1(last.control - 100);
+        const base =
+          `Knowledge-work postings sit ${ex >= 0 ? `${ex} percent ABOVE` : `${Math.abs(ex)} percent BELOW`} ` +
+          `their own February 2020 level; hands-on postings sit ` +
+          `${co >= 0 ? `${co} percent ABOVE` : `${Math.abs(co)} percent BELOW`} theirs. `;
+        if (ex < 0 && co > 0) {
+          return base +
+            `Read this as ATTRIBUTION and nothing more: the weakness is specific to ` +
+            `knowledge work rather than general, because a broad contraction pulls both ` +
+            `sides down together and this has not. ` +
+            `WHAT IT IS NOT EVIDENCE OF. It is not evidence of augmentation. On this ` +
+            `panel augmentation would be knowledge-work postings RECOVERING toward their ` +
+            `own baseline; hands-on postings being strong is a fact about hands-on work ` +
+            `and says nothing about whether the exposed side is being made more valuable. ` +
+            `Nor is it evidence that anyone was absorbed. Demand shifting between kinds ` +
+            `of work does not mean workers shifted with it: the skills are different, ` +
+            `many displaced knowledge workers would be overqualified or unsuited for the ` +
+            `roles that are growing, and a posting is an advertised intention rather than ` +
+            `a filled job. A knowledge worker who ends up in a hands-on role has not been ` +
+            `augmented. Whether anybody landed, and whether they landed WELL, is settled ` +
+            `by the reabsorption panel and the individual-level pay tracker, not here.`;
+        }
+        if (ex < 0 && co < 0) {
+          return base +
+            `Both sides are below their own pre-pandemic level, which is the signature of ` +
+            `a general contraction rather than of anything specific to AI-exposed work. ` +
+            `Say which side is further down and by how much before drawing any ` +
+            `exposure-specific conclusion.`;
+        }
+        return base +
+          `Read the two sides, not the gap between them. The gap alone cannot say which ` +
+          `side moved, and the two mean different things.`;
+      })(),
+      // THE CHANGE IS THE SIGNAL, NOT THE LEVEL (2026-07-28).
+      measurement_artifact: {
+        text:
+          "THIS SPREAD OPENED IN 2022 AND HAS BEEN ROUGHLY FLAT SINCE. It opened before " +
+          "current AI tools had diffused into hiring decisions, and published work on " +
+          "the postings collapse attributes much of the initial opening to interest " +
+          "rates: rate-sensitive white-collar hiring was cut first and hardest, and the " +
+          "timing lines up with the tightening cycle rather than with any model " +
+          "release. So the LEVEL of this spread is substantially a 2022 event that is " +
+          "still sitting there, and a wide reading today is mostly a fact about 2022.",
+        weighting_rule:
+          "READ THE CHANGE, NOT THE LEVEL. A wide spread that has not moved in years " +
+          "is a standing condition, and describing it as though it were news is the " +
+          "main way this panel misleads. What would be evidence is the spread moving: " +
+          "widening again, or closing. spread_change_over_6_months is the field for " +
+          "that. When you cite this panel, say which of the two you are reading, and " +
+          "name the side that moved rather than the gap.",
+      },
       streak: streakString(pp.map((p) => [p.date.slice(0, 7), -p.spread]), "monthly"),
-      threshold: { spread_trigger: trigger == null ? null : round2(trigger), rule: "postings lead hiring, so a spread two standard deviations below its calm-period average is an early version of the jobs alarm" },
+      threshold: {
+        rule:
+          "NO THRESHOLD, NO TRIGGER LINE AND NO ALARM. Deleted 2026-07-29 rather than " +
+          "moved onto the rate of change, and the deletion is a public re-registration " +
+          "rather than maintenance. Three reasons, and the third is decisive. " +
+          "First, this series begins 2020-02, so it can never cover the fixed " +
+          "2010-2019 baseline every other threshold on this dashboard is drawn against; " +
+          "any line here has to be computed from a window that IS the period under test, " +
+          "which is the circularity the fixed baseline exists to prevent. " +
+          "Second, the line fired on the LEVEL, and the level is substantially a 2022 " +
+          "event that has not moved since, so it could sit tripped for years while " +
+          "reading to a viewer as a live alarm. " +
+          "Third, relocating it onto the change would not have fixed either problem. It " +
+          "would compute a different threshold off the same contaminated window, and it " +
+          "would still be a pre-registered line standing between a reader and the series. " +
+          "The job here is to tell the whole story, and the threshold was secondary to " +
+          "that and getting in its way. " +
+          "Read instead: where each side sits against its own pre-pandemic level, which " +
+          "direction the spread has moved over six months, and the rotation reading above. " +
+          "Do not treat the absence of a threshold as either reassurance or alarm.",
+      },
     });
   }
 
@@ -1303,6 +1617,14 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "worker_share_of_income",
       series_id: "GDICOMP/GDI",
       display_label: "Worker share of national income",
+      panel_role: "DESCRIPTIVE",
+      panel_role_note:
+        "No threshold, no alarm line, no vote — see the threshold block for why that " +
+        "is a re-registration rather than missing data. ECONOMY-WIDE, so it cannot be " +
+        "evidence about AI-exposed work whatever it does, and it has fallen since the " +
+        "1970s for causes that predate AI by decades. It can tell you where the level " +
+        "sits in its own record and how fast it has moved over a stated horizon. It " +
+        "cannot tell you that AI moved it.",
       unit: "percent (of gross domestic income)",
       latest_value: round1(last?.value),
       latest_date: last ? quarterEndMonth(last.date) : null,
@@ -1356,22 +1678,26 @@ export function buildAnalysisPayload(pool, extras = {}) {
     });
   }
 
-  // --- Recent-grad unemployment gap (supplemental) ---
-  {
-    const g = extras.inversion ?? null;
-    panels.push({
-      panel: "recent_grad_gap",
-      as_of: latestDateOf(series.CGBD2024),
-      series_id: "CGBD2024 minus UNRATE (recent-college-graduate unemployment rate minus the general rate)",
-      display_label: "Recent-graduate unemployment gap",
-      unit: "percentage points",
-      latest_value: g ? round1(g.gapPct) : null,
-      streak: g ? `${g.runMonths} consecutive ${g.runMonths === 1 ? "month" : "months"} with graduates unemployed at a higher rate than the general workforce` : null,
-      shading_rule: "the panel highlights months where this gap sits above its own trailing ten-year average",
-      above_trailing_10yr_average: g ? g.anomalous : null,
-      threshold: { rule: "supplemental context only; this panel does not by itself move the headline" },
-    });
-  }
+  // THE RECENT-GRADUATE GAP IS NOT SENT AT ALL (2026-07-29), having previously been
+  // sent with a does_not_contribute role telling the analyst not to count it.
+  //
+  // Two reasons, and the second is the stronger. The panel is not differenced on AI
+  // exposure: it compares recent graduates against GENERAL unemployment, so both sides
+  // move with the business cycle, and an ordinary recession that hits young workers
+  // hardest widens it exactly as an AI-driven collapse in entry-level knowledge work
+  // would. Nothing in it can separate the two.
+  //
+  // And it is no longer drawn in the app, which is what settles it. Every figure the
+  // analyst cites is meant to be checkable by a reader on a chart one tap away, and that
+  // promise breaks the moment the payload carries a series the app does not show.
+  // Supplying a panel while instructing the model not to use it is also just a
+  // temptation with a label on it: the honest way to make something uncountable is not
+  // to send it. The same reasoning removed the benchmark-tracks panel below.
+  //
+  // The version worth building is young workers in AI-exposed occupations against young
+  // workers in non-exposed ones, which differences on both dimensions so the cycle
+  // cancels. FRED publishes unemployment by occupation and unemployment by age and
+  // nothing crossing the two, so it needs CPS microdata.
 
   // --- AI adoption (Type B gate) ---
   {
@@ -1382,6 +1708,15 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "ai_adoption",
       series_id: "US Census Bureau Business Trends and Outlook Survey, share of firms using AI",
       display_label: "Firms using AI in any business function",
+      panel_role: "DEPLOYMENT_GATE",
+      panel_role_note:
+        "A weak-form gate, and the direction of the logic is the whole point: real " +
+        "adoption PERMITS a displacement reading, and no amount of adoption CAUSES " +
+        "one. You cannot call it AI displacement with no deployment; you also cannot " +
+        "call it AI displacement from deployment alone, because firms adopting a tool " +
+        "is not an event in anyone's employment. It counts firms rather than workers, " +
+        "which understates worker exposure whenever adoption rises with employer size, " +
+        "and it does here.",
       unit: "percent (of firms)",
       latest_value: last ? round1(last.pct) : null,
       // YYYY-MM, matching prior_reading and full_series just below. This alone
@@ -1433,6 +1768,16 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "ai_use_automation_vs_augmentation",
       series_id: "Anthropic Economic Index, share of AI conversations that automate a task vs augment the person",
       display_label: "How AI is used: automation vs augmentation",
+      panel_role: "DESCRIPTIVE",
+      panel_role_note:
+        "Weak directional context on HOW AI is being used, and nothing more. It " +
+        "measures one vendor's conversations over a user base that changes between " +
+        "releases, and conversations are not jobs — a shift in who is using the " +
+        "product moves this with no change in how anyone works. It is also the " +
+        "stalest panel here while measuring the fastest-moving thing on the " +
+        "dashboard. It cannot establish anything about employment in either " +
+        "direction; a move is worth mentioning only if it is large and sustained " +
+        "across several releases.",
       unit: "percent (of sampled AI conversations)",
       automation_value: last ? round1(last.automatePct) : null,
       augmentation_value: last ? round1(last.augmentPct) : null,
@@ -1472,6 +1817,14 @@ export function buildAnalysisPayload(pool, extras = {}) {
       as_of: latestDateOf(series.T10Y2Y),
       series_id: "DFII10 (10-year real Treasury yield), T10Y2Y and T10Y3M (yield-curve spreads), T10YIE (10-year expected inflation)",
       display_label: "Macro regime",
+      panel_role: "CONFOUNDER_CHECK",
+      panel_role_note:
+        "This can NAME a competing cause. It cannot clear one. The curve is " +
+        "forward-looking — it prices what investors expect, not what has already " +
+        "happened — so it can never exculpate weakness already sitting in the data, " +
+        "and the contemporaneous test on the control panels is the one that settles " +
+        "whether observed weakness is general. Use this to generate the cyclical " +
+        "hypothesis and the control industries to test it.",
       unit: "percent",
       real_10yr_yield: round1(macro.realYield10y),
       yield_curve_10yr_minus_2yr: round1(macro.termSpread10y2y),
@@ -1492,6 +1845,13 @@ export function buildAnalysisPayload(pool, extras = {}) {
       })(),
       series_id: "METR task-completion time horizons of frontier AI models",
       display_label: "AI capability: task-length horizon",
+      panel_role: "does_not_contribute",
+      panel_role_note:
+        "SHOWN FOR CONTEXT, COUNTED IN NOTHING. This was a capability gate until July " +
+        "2026 and now conditions nothing: a benchmark of clean, self-contained " +
+        "software tasks should not decide whether a real labor signal counts. What a " +
+        "model can do on auto-scorable problems is not what happened to any worker, " +
+        "and it cannot corroborate a labor reading in either direction.",
       unit: "minutes of human working time",
       top_models_by_80pct_horizon: top.map((m) => ({
         model: m.model, lab: m.lab,
@@ -1519,6 +1879,17 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "ai_capability_gdpval_ratings",
       series_id: "Artificial Analysis GDPval-AA leaderboard (Elo on OpenAI's GDPval dataset of real knowledge-work tasks)",
       display_label: "GDPval head-to-head ratings",
+      // Demoted 2026-07-28. Nothing on the causal chain runs through which lab is
+      // ahead, so this cannot corroborate a labor reading in either direction.
+      panel_role: "does_not_contribute",
+      panel_role_note:
+        "SHOWN FOR CONTEXT, COUNTED IN NOTHING. This measures what models can do " +
+        "against each other. No link in the displacement chain runs through which lab " +
+        "leads: a model pulling ahead of another model is not an event in anyone's " +
+        "employment, and the two are not even on the same clock, since a capability " +
+        "release and the labor response to it are separated by however long deployment " +
+        "takes. Read it, say anything interesting you notice, and do not count it as " +
+        "support for or against the verdict.",
       unit: "Elo rating points (400 points = 10:1 odds)",
       pool_version: board?.poolVersion ?? null,
       as_of: board?.lastRefreshed ?? null,
@@ -1543,6 +1914,17 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "ai_capability_vs_human_experts",
       series_id: "OpenAI GDPval, model wins plus ties against industry experts on the 220-task gold subset",
       display_label: "Did it clear a human",
+      // Demoted 2026-07-28, alongside the ratings panel. This is the capability
+      // measure with a human baseline, which makes it the most tempting one to count
+      // and no more entitled to be counted.
+      panel_role: "does_not_contribute",
+      panel_role_note:
+        "SHOWN FOR CONTEXT, COUNTED IN NOTHING. Clearing an expert on a benchmark task " +
+        "is not the same event as an employer choosing to stop paying that expert, and " +
+        "only the second one is labor evidence. This panel is the most persuasive-" +
+        "looking capability reading here precisely because it has a human on the other " +
+        "side of it, which is the reason to be careful with it rather than a reason to " +
+        "weight it. It cannot corroborate a labor reading in either direction.",
       unit: "percent of tasks won or tied against an industry expert",
       latest_value: latestExpert ? round1(latestExpert.winsPlusTiesPct) : null,
       latest_model: latestExpert?.model ?? null,
@@ -1559,27 +1941,17 @@ export function buildAnalysisPayload(pool, extras = {}) {
     });
   }
 
-  // --- AI capability: normalized benchmark tracks ---
-  {
-    const slots = extras.slots ?? [];
-    panels.push({
-      panel: "ai_capability_benchmarks",
-      as_of: (() => {
-        const ds = (extras.slots ?? []).map((x) => x.latestDate).filter(Boolean).sort();
-        return ds.length ? String(ds[ds.length - 1]).slice(0, 7) : null;
-      })(),
-      series_id: "tracked capability benchmarks (reasoning, coding, biology)",
-      display_label: "AI capability: benchmark tracks",
-      unit: "index points (0 to 100)",
-      tracks: slots.map((s) => ({
-        track: s.slot, benchmark: s.benchmarkName,
-        latest_score: s.latestScore == null ? null : Math.round(s.latestScore),
-        latest_date: s.latestDate ?? null,
-        nearing_saturation: s.saturated ?? null,
-      })),
-      threshold: { rule: "context on the capability curve; lower confidence than the time-horizon measure" },
-    });
-  }
+  // THE BENCHMARK-TRACKS PANEL IS NOT SENT (2026-07-29), for the same reason as the
+  // recent-graduate gap: it is not rendered anywhere in the app, so nothing the analyst
+  // said about it could be checked by a reader against a chart. It was also the weakest
+  // capability panel on offer, several of its benchmarks being near saturation where a
+  // score stops distinguishing models at all, and it already carried a role saying it
+  // fed nothing. A panel that is unverifiable, uncountable and uninformative has no
+  // claim on the payload.
+  //
+  // The two capability panels that DO remain in the payload -- task-length horizons and
+  // the GDPval comparisons -- are both drawn in the app, below the supplemental divider,
+  // so a reader can check anything said about them.
 
   // Vintage last, so it covers every panel above without each one remembering.
   return attachVintage(panels, extras.todayYm ?? new Date().toISOString().slice(0, 7));

@@ -7,7 +7,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { pairedState, pairedPath, PAIRED_STATES } from "./pairedState.mjs";
 import { buildAnalysisPayload } from "../payload.mjs";
-import { ATTRIBUTION_AXIS_Z, REABSORPTION_AXIS_LINE } from "../config.mjs";
+import {
+  ATTRIBUTION_AXIS_Z, REABSORPTION_AXIS_LINE, ATTRIBUTION_SUSTAIN_MONTHS,
+} from "../config.mjs";
 
 // The axes are measured in DIFFERENT UNITS and have separate lines: attribution is
 // a z against its own fixed baseline, reabsorption is points below a fixed 2019
@@ -40,9 +42,9 @@ test("a maximally negative gap with a healthy aggregate is REALLOCATION, not DIS
   // attribution reading obtainable, and it is NOT displacement.
   // Attribution 6 sigma past its line; reabsorption 1 point ABOVE its 2019
   // reference, i.e. a negative shortfall, so the aggregate is not deteriorating.
-  const s = pairedState(6.0, -1.0);
+  const s = pairedState(6.0, -1.0, true);
   assert.equal(s.state, "REALLOCATION");
-  assert.equal(s.attribution.label, "gap widening");
+  assert.equal(s.attribution.label, "gap wide and holding");
   assert.equal(s.reabsorption.label, "aggregate holding");
 });
 
@@ -109,6 +111,73 @@ test("the path drops months missing either axis rather than carrying forward", (
   const reabsorption = [["2026-01", 1], ["2026-03", 3]]; // 2026-02 absent
   const path = pairedPath(attribution, reabsorption, () => A_MOVING, 24);
   assert.deepEqual(path.map((p) => p.month), ["2026-01", "2026-03"]);
+});
+
+// --- The gap has to HOLD, not merely be wide (2026-07-28) --------------------
+//
+// The failure this fixes: the attribution axis was established by a single month at
+// or past its line, and the gap has been past that line since 2023, so the axis never
+// changed the quadrant. Every state change came from the vertical axis — an
+// economy-wide employment change an ordinary recession moves — which meant the
+// cyclical half was deciding the discriminator on its own.
+
+test("a weak aggregate cannot reach DISPLACEMENT on a gap that has not held", () => {
+  // The whole point of the change, stated as the case it prevents: the aggregate is
+  // deteriorating (a recession would do this), the gap has gone wide but only just.
+  // That is an ordinary downturn until the AI-specific axis confirms.
+  const notYet = pairedState(A_MOVING, R_MOVING, false);
+  assert.equal(notYet.state, "NOT_AI");
+  // And it must not describe a wide gap as a flat one while it waits.
+  assert.equal(notYet.attribution.wideThisMonth, true);
+  assert.match(notYet.attribution.label, /not yet held/);
+
+  // Once it has held, the same two readings are DISPLACEMENT.
+  assert.equal(pairedState(A_MOVING, R_MOVING, true).state, "DISPLACEMENT");
+});
+
+test("an unheld gap with a healthy aggregate is STABLE, not REALLOCATION", () => {
+  assert.equal(pairedState(A_MOVING, R_FLAT, false).state, "STABLE");
+  assert.equal(pairedState(A_MOVING, R_FLAT, true).state, "REALLOCATION");
+});
+
+test("the path requires a real run of wide readings before promoting a quadrant", () => {
+  // Four months: the gap crosses its line at the second and stays. With a run
+  // requirement of three, the first month it can be called held is the fourth.
+  const months = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05"];
+  const attribution = months.map((m) => [m, 1]);
+  const reabsorption = months.map((m) => [m, R_MOVING]); // aggregate deteriorating throughout
+  const zByMonth = {
+    "2026-01": A_FLAT, "2026-02": A_MOVING, "2026-03": A_MOVING,
+    "2026-04": A_MOVING, "2026-05": A_MOVING,
+  };
+  // zOf receives the series up to and including the month being placed.
+  const zOf = (slice) => zByMonth[slice[slice.length - 1][0]];
+  const path = pairedPath(attribution, reabsorption, zOf, 24);
+
+  assert.equal(ATTRIBUTION_SUSTAIN_MONTHS, 3, "this test is written for a run of three");
+  assert.deepEqual(
+    path.map((p) => `${p.month}:${p.state}`),
+    [
+      "2026-01:INDETERMINATE", // too little history to judge a run
+      "2026-02:INDETERMINATE",
+      "2026-03:NOT_AI",        // wide for two, not yet held: an ordinary downturn
+      "2026-04:DISPLACEMENT",  // third consecutive wide reading
+      "2026-05:DISPLACEMENT",
+    ],
+  );
+});
+
+test("a missing month does not break a run the gap never actually broke", () => {
+  // October 2025 has no prime-age employment print, so the path drops it. The run is
+  // a fact about the ATTRIBUTION series, so it has to be computed before that drop —
+  // otherwise a hole in a different series silently resets the confirmation clock.
+  const months = ["2026-01", "2026-02", "2026-03", "2026-04"];
+  const attribution = months.map((m) => [m, 1]);
+  const reabsorption = [["2026-01", R_MOVING], ["2026-04", R_MOVING]]; // two absent
+  const path = pairedPath(attribution, reabsorption, () => A_MOVING, 24);
+  const last = path[path.length - 1];
+  assert.equal(last.month, "2026-04");
+  assert.equal(last.state, "DISPLACEMENT", "the gap was wide for all four attribution months");
 });
 
 // --- The blindness -----------------------------------------------------------
@@ -183,8 +252,32 @@ test("the panel_role labels do not smuggle the verdict in", () => {
   // would be the answer wearing a different label.
   const payload = buildAnalysisPayload(stubPool(), { todayYm: "2026-09" });
   const roles = payload.map((p) => p.panel_role).filter(Boolean);
-  assert.deepEqual([...new Set(roles)].sort(), ["ATTRIBUTION", "REABSORPTION"]);
+  // The vocabulary is documented at the top of payload.mjs. Pinned here so a new
+  // role has to be a deliberate addition: the prompt says a role BINDS, so an
+  // unrecognised one is an instruction to the model that nobody reviewed.
+  assert.deepEqual(
+    [...new Set(roles)].sort(),
+    [
+      "ATTRIBUTION", "COMPOSITION_CONTROL", "CONFOUNDER_CHECK", "DEPLOYMENT_GATE",
+      "DESCRIPTIVE", "GAINS_TEST", "REABSORPTION", "does_not_contribute",
+    ],
+  );
   for (const r of roles) assert.ok(!Object.keys(PAIRED_STATES).includes(r));
+});
+
+test("every panel carries a panel_role, and every role explains itself", () => {
+  // The prompt says a role binds WHERE ONE IS PRESENT, which made absence the most
+  // permissive state available: a panel with no role ran unconstrained, and the
+  // panels most likely to be over-read were exactly the ones that had never been
+  // given one. Coverage is the fix, so coverage is the test.
+  const payload = buildAnalysisPayload(stubPool(), { todayYm: "2026-09" });
+  const missing = payload.filter((p) => !p.panel_role).map((p) => p.panel);
+  assert.deepEqual(missing, [], `panels with no panel_role: ${missing.join(", ")}`);
+
+  // A bare label is not a role. Each one has to say what the panel can and cannot
+  // establish, or it is a category name doing no work.
+  const unexplained = payload.filter((p) => !p.panel_role_note).map((p) => p.panel);
+  assert.deepEqual(unexplained, [], `panel_role with no note: ${unexplained.join(", ")}`);
 });
 
 test("payload.mjs does not import the paired-state module", async () => {

@@ -18,9 +18,20 @@
 // AI-exposed work rather than to the general economy — but it is an ATTRIBUTION
 // axis. Crossed with a REABSORPTION axis it becomes a discriminator:
 //
-//                     aggregate holding      aggregate deteriorating
-//   gap widening      REALLOCATION           DISPLACEMENT
-//   gap flat          STABLE                 NOT_AI
+//                        aggregate holding      aggregate deteriorating
+//   gap wide, held        REALLOCATION           DISPLACEMENT
+//   gap flat or unheld    STABLE                 NOT_AI
+//
+// "HELD" IS THE PART ADDED 2026-07-28. A single month at or past the line used to
+// establish the attribution axis, and the gap has been past that line continuously
+// since 2023 — so in practice the attribution axis never changed the quadrant, and
+// every state change on this grid came from the vertical axis. That axis is an
+// economy-wide employment change, which an ordinary recession moves with no AI
+// content whatever, and it crossed its own line eight times in eighteen months. The
+// discriminator was being decided by the half that cannot discriminate. Requiring
+// the gap to hold for ATTRIBUTION_SUSTAIN_MONTHS gives the AI-specific axis a say:
+// until it has held, a deteriorating aggregate lands in NOT_AI, which is what an
+// ordinary downturn is.
 //
 // WHY THE ANALYST NEVER SEES IT
 //
@@ -39,7 +50,7 @@
 // neither is testable if the analyst was shown it first.
 
 import {
-  ATTRIBUTION_AXIS_Z, REABSORPTION_AXIS_LINE,
+  ATTRIBUTION_AXIS_Z, REABSORPTION_AXIS_LINE, ATTRIBUTION_SUSTAIN_MONTHS,
   BASELINE_START, BASELINE_END,
 } from "../config.mjs";
 // The dependency points THIS way on purpose: the state module reads the payload's
@@ -61,12 +72,14 @@ export const PAIRED_STATES = {
   },
   NOT_AI: {
     plain: "A general slowdown, not an AI one",
-    reading: "The aggregate is deteriorating without any AI-exposed divergence, " +
-      "which is what an ordinary downturn looks like.",
+    reading: "The aggregate is deteriorating without an established AI-exposed " +
+      "divergence, which is what an ordinary downturn looks like. This also covers a " +
+      "gap that has just gone wide and not yet held for three readings: an unconfirmed " +
+      "divergence is not yet a reason to call a weak aggregate AI-shaped.",
   },
   STABLE: {
     plain: "Neither signal is moving",
-    reading: "No AI-exposed divergence and no aggregate deterioration.",
+    reading: "No established AI-exposed divergence and no aggregate deterioration.",
   },
   INDETERMINATE: {
     plain: "Not enough clean history to place this",
@@ -101,17 +114,28 @@ function axisMoving(value, line) {
  * @param {number|null} reabsorptionFalling the 12-month FALL in the prime-age
  *   (25-54) employment-population ratio, deterioration-positive. Compared against
  *   raw zero: falling at all counts. No baseline, no reference year, no threshold.
+ * @param {boolean|null} attributionHeld whether the gap has been at or past its line
+ *   for ATTRIBUTION_SUSTAIN_MONTHS consecutive readings ending at this one. null
+ *   means there is not enough history to say, which is not the same as false.
+ *   Defaults to the value of the single-month test, so a caller that has no history
+ *   to hand gets the pre-2026-07-28 behaviour rather than a silent downgrade.
  */
-export function pairedState(attributionZ, reabsorptionFalling) {
-  const widening = axisMoving(attributionZ, ATTRIBUTION_AXIS_Z);
+export function pairedState(attributionZ, reabsorptionFalling, attributionHeld = undefined) {
+  const wide = axisMoving(attributionZ, ATTRIBUTION_AXIS_Z);
   const deteriorating = axisMoving(reabsorptionFalling, REABSORPTION_AXIS_LINE);
+  // THE GAP HAS TO HOLD, NOT MERELY BE WIDE. See ATTRIBUTION_SUSTAIN_MONTHS: a
+  // single month past the line used to establish this axis, the gap has been past
+  // the line since 2023, and the consequence was that the AI-specific axis never
+  // changed the quadrant while the economy-wide one changed it eight times in
+  // eighteen months. Held is what the right-hand quadrants now require.
+  const held = attributionHeld === undefined ? wide : attributionHeld;
 
   // An unplaceable axis is reported as such. Guessing here would be the same
   // error as scoring against a truncated baseline: a confident answer resting on
   // history that does not exist.
-  const state = widening == null || deteriorating == null
+  const state = held == null || deteriorating == null
     ? "INDETERMINATE"
-    : widening
+    : held
       ? (deteriorating ? "DISPLACEMENT" : "REALLOCATION")
       : (deteriorating ? "NOT_AI" : "STABLE");
 
@@ -121,8 +145,16 @@ export function pairedState(attributionZ, reabsorptionFalling) {
     reading: PAIRED_STATES[state].reading,
     attribution: {
       z: attributionZ == null ? null : Math.round(attributionZ * 100) / 100,
-      moving: widening,
-      label: widening == null ? "cannot be placed" : widening ? "gap widening" : "gap flat",
+      moving: held,
+      // Reported separately from [moving] on purpose: a month where the gap is wide
+      // but has not yet held is a real and readable condition, and collapsing it
+      // into "gap flat" would describe a wide gap as a narrow one.
+      wideThisMonth: wide,
+      heldForMonths: ATTRIBUTION_SUSTAIN_MONTHS,
+      label: held == null ? "cannot be placed"
+        : held ? "gap wide and holding"
+          : wide ? `gap wide but not yet held for ${ATTRIBUTION_SUSTAIN_MONTHS} readings`
+            : "gap flat",
     },
     reabsorption: {
       employmentFalling: reabsorptionFalling == null ? null : Math.round(reabsorptionFalling * 100) / 100,
@@ -130,10 +162,16 @@ export function pairedState(attributionZ, reabsorptionFalling) {
       label: deteriorating == null ? "cannot be placed" : deteriorating ? "aggregate deteriorating" : "aggregate holding",
     },
     attributionLineZ: ATTRIBUTION_AXIS_Z,
+    attributionSustainMonths: ATTRIBUTION_SUSTAIN_MONTHS,
     reabsorptionLine: REABSORPTION_AXIS_LINE,
     definitions: {
       widening: `the exposed-minus-control job-growth gap is at least ${ATTRIBUTION_AXIS_Z} standard ` +
-        `deviation further below its ${BASELINE_START}..${BASELINE_END} average, that window fixed and never rolling`,
+        `deviation further below its ${BASELINE_START}..${BASELINE_END} average, that window fixed and never rolling, ` +
+        `AND has been for ${ATTRIBUTION_SUSTAIN_MONTHS} consecutive readings. The run requirement is the ` +
+        `newer half and it is what stops the vertical axis deciding this grid on its own: ` +
+        `one month past the line used to establish this axis, the gap has been past the ` +
+        `line since 2023, and the result was that the only thing ever changing the quadrant ` +
+        `was an economy-wide employment change that an ordinary recession moves`,
       deteriorating: `the prime-age (25-54) employment-population ratio is LOWER than ` +
         `it was twelve months ago. A change against raw zero, with no baseline, no ` +
         `reference year and no threshold, because those were all the wrong kind of ` +
@@ -162,15 +200,37 @@ export function pairedState(attributionZ, reabsorptionFalling) {
  */
 export function pairedPath(attributionOriented, reabsorptionShortfall, zOf, months = 24) {
   const reab = new Map(reabsorptionShortfall);
+
+  // Every attribution month is scored FIRST, before anything is dropped, because the
+  // run of wide readings is a fact about the attribution series and not about which
+  // months happen to have a reabsorption partner. Computing it after the filter would
+  // let a missing employment print (October 2025 is one) silently break a run that
+  // never broke, and the run is now what promotes the right-hand quadrants.
+  const zs = [];
+  for (let i = 0; i < attributionOriented.length; i++) {
+    // Z-scored against history up to and including this month, so a past point is
+    // placed with the information available then rather than with hindsight.
+    zs.push(zOf(attributionOriented.slice(0, i + 1)));
+  }
+
+  /** Has the gap been at or past its line for the whole run ending at [i]? */
+  const heldAt = (i) => {
+    if (i + 1 < ATTRIBUTION_SUSTAIN_MONTHS) return null; // not enough history to say
+    for (let k = i; k > i - ATTRIBUTION_SUSTAIN_MONTHS; k--) {
+      const m = axisMoving(zs[k], ATTRIBUTION_AXIS_Z);
+      if (m == null) return null;   // an unplaceable month breaks the claim, not the run
+      if (!m) return false;
+    }
+    return true;
+  };
+
   const out = [];
-  for (const [m] of attributionOriented) {
+  for (let i = 0; i < attributionOriented.length; i++) {
+    const m = attributionOriented[i][0];
     if (!reab.has(m)) continue;
-    // Attribution is z-scored against history up to and including this month, so a
-    // past point is placed with the information available then rather than with
-    // hindsight. Reabsorption is already a shortfall in points against a fixed
-    // reference, so it needs no scoring — it is read straight off.
-    const aZ = zOf(attributionOriented.filter(([mm]) => mm <= m));
-    out.push({ month: m, ...pairedState(aZ, reab.get(m)) });
+    // Reabsorption is already a change in points against zero, so it needs no
+    // scoring — it is read straight off.
+    out.push({ month: m, ...pairedState(zs[i], reab.get(m), heldAt(i)) });
   }
   return out.slice(-months);
 }
@@ -180,7 +240,23 @@ export function pairedStateFromPool(pool, months = 24) {
   const attribution = attributionAxisOriented(pool);
   const reabsorption = reabsorptionAxisOriented(pool);
   const latestShortfall = reabsorption.length ? reabsorption[reabsorption.length - 1][1] : null;
-  const current = pairedState(fixedBaselineZ(attribution), latestShortfall);
+
+  // The run of wide readings ending at the latest attribution month. Read off the
+  // attribution series directly rather than off the path, which drops months missing
+  // a reabsorption partner and would therefore report a shorter run than the gap
+  // actually had.
+  const heldNow = (() => {
+    if (attribution.length < ATTRIBUTION_SUSTAIN_MONTHS) return null;
+    for (let i = attribution.length - 1; i > attribution.length - 1 - ATTRIBUTION_SUSTAIN_MONTHS; i--) {
+      const z = fixedBaselineZ(attribution.slice(0, i + 1));
+      const m = axisMoving(z, ATTRIBUTION_AXIS_Z);
+      if (m == null) return null;
+      if (!m) return false;
+    }
+    return true;
+  })();
+
+  const current = pairedState(fixedBaselineZ(attribution), latestShortfall, heldNow);
   return {
     ...current,
     path: pairedPath(attribution, reabsorption, fixedBaselineZ, months),

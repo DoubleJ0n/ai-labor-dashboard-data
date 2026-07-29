@@ -4,7 +4,8 @@
 // Free API; runs weekly via GitHub Actions. Key from FRED_API_KEY.
 import { loadPool, saveSection, nowIso } from "./lib.mjs";
 import {
-  DIFFERENTIALS, MACRO_SPREAD_IDS, REABSORPTION, BASELINE_START, BASELINE_END,
+  DIFFERENTIALS, MACRO_SPREAD_IDS, REABSORPTION, INDIVIDUAL_WAGE_GROWTH,
+  BASELINE_START, BASELINE_END,
   BASELINE_FETCH_START, BASELINE_REQUIRED_START, BASELINE_START_SLACK_MONTHS,
   BASELINE_MIN_READINGS,
 } from "./config.mjs";
@@ -46,6 +47,11 @@ const OPTIONAL_IDS = [
   // The reabsorption axis: whether the outflow from exposed work landed
   // anywhere. Verified in CI before wiring; UNRATE (u3) is already required.
   ...Object.values(REABSORPTION).filter((id) => !REQUIRED_IDS.includes(id)),
+  // Individual-level wage growth, stayers and switchers. The composition-immune
+  // control on the industry-average pay panel: it follows the same people twelve
+  // months apart, so a change in who is employed cannot move it. Both verified
+  // against FRED before wiring, per the standing rule.
+  ...Object.values(INDIVIDUAL_WAGE_GROWTH),
   // macro-regime gate (daily)
   "DFII10", ...MACRO_SPREAD_IDS, "T10YIE",
 ];
@@ -64,6 +70,8 @@ const FIXED_BASELINE_IDS = new Set([
   ...DIFFERENTIALS.jobs.exposed, ...DIFFERENTIALS.jobs.control,
   ...DIFFERENTIALS.wages.exposed, ...DIFFERENTIALS.wages.control,
   ...Object.values(REABSORPTION),
+  // Both reach 1997-12, comfortably clearing the 2010-01 requirement.
+  ...Object.values(INDIVIDUAL_WAGE_GROWTH),
   "CGBD2024", "PRS85006091", "OPHNFB", "USINFO", "TEMPHELPS",
   "CES6054150001", "LNS14000036", "GDPC1", "PAYEMS",
 ]);

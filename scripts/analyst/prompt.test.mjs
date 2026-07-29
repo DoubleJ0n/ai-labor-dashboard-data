@@ -1,17 +1,57 @@
 // Designed with Claude (Anthropic)
 //
 // Parsing tests for the three reader-facing outputs. FULL_ANALYSIS is bounded on
-// BOTH sides (it sits between DISSENT_NOTE and PUBLISHED_NOTE), which is the part
-// that is easy to get wrong: a greedy read to end-of-text would swallow the note,
-// and the note is the one document the dashboard cannot render without.
+// BOTH sides (it sits between TAGLINE and PUBLISHED_NOTE), which is the part that
+// is easy to get wrong: a greedy read to end-of-text would swallow the note, and
+// the note is the one document the dashboard cannot render without.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parsePass1, parsePass2, noteCompliance, analysisCompliance } from "./prompt.mjs";
+import {
+  parsePass1, parsePass2, noteCompliance, analysisCompliance,
+  buildPass1Message, PASS1_SYSTEM,
+} from "./prompt.mjs";
+
+test("pass 1 is blind: no prior verdict and no mechanical reading reach it", () => {
+  // The prompt now states this as a contract to the model ("WHAT YOU ARE NOT GIVEN"),
+  // so the payload has to keep it. Asserted on the assembled message rather than on
+  // buildPass1Message's parameter list, because the leak that matters is a field
+  // riding in on `panels` or `changes` from somewhere else in the pipeline.
+  const panels = [
+    { panel: "exposed_vs_control_jobs", differential_exposed_minus_control: -2.5 },
+    { panel: "reabsorption", headline: { change_over_12_months: -0.5 } },
+  ];
+  const changes = {
+    previous_run: "2026-07-27T06:28:54Z",
+    panels_that_moved: [{ panel: "reabsorption", was: -0.2, now: -0.5 }],
+  };
+  const msg = buildPass1Message(panels, changes, "news text", false, "2026-07-28");
+  const sent = JSON.parse(msg);
+
+  // What moved IS data and must survive: stripping it would be the opposite error.
+  assert.ok(sent.what_changed_since_last_analysis, "what-changed must still be sent");
+  assert.equal(sent.run_date, "2026-07-28");
+
+  // The conclusions must not be. Searched over the whole serialised body, since a
+  // nested field is exactly how one of these would arrive unnoticed.
+  for (const banned of [
+    "mechanicalState", "mechanical_state", "pairedState", "paired_state",
+    "breadth", "gainsVisible", "priorVerdict", "prior_verdict",
+    "last_run", "previous_verdict", "REALLOCATION", "INDETERMINATE",
+  ]) {
+    assert.ok(
+      !msg.includes(banned),
+      `pass 1's message must not carry ${banned}: the analyst reasons to its own ` +
+      `conclusion, and agreement with the rule means nothing if it was shown the rule`,
+    );
+  }
+
+  // And the prompt says so out loud, so a reader of the published prompt can check it.
+  assert.match(PASS1_SYSTEM, /WHAT YOU ARE NOT GIVEN/);
+  assert.match(PASS1_SYSTEM, /nor the mechanical stoplight score/);
+});
 
 const PASS2 = `NOTIFICATION: New results are in: augmentation reading, no fresh weakness in exposed hiring
 TAGLINE: parked gap, quiet month
-DISSENT: no
-DISSENT_NOTE: NONE
 FULL_ANALYSIS:
 The long version, first paragraph.
 
@@ -40,8 +80,6 @@ test("a missing full analysis is tolerated, not fatal", () => {
   // publish nothing — the strictly worse outcome.
   const withoutFa = `NOTIFICATION: x
 TAGLINE: y
-DISSENT: no
-DISSENT_NOTE: NONE
 PUBLISHED_NOTE:
 The note.`;
   const r = parsePass2(withoutFa);
@@ -53,20 +91,27 @@ The note.`;
 test("a missing published note is still fatal", () => {
   const withoutNote = `NOTIFICATION: x
 TAGLINE: y
-DISSENT: no
 FULL_ANALYSIS:
 Only the long one.`;
   assert.equal(parsePass2(withoutNote), null);
 });
 
-test("dissent is captured alongside the two documents", () => {
-  const dissenting = PASS2
-    .replace("DISSENT: no", "DISSENT: yes")
-    .replace("DISSENT_NOTE: NONE", "DISSENT_NOTE: DISPLACEMENT, on the parked exposed-vs-control gap");
-  const r = parsePass2(dissenting);
-  assert.equal(r.dissented, true);
-  assert.match(r.dissentNote, /^DISPLACEMENT/);
+test("a volunteered dissent field is ignored, not honoured", () => {
+  // Pass 2 is no longer asked whether it agrees with pass 1; divergence is computed
+  // downstream from values the model never saw. A model that emits the old fields
+  // anyway must not get them acted on, or the retired question is back in force
+  // without the prompt ever asking it.
+  const volunteered = PASS2.replace(
+    "TAGLINE: parked gap, quiet month",
+    "TAGLINE: parked gap, quiet month\nDISSENT: yes\nDISSENT_NOTE: DISPLACEMENT, on the parked gap",
+  );
+  const r = parsePass2(volunteered);
+  assert.ok(r);
+  assert.equal(r.dissented, undefined, "the parser must not surface a dissent flag");
+  assert.equal(r.dissentNote, undefined, "the parser must not surface a dissent note");
+  // And the documents still separate correctly around the stray labels.
   assert.match(r.fullAnalysis, /^The long version/);
+  assert.match(r.publishedNote, /^The short version/);
 });
 
 test("counts are reported and carry no pass/fail verdict", () => {

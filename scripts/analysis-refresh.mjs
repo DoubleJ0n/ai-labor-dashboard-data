@@ -6,8 +6,11 @@
 // the news package. No prior verdict. It picks AUGMENTATION or DISPLACEMENT (or
 // CONFOUNDED with a named cause), inverts every panel it leans on, and pre-registers
 // a falsifier on a fixed 90-day horizon. Its reasoning log is uncapped and stored,
-// never shown. PASS 2 writes the 400-500 word published note and the notification
-// line. Pass 2 cannot alter the verdict; disagreement is logged instead.
+// never shown. PASS 2 writes the published note, the full analysis and the
+// notification line, at a length proportional to what changed. Pass 2 cannot alter
+// the verdict, and as of 2026-07-28 it is no longer asked whether it agrees with
+// one: divergence is COMPUTED here, after both readings exist, against mechanical
+// values neither pass ever saw. See computeDissent.
 //
 // The mechanical stoplight is computed alongside and LOGGED, never sent to the
 // model: the rule-based lights have to be able to visibly disagree with the
@@ -272,6 +275,10 @@ if (dataIntegrity.ok === false && !SIDE_MODE) {
     confoundedPathway: "data_integrity", namedConfounder: dataIntegrity.reason,
     falsifier: null,
     falsifierPlain: "a clean data release that restores the missing series and leaves prior months unrevised",
+    // No divergence to record. This verdict IS the mechanical one — no model ran, so
+    // there is no independent reading for it to differ from, and computing a
+    // comparison of the mechanics against themselves would always return agreement
+    // and make the record look better corroborated than it is.
     dissent: null, analysis: text, compliance: null,
   }, null); // no model ran, so there are no passes and no usage to record
   console.log(`analyst: data integrity failed (${dataIntegrity.reason}); logged CONFOUNDED without a model call`);
@@ -403,7 +410,7 @@ if (AB_RUN) {
       console.log(`verdict     : ${r.pass1.verdict}`);
       console.log(`tag line    : ${r.pass2.tagLine}`);
       console.log(`notification: ${r.pass2.notificationLine} (${r.pass2.notificationLine.length} chars)`);
-      console.log(`pass 2 dissent: ${r.pass2.dissented ? r.pass2.dissentNote : "no"}`);
+      console.log(`divergence  : ${computeDissent(r.pass1.verdict) ?? "none — both mechanical readings agree"}`);
       // Counts are DESCRIPTIVE now. Length is proportional to what changed and the
       // number ceiling is retired, so there is no band to be outside of.
       console.log(`note        : ${r.compliance.words} words (${r.compliance.lengthBand}), ${r.compliance.numbers} numbers`);
@@ -450,7 +457,9 @@ appendEntry(
     namedConfounder: result.pass1.confounder,
     falsifier: result.pass1.falsifier,
     falsifierPlain: result.pass1.falsifierPlain,
-    dissent: result.pass2.dissented ? result.pass2.dissentNote : null,
+    // Computed from the finished verdict against readings the model never saw, not
+    // asked of the model. See computeDissent.
+    dissent: computeDissent(result.pass1.verdict),
     analysis: result.text,
     // The longer document, shown behind the "Full analysis" control. NOT the
     // reasoning log, which stays out of the app entirely.
@@ -464,7 +473,7 @@ appendEntry(
 console.log(
   `analyst: ${result.pass1.verdict} "${result.pass2.tagLine}" (${dataMonth}); ` +
   `mechanical ${mechanical.mechanicalState}` +
-  (result.pass2.dissented ? "; PASS 2 DISSENTED" : "") +
+  (computeDissent(result.pass1.verdict) ? "; DIVERGES FROM THE MECHANICS" : "") +
   `; note ${result.compliance.words}w (${result.compliance.lengthBand})/${result.compliance.numbers}n` +
   `; analysis ${result.analysisStats.present ? `${result.analysisStats.words}w` : "ABSENT"}` +
   ` — usage (log only): ${result.usage.totalInputTokens} in / ${result.usage.totalOutputTokens} out, ` +
@@ -490,6 +499,73 @@ function agreementWith(state, verdict) {
 }
 
 /**
+ * The same comparison against the older rule-based chain.
+ *
+ * MIXED_TRANSITIONING is deliberately not comparable rather than mapped to a side.
+ * It is the chain's explicit fence — the bucket it lands in when one signal fires,
+ * or when a gate holds a BREAK back — so forcing it onto AUGMENTATION or
+ * DISPLACEMENT would manufacture an agreement or a disagreement that the rule never
+ * asserted, and the whole value of this record is that it only reports differences
+ * somebody actually took a position on.
+ */
+function chainAgreementWith(mechanicalVerdict, verdict) {
+  const implied = {
+    AUGMENTATION_HOLDING: "AUGMENTATION",
+    DISPLACEMENT_EMERGING: "DISPLACEMENT",
+    CONFOUNDED: "CONFOUNDED",
+  }[mechanicalVerdict];
+  if (!implied) return "not comparable";
+  return implied === verdict ? "agrees" : "diverges";
+}
+
+/**
+ * DISSENT, COMPUTED — never asked for and never self-reported.
+ *
+ * Pass 2 used to be asked whether it disagreed with pass 1, and the answer was
+ * written here. That question is gone: a model holding a candidate answer and asked
+ * to endorse it takes the cheap path and assembles support, which is the exact
+ * failure the blind first pass exists to prevent. So the divergence is measured
+ * after both readings exist, in code, from values neither pass ever saw.
+ *
+ * NEITHER MECHANICAL READING IS AN ANSWER KEY, and the wording here has to keep
+ * saying so. The four-corner grid especially is one chart among many and a noisy
+ * one: its horizontal axis has not changed quadrant in years, so its colour is
+ * decided almost entirely by a single economy-wide series crossing zero, which it
+ * did eight times in the last eighteen months. A verdict that differs from it has
+ * not thereby been graded wrong. Both are computed on the same data by different
+ * routes, and the difference is the thing worth recording.
+ *
+ * Returns null when nothing diverges, so the app's dissent block stays absent
+ * rather than rendering a paragraph that says everything agreed.
+ */
+function computeDissent(verdict) {
+  const vsGrid = agreementWith(paired.state, verdict);
+  const vsChain = chainAgreementWith(mechanical.verdict, verdict);
+  const diverging = [];
+  if (vsGrid === "diverges") {
+    diverging.push(
+      `the four-corner grid places this month at ${paired.state} ` +
+      `(${paired.attribution.label}, ${paired.reabsorption.label})`,
+    );
+  }
+  if (vsChain === "diverges") {
+    diverging.push(
+      `the rule-based chain reads ${mechanical.mechanicalState} ` +
+      `with ${mechanical.breadth} of three differentials firing`,
+    );
+  }
+  if (diverging.length === 0) return null;
+  return (
+    `The analyst read ${verdict} from the panels without being shown either mechanical ` +
+    `reading, and ${diverging.join(", while ")}. ` +
+    `Recorded, not resolved: these are different routes through the same data, and ` +
+    `neither one overrules the other. The grid in particular turns on a single ` +
+    `economy-wide series sitting near zero, so a month's disagreement with it is ` +
+    `ordinary rather than a mark against either reading.`
+  );
+}
+
+/**
  * Append to BOTH logs. The dissent log is the app's timeline (public, small); the
  * runs log is the audit record (both passes verbatim, usage, cost, input hash).
  * Append-only in both: a revised month adds an entry, it never edits one.
@@ -507,13 +583,23 @@ function appendEntry(entry, result) {
       state: paired.state,
       attributionZ: paired.attribution.z,
       attributionLabel: paired.attribution.label,
-      reabsorptionZ: paired.reabsorption.z,
+      // The reabsorption axis has no z. It is a 12-month CHANGE read against raw
+      // zero, deliberately, so there is no distribution to score against and no
+      // field called `z` on that object — this line read `paired.reabsorption.z`
+      // and had therefore been logging `undefined` in every entry since the axis
+      // was re-registered. Named for what it actually is.
+      reabsorptionEmploymentFalling: paired.reabsorption.employmentFalling,
       reabsorptionLabel: paired.reabsorption.label,
     },
     // Divergence is the reviewable signal: the analyst reasoned over the same two
     // axes without being told the answer, so a mismatch is worth looking at in
     // either direction. Recorded as a flag rather than a judgement.
     pairedStateAgreesWithVerdict: agreementWith(paired.state, entry.verdict),
+    // Both mechanical readings are recorded side by side and neither is privileged.
+    // The grid is the newer discriminator and the chain is the older stoplight; they
+    // can disagree with the analyst and with each other, and which of the three is
+    // right on any given month is not something this file is entitled to decide.
+    chainAgreesWithVerdict: chainAgreementWith(mechanical.verdict, entry.verdict),
     inputsFingerprint: inputHash,
     // For heavy-revision detection on a later run.
     keyNumbers: {
@@ -641,6 +727,8 @@ function appendEntry(entry, result) {
             // placement cannot.
             pairedState: paired,
             pairedStateAgreesWithVerdict: agreementWith(paired.state, entry.verdict),
+            chainAgreesWithVerdict: chainAgreementWith(mechanical.verdict, entry.verdict),
+            computedDissent: entry.dissent ?? null,
             // Opened unresolved; a later run settles it. Storing the slot now means
             // the shape is present from the first run rather than appearing later
             // and making early runs look like they were never scored.
@@ -661,7 +749,7 @@ function appendEntry(entry, result) {
                   // The reasoning log lives HERE and only here: stored for audit,
                   // never published to the pool and never shown in the app.
                   pass1: { verdict: result.pass1.verdict, confidence: result.pass1.confidence, confidenceBasis: result.pass1.confidenceBasis, falsifier: result.pass1.falsifier, falsifierPlain: result.pass1.falsifierPlain, reasoningLog: result.pass1.reasoningLog, raw: result.rawPass1 },
-                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, dissented: result.pass2.dissented, dissentNote: result.pass2.dissentNote, publishedNote: result.pass2.publishedNote, fullAnalysis: result.pass2.fullAnalysis, raw: result.rawPass2 },
+                  pass2: { tagLine: result.pass2.tagLine, notificationLine: result.pass2.notificationLine, publishedNote: result.pass2.publishedNote, fullAnalysis: result.pass2.fullAnalysis, raw: result.rawPass2 },
                 }
               : null,
             usage: result?.usage ?? null,

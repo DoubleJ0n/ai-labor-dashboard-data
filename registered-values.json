@@ -17,6 +17,8 @@
   "reabsorptionChangeMonths": 12,
   "reabsorptionFastChangeMonths": 3,
   "attributionAxisZ": 0,
+  "attributionSustainMonths": 3,
+  "registered_2026_07_28_attribution_must_hold": "NEW. The attribution (horizontal) axis of the four-corner grid now requires the exposed-minus-control gap to sit at or past its line for attributionSustainMonths consecutive readings before the right-hand quadrants are available. Reason: the axis was established by a SINGLE month past the line, and the gap has been past that line continuously since 2023, so the AI-specific axis never changed the quadrant. Every state change on the grid came from the vertical axis - a 12-month change in prime-age employment which crossed its own line eight times in eighteen months and which an ordinary recession moves with no AI content at all. The cyclical half was deciding the discriminator by itself. Until the gap has held, a deteriorating aggregate now lands in NOT_AI, which is what an ordinary downturn is. Chosen as a run rather than a 12-month rate-of-change test: a year is too long to wait for an early-warning display on AI timescales, and 'is the gap getting worse' is a different question from 'is the gap established'. Three matches the app's PAIRED_STATE_PERSISTENCE_MONTHS so the grid and the card confirm on the same timescale. This does NOT move the current reading - the gap has held wide for the whole 24-month path - and it does not touch the stoplight.",
   "reabsorptionReferenceYear": 2019,
   "reabsorption": {
     "primeAgeEpop": "LNS12300060",
@@ -25,9 +27,15 @@
     "quitsRate": "JTSQUR",
     "u6": "U6RATE",
     "u3": "UNRATE",
+    "layoffsRate": "JTSLDR",
     "primeAgeEmployed": "LNS12000060",
     "primeAgePopulation": "LNU00000060"
   },
+  "individualWageGrowth": {
+    "jobStayer": "FRBATLWGT12MMUMHWGJST",
+    "jobSwitcher": "FRBATLWGT12MMUMHWGJSW"
+  },
+  "added_2026_07_28_series": "THREE NEW SERIES, every id verified against FRED on 2026-07-29 before wiring, per the standing rule that an unverified series id never gets wired. Titles as FRED returned them. JTSLDR: 'Layoffs and Discharges: Total Nonfarm, Rate, Monthly, Seasonally Adjusted', 2000-12..2026-05 - added as a fourth secondary readout on the reabsorption panel to separate a FROZEN labour market (weak hiring, normal layoffs, the burden on entrants) from a CYCLICAL one (weak hiring, elevated layoffs, firms shedding incumbents); nothing on the dashboard previously distinguished these and the reabsorption headline reads identically on both. FRBATLWGT12MMUMHWGJST and FRBATLWGT12MMUMHWGJSW: '12-Month Moving Average of Unweighted Median Hourly Wage Growth: Job Stayer' and ': Job Switcher', percent change from year ago, monthly, NSA, 1997-12..2026-06 - the Atlanta Fed Wage Growth Tracker, which follows the SAME INDIVIDUALS twelve months apart so composition cannot move it. It is the composition-immune control on the exposed-vs-control pay panel, which is an industry average and would rise on a hiring freeze alone. Both wage series are missing October 2025 at source, the same CPS gap that removes that month from LNS12300060. None of the three votes, gates or carries a threshold.",
   "prodBandLowPct": 2.7,
   "prodBandHighPct": 3.4,
   "prodBreakRunQuarters": 2,
@@ -80,5 +88,5 @@
   ],
   "reabsorptionAxisLine": 0,
   "earlyWarningExposedJobLossPct": -1,
-  "recessionVetoRetired": "2026-07-27. The inverted-curve downgrade is REMOVED from the mechanical chain. It contradicted the rule the analyst is given, that a forward-looking price cannot exculpate weakness already in the data. The macro reading is still computed, still shown and still sent to the analyst; it no longer decides. Verdicts published before this date could be held down by the curve and are not comparable on that axis."
+  "recessionVetoRetired": "2026-07-27 in the app, 2026-07-29 in the data pipeline, which was the last place still applying it. The inverted-curve downgrade is REMOVED from the mechanical chain and its recession_veto CONFOUNDED pathway is deleted. Two reasons. It contradicted the rule the analyst is given, that a forward-looking price cannot exculpate weakness already in the data. And more seriously it assumed the recession must be the confounder: if AI-driven labour weakness is itself part of what tips the economy into a recession, the curve is downstream of the thing being measured, and vetoing on it suppresses the signal precisely in the scenario this dashboard exists to catch. The macro reading is still computed, still shown as Link 4 and still sent to the analyst, where weighing cyclical against AI-shaped across several panels is a judgement rather than a boolean; it is also still recorded in each run's factors so a later reader can check whether the veto would have been right. Verdicts published before this date could be held down by the curve and are not comparable on that axis."
 }

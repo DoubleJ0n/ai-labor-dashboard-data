@@ -11,8 +11,21 @@
 //
 //   PASS 2 — RECONCILIATION. Receives pass 1's output plus last run's verdict,
 //     and writes the three reader-facing outputs: the notification line, the
-//     published note, and the full analysis. It CANNOT overturn pass 1's verdict;
-//     disagreement goes to the dissent log.
+//     published note, and the full analysis. It CANNOT overturn pass 1's verdict.
+//
+// DISSENT IS COMPUTED, NEVER SELF-REPORTED (2026-07-28). Pass 2 used to be asked
+// whether it disagreed with pass 1, and that question is now gone from the prompt
+// and from the parser. Asking the analyst to rate its own agreement invites the
+// failure the blind split exists to prevent: once a model is holding a candidate
+// answer and asked to endorse it, the cheapest path is to assemble support rather
+// than to read. So the divergence is measured afterwards, in code, by diffing the
+// published verdict against the mechanical readings computed on the same data.
+//
+// The mechanical readings are NOT an answer key. The four-corner grid in
+// particular is one noisy chart among many — its horizontal axis has not changed
+// quadrant in years, so its colour is decided almost entirely by a single
+// economy-wide series wobbling across zero. Divergence from it is recorded as an
+// observation about two instruments, not as a mark against the analyst.
 //
 // LENGTH IS PROPORTIONAL TO WHAT CHANGED, NOT FIXED. The old 400-500 word band is
 // retired. A month where nothing moved is correctly 100-150 words and saying so
@@ -62,6 +75,13 @@ enough to have a clean baseline. Absent is not zero and it is not normal: a pane
 does not report a deviation is telling you it cannot, so do not treat its silence as a
 reading either way.
 
+WHAT YOU ARE NOT GIVEN
+You do not receive the verdict from any previous run, nor the mechanical stoplight score
+for this one. Both are withheld so that agreement between the rule and your reading means
+something; had you seen the rule first, it would not. If either appears in your payload
+anyway, disregard it. The list of what moved since the last run is data and you should use
+it. The conclusion drawn from it last time is not.
+
 THE READING
 Choose AUGMENTATION or DISPLACEMENT. Pick a side. CONFOUNDED is available only when you
 can name a specific competing cause AND point to the series in the payload that supports
@@ -75,6 +95,17 @@ softened into a non-answer. So the forced choice costs you nothing: choose the s
 evidence points to even when it barely points, and let the rating carry the weakness.
 Early in the life of this dashboard a directional verdict at LOW confidence should be the
 ordinary result, not an unusual one.
+
+Nor is picking a side the same as having found a story. Quiet data is the most common
+condition this instrument will ever be in, and being required to choose creates pressure to
+assemble a narrative around a choice that barely had evidence behind it. When the panels
+have not moved, say so at LOW.
+
+A CHANGED VERDICT IS THE INSTRUMENT WORKING
+This is a reading of the present, not a forecast. Whether the gap eventually closes is out
+of scope and not answerable from this data; an open gap now is a real finding whatever
+follows it. A reading that reverses next quarter has not thereby been shown wrong, and the
+overturn machinery below is what records that honestly.
 
 AUGMENTATION WORKING IS NOT THE SAME CLAIM AS DISPLACEMENT NOT STARTED
 State plainly which one you are seeing. Augmentation working needs positive evidence that
@@ -93,10 +124,14 @@ displacement would.
 Before concluding displacement, check whether the aggregate labor market
 absorbed the outflow. The reabsorption panel is where that lives: a headline
 measure that places the axis, plus supporting readouts for long-term
-unemployment, hiring against quitting, and the underemployment gap. That panel
-states which of them decides and which are context, and it binds. If the gap is
-widening while absorption holds steady, workers are moving rather than being
-removed.
+unemployment, hiring against quitting, the pace of layoffs, and the
+underemployment gap. That panel states which of them decides and which are
+context, and it binds. If the gap is widening while absorption holds steady,
+workers are moving rather than being removed.
+
+Absorption is about whether people land, not whether jobs exist somewhere. Net job creation
+elsewhere does not establish that the people who left exposed work are the ones filling it,
+and landing at substantially worse pay is not landing.
 
 THREE POPULATIONS, NEVER SILENTLY MIXED
 Every figure belongs to exactly one of: exposed industries, control industries, or
@@ -105,18 +140,27 @@ evidence about exposed industries. Do not pair an economy-wide number with an
 exposed-industry number in the same argument without flagging that they cover different
 groups of workers.
 
+COMPOSITION CHANGES WHO IS IN THE AVERAGE
+A group can also change underneath its own label, and then an average over it moves with no
+change in any individual's experience. That effect is largest exactly when hiring patterns
+are shifting, which is the condition this dashboard exists to detect.
+
+So before citing any per-worker average as evidence about workers, say whether the
+population under it could have changed. Prefer a panel that follows the same individuals
+over an industry aggregate covering the same ground. Where only the aggregate exists, treat
+the composition question as unresolved and let it weaken the panel rather than reporting
+the figure at face value.
+
 THE 2021-22 HIRING CORRECTION IS A STANDING NON-AI EXPLANATION
-Exposed industries (information, professional and business services, finance) hired
-heavily in 2021-22 and have been unwinding it since. That correction predates current AI
-tools and is available as a non-AI account of weakness in this group. Weigh it AGAINST the
-displacement reading, not alongside it. Say what it explains and what residual it leaves.
+Exposed industries hired heavily in 2021-22 and have been unwinding it since, which
+predates current AI tools. Weigh it AGAINST the displacement reading, not alongside it. Say
+what it explains and what residual it leaves.
 
 THE YIELD CURVE CANNOT CLEAR THE BUSINESS CYCLE FOR WEAKNESS ALREADY OBSERVED
-The curve is forward-looking: it prices expected conditions, not past ones. Do not use it
-to exculpate weakness that is already in the data. The correct test is contemporaneous: if
-the weakness were general macro, the control industries would be weak too. Run that test
-on the control panels and report what you find, including when the finding cuts against
-your own verdict.
+It prices expected conditions, not past ones, so do not use it to exculpate weakness
+already in the data. The contemporaneous test is the right one: if the weakness were
+general macro, the control industries would be weak too. Run that on the control panels
+and report what you find, including when it cuts against your own verdict.
 
 PANEL VINTAGE
 Every panel carries an as_of date. State it whenever the panel is load-bearing in your
@@ -174,8 +218,19 @@ other case rather than a straw man you can knock down. You are not being given a
 alternative explanations to work through, because a list creates closure: the model works
 the list, finds nothing left, and stops. Generate the counter-readings yourself.
 
-Reason from the data in front of you. Do not reach for economics literature or recalled
-findings; the numbers here are the evidence.
+Reason from the data in front of you. Use what you know about how labor markets work, but
+do not substitute a remembered finding for reading these numbers: a published conclusion is
+not evidence about this quarter, and a result you half-recall is not evidence at all.
+
+PANELS THAT DO NOT CONTRIBUTE
+Some panels are shown for context and carry a panel_role saying they do not feed the
+verdict. Read them, and note anything interesting, but do not count them as support. In
+particular, a capability or model-comparison panel speaks to what tools can do and never to
+what happened to workers; it cannot corroborate a labor reading in either direction.
+
+YOUR TRAINING ENDS BEFORE THIS PAYLOAD DOES
+Where the series and your prior expectations disagree, the series win. The absence of a
+shock you remember is not evidence that none occurred.
 
 EXTERNAL CONTEXT
 Scan the news package for events that could plausibly move the labor data. For each, reason
@@ -189,6 +244,10 @@ disclaimer.
              AI-heavy industries is pulling ahead."
 
 News generates hypotheses. News never moves the verdict. The verdict moves on series values.
+
+Note the asymmetry: employers have reason to attribute headcount decisions to AI and
+coverage inherits it, so a report doing so is a hypothesis to test against the series,
+never corroboration. News suggesting a non-AI cause carries no such incentive.
 
 UNCERTAINTY
 Hedge where a hedge is warranted. "I suspect", "this could be", "I can't tell from this
@@ -311,20 +370,20 @@ evidence.
 
 The notification cannot lead with what changed, because nothing has. Lead with the
 verdict and the single strongest reason for it instead. Everything else the
-notification section says still applies, including what kinds of number it may carry.
-
-DISSENT WORKS NORMALLY ON A FIRST RUN. It records whether you disagree with your own
-blind first-pass verdict, and that verdict exists whether or not an archive does. If
-you think pass 1 got it wrong, say so in the dissent fields exactly as you would on any
-other run. Only the comparison against a PREVIOUS RUN is unavailable here.`;
+notification section says still applies, including what kinds of number it may carry.`;
 
 export const PASS2_SYSTEM = `You are the same analyst, writing the piece the public actually reads.
 
 You are shown your own blind first-pass verdict and reasoning, plus what was concluded last
 time. YOU CANNOT CHANGE THE VERDICT. It was decided on the data without reference to
-history, which is how it should have been decided. If you think it is wrong, say so in the
-DISSENT fields; that gets logged and scored against later data, which is worth more than a
-quietly revised verdict.
+history, which is how it should have been decided.
+
+You are also not asked whether you agree with it. That question used to be here and was
+removed, because asking a model holding a candidate answer to rate its own agreement
+rewards assembling support over reading. Divergence is measured afterwards in code, by
+comparing the published verdict against the mechanical readings computed on the same
+data. Your job here is to write the reading up faithfully, including the parts of it that
+sit badly.
 
 THE READER
 Someone who has never seen these statistics before. The dashboard tab serves people who
@@ -481,8 +540,6 @@ seen in context or corrected.
 OUTPUT - exactly this line-delimited format, nothing before the first label:
 NOTIFICATION: the one-sentence notification line
 TAGLINE: about four words naming this run's tell
-DISSENT: yes or no
-DISSENT_NOTE: if yes, which verdict you would have picked and the series that would have driven it, on one line; otherwise NONE
 FULL_ANALYSIS:
 <the full analysis; plain text; ends at the PUBLISHED_NOTE label>
 PUBLISHED_NOTE:
@@ -666,7 +723,7 @@ export function parsePass2(text) {
   const note = text.slice(noteIdx).replace(/^\s*PUBLISHED_NOTE:\s*\n?/i, "").trim();
   if (!note) return null;
 
-  // FULL_ANALYSIS sits between DISSENT_NOTE and PUBLISHED_NOTE, so it is bounded
+  // FULL_ANALYSIS sits between TAGLINE and PUBLISHED_NOTE, so it is bounded
   // on both sides rather than running to end-of-text. Absent is tolerated rather
   // than fatal: the note is what the dashboard needs to render, and failing the
   // whole run over a missing secondary document would burn a paid call and publish
@@ -676,13 +733,14 @@ export function parsePass2(text) {
     ? text.slice(faIdx, noteIdx).replace(/^\s*FULL_ANALYSIS:\s*\n?/i, "").trim() || null
     : null;
 
-  const dissented = /^\s*DISSENT:\s*yes\b/im.test(text);
-  const dn = grab("DISSENT_NOTE");
+  // NO DISSENT FIELDS. Pass 2 is no longer asked whether it agrees with pass 1, so
+  // there is nothing here to read. Anything the model volunteers under a DISSENT
+  // label is deliberately ignored rather than parsed: a field that is not requested
+  // must not become a field that is silently honoured, or the question is back
+  // without the prompt saying so.
   return {
     notificationLine: notification,
     tagLine,
-    dissented,
-    dissentNote: dissented && dn && !/^none$/i.test(dn) ? dn : null,
     publishedNote: note,
     fullAnalysis,
   };

@@ -193,6 +193,19 @@ export const REABSORPTION = {
   // U-6 minus U-3: landing, but underemployed. UNRATE is already in the pool.
   u6: "U6RATE",
   u3: "UNRATE",
+  // Layoffs and Discharges: Total Nonfarm, rate (SA, monthly, 2000-12+).
+  //
+  // Added 2026-07-28 to separate STRUCTURAL from CYCLICAL, which nothing on the
+  // dashboard previously distinguished. Low hires with NORMAL layoffs is a frozen
+  // market: firms are not replacing people who leave, and the pain falls on whoever
+  // is trying to get in. Low hires with ELEVATED layoffs is an ordinary cycle:
+  // firms are shedding. Those are different economies and the reabsorption axis
+  // reads the same on both, because a hires-minus-quits spread cannot tell you
+  // which side of the ledger moved.
+  //
+  // Verified against FRED 2026-07-29: "Layoffs and Discharges: Total Nonfarm,
+  // Rate, Monthly, Seasonally Adjusted", 2000-12 .. 2026-05.
+  layoffsRate: "JTSLDR",
   // The two halves of the headline ratio, so a move can be DECOMPOSED.
   //
   // primeAgeEpop is employed/population, and a ratio can fall two ways: employment
@@ -292,6 +305,36 @@ export const REABSORPTION_FAST_CHANGE_MONTHS = 3;
 // print is the analyst's job. The trigger lives in the stoplight instead, below.
 export const ATTRIBUTION_AXIS_Z = 0.0; // gap at or wider than its own 2010s norm
 
+// HOW LONG THE GAP MUST STAY WIDE BEFORE THE GRID WILL CALL ANYTHING AI-SHAPED.
+// New 2026-07-28, and it is a public registration rather than a tweak.
+//
+// The problem it fixes: the horizontal axis was established by a SINGLE month at or
+// past its line, and the gap has sat past that line continuously since 2023. So the
+// horizontal axis never changed the quadrant, and every colour change on the grid
+// came from the vertical one — a 12-month change in prime-age employment sitting
+// near zero, which crossed it eight times in the last eighteen months. That axis is
+// economy-wide by construction. An ordinary recession moves it with no AI content at
+// all, and it was the only thing deciding whether the card said "jobs are moving" or
+// "jobs are going away". A grid whose AI-specific axis cannot change the answer is
+// not discriminating; it is a cyclical indicator wearing a 2x2.
+//
+// So the attribution axis now has to HOLD. Three consecutive readings at or past the
+// line before the gap counts as established, and until it does the vertical axis on
+// its own lands in NOT_AI — an ordinary downturn — which is exactly what a weak
+// aggregate with no confirmed exposed-industry divergence is.
+//
+// Why three and not a 12-month rate of change: a year is too long to wait for an
+// early-warning display on AI timescales, and a change test asks a different
+// question (is it getting worse) from the one this axis is for (is it diverging).
+// Three months is the shortest run that cannot be produced by one noisy print, and
+// it matches PAIRED_STATE_PERSISTENCE_MONTHS in the app so the grid and the card
+// speak about confirmation on the same timescale.
+//
+// NOTE WHAT THIS DOES NOT CHANGE: the gap is currently wide AND has been for years,
+// so today's reading is unaffected. This is a guard against a future month, not a
+// retune to move the present one.
+export const ATTRIBUTION_SUSTAIN_MONTHS = 3;
+
 // Vertical: the 12-month change in prime-age employment-population, against zero.
 // Falling at all counts as deterioration.
 //
@@ -318,6 +361,37 @@ export const EARLY_WARNING_EXPOSED_JOB_LOSS_PCT = -1.0;
 //
 // This state is COMPUTED AND STORED, and it is never sent to the analyst. See
 // analyst/pairedState.mjs for that boundary and why it is drawn there.
+
+// --- Individual-level wage growth: stayers against switchers (new 2026-07-28) ---
+//
+// THE COMPOSITION-IMMUNE CONTROL. Every other pay measure on this dashboard is an
+// industry AVERAGE, and an average over a group moves when the group changes even
+// if nobody's pay does. That is not a hypothetical here: if entry-level hiring in
+// exposed industries stops, the surviving exposed workforce skews senior and
+// average pay growth RISES for a reason that has nothing to do with anyone's
+// bargaining power — and rising exposed pay is currently the strongest single piece
+// of evidence against the displacement reading. The dashboard could not tell the two
+// apart, so this is the panel that can.
+//
+// The Atlanta Fed tracker follows THE SAME INDIVIDUALS twelve months apart and
+// reports the median of their wage changes. Composition cannot move it, because the
+// unit of observation is a person rather than a payroll total.
+//
+// THE STAYER/SWITCHER SPREAD IS THE SECOND READING, and it is the cleanest thing
+// here on whether people are landing WELL. Switchers ahead of stayers means moving
+// jobs pays, so mobility is opportunity-driven. Switchers behind stayers means people
+// are moving and taking less, which is what forced mobility looks like — and that is
+// exactly the pattern a displacement episode absorbed into worse work would produce
+// while the headline employment count held up.
+//
+// Both ids verified against FRED 2026-07-29 (titles as returned):
+//   FRBATLWGT12MMUMHWGJST — "12-Month Moving Average of Unweighted Median Hourly
+//     Wage Growth: Job Stayer", percent change from year ago, monthly, NSA, 1997-12+
+//   FRBATLWGT12MMUMHWGJSW — the same for "Job Switcher", 1997-12+
+export const INDIVIDUAL_WAGE_GROWTH = {
+  jobStayer: "FRBATLWGT12MMUMHWGJST",
+  jobSwitcher: "FRBATLWGT12MMUMHWGJSW",
+};
 
 // --- Macro-regime gate series (the recession-veto inputs) ---
 export const MACRO_SPREAD_IDS = ["T10Y2Y", "T10Y3M"];
