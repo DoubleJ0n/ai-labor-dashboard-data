@@ -6,7 +6,7 @@ name: adoption-refresh
 # never silently mis-extracting.
 on:
   schedule:
-    - cron: "10 6 * * 1" # Mondays 06:10 UTC
+    - cron: "10 14 * * *" # 14:10 UTC daily
   workflow_dispatch:
 
 permissions:

@@ -22,7 +22,10 @@
 
 // Thresholds — registered once in config.mjs (audit-2026-07 finding 6);
 // re-exported here for existing importers. Pre-registered, do-not-move.
-import { CHAIN_BREADTH_MIN, PROD_BAND_LOW, PROD_BAND_HIGH } from "../config.mjs";
+import {
+  CHAIN_BREADTH_MIN, PROD_BAND_LOW, PROD_BAND_HIGH,
+  EARLY_WARNING_EXPOSED_JOB_LOSS_PCT,
+} from "../config.mjs";
 export { WATCH_Z, BREAK_Z, PROD_BAND_LOW, PROD_BAND_HIGH } from "../config.mjs";
 
 export const VERDICTS = {
@@ -83,18 +86,39 @@ export const DIRECTIONAL = new Set(
  * with a DEPLOYMENT_GATE role saying it can permit a reading and never cause one. What
  * it no longer does is hold a verdict down.
  *
+ * THE EARLY-WARNING LINE, added here 2026-07-29 to match the app, which has had it
+ * since before this file did. Exposed-industry employment falling
+ * EARLY_WARNING_EXPOSED_JOB_LOSS_PCT or more year-over-year forces amber on its own,
+ * whatever the differentials are doing.
+ *
+ * It is deliberately an ABSOLUTE level rather than a deviation. Every other test here
+ * asks "is this unusual for this series", which is the right question for spotting a
+ * change in regime and the wrong one for noticing that people are losing jobs right
+ * now: a z-score can sit inside its band while employment falls outright, because the
+ * band is built from the series' own history. This asks the plainer question.
+ *
+ * Without it the two repositories disagreed. The app forced amber on this line and the
+ * pipeline did not, so at breadth zero with the line crossed the Dashboard tab would
+ * have shown amber while the Analyst tab showed green — and the line IS crossed, at
+ * -1.3% today. Same rule, same registered constant, both places.
+ *
  * @param {("steady"|"watch"|"break")[]} laborVoteStates the confounder-robust
  *   differentials that vote (exposed-vs-control jobs and wages)
  * @param {boolean} capabilityOpen METR shows measured task horizons (permissive gate)
- * @returns {{ state: "STEADY"|"WATCH"|"BREAK", breadth: number }}
+ * @param {number|null} exposedJobGrowthPct year-over-year employment growth across the
+ *   exposed industries, in percent. Null when unavailable, which must not read as zero.
+ * @returns {{ state: "STEADY"|"WATCH"|"BREAK", breadth: number, earlyWarning: boolean }}
  */
-export function chainState({ laborVoteStates, capabilityOpen }) {
+export function chainState({ laborVoteStates, capabilityOpen, exposedJobGrowthPct = null }) {
   const breadth = laborVoteStates.filter((s) => s && s !== "steady").length;
+  const earlyWarning =
+    exposedJobGrowthPct != null && exposedJobGrowthPct <= EARLY_WARNING_EXPOSED_JOB_LOSS_PCT;
   let state;
-  if (breadth === 0) state = "STEADY";
+  if (breadth === 0 && !earlyWarning) state = "STEADY";
+  else if (breadth === 0) state = "WATCH"; // the early-warning line alone
   else if (breadth >= CHAIN_BREADTH_MIN && capabilityOpen) state = "BREAK";
   else state = "WATCH"; // one signal firing
-  return { state, breadth };
+  return { state, breadth, earlyWarning };
 }
 
 /**
@@ -136,10 +160,13 @@ export function gainsVisible({ productivityYoY, aei }) {
 export function deriveVerdict(inputs) {
   const {
     laborVoteStates, recessionVeto, capabilityOpen, adoptionRising,
-    productivityYoY, aei, dataIntegrity = { ok: true, reason: null },
+    productivityYoY, aei, exposedJobGrowthPct = null,
+    dataIntegrity = { ok: true, reason: null },
   } = inputs;
 
-  const { state: mechanicalState, breadth } = chainState({ laborVoteStates, capabilityOpen });
+  const { state: mechanicalState, breadth, earlyWarning } = chainState({
+    laborVoteStates, capabilityOpen, exposedJobGrowthPct,
+  });
   const gains = gainsVisible({ productivityYoY, aei });
 
   let verdict;
@@ -165,12 +192,13 @@ export function deriveVerdict(inputs) {
     verdict,
     mechanicalState,
     breadth,
+    earlyWarning,
     confoundedPathway,
     namedConfounder,
     gainsVisible: gains,
     factors: {
       laborVoteStates, recessionVeto, capabilityOpen, adoptionRising,
-      productivityYoY, aei, dataIntegrity,
+      productivityYoY, aei, exposedJobGrowthPct, dataIntegrity,
     },
   };
 }

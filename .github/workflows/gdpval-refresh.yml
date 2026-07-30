@@ -9,7 +9,7 @@ name: gdpval-refresh
 # (v2 -> v3) fails the run instead of silently mixing incomparable scales.
 on:
   schedule:
-    - cron: "50 6 * * 1" # Mondays 06:50 UTC — after the other free feeds
+    - cron: "50 14 * * *" # 14:50 UTC daily — after the other free feeds
   workflow_dispatch:
 
 permissions:

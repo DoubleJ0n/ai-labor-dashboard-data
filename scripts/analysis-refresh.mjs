@@ -231,8 +231,15 @@ const dataIntegrity = computeDataIntegrity();
 // The MECHANICAL reading, computed for the record only. It is logged so the app
 // can show it beside the analyst's call — and so the two can visibly disagree.
 // It is never placed in either prompt.
+// Year-over-year employment growth across the exposed industries, for the
+// early-warning line. Read off the jobs panel the payload already built, so the line
+// is tested against exactly the figure the analyst and the reader see rather than a
+// separately derived one.
+const exposedJobGrowthPct = jobsPanel?.exposed_value ?? null;
+
 const mechanical = deriveVerdict({
   laborVoteStates: [votes.jobs, votes.wages, votes.postings],
+  exposedJobGrowthPct,
   recessionVeto: summary.macro?.recessionSignal === true,
   capabilityOpen: true, // capability gate retired 2026-07; it conditions nothing
   adoptionRising: summary.adoption?.rising === true,
@@ -285,9 +292,20 @@ if (dataIntegrity.ok === false && !SIDE_MODE) {
   process.exit(0);
 }
 
-// --- Weekly gate: skip the paid call when nothing moved ----------------------
+// --- The gate: skip the paid call when nothing moved -------------------------
+//
+// THIS IS WHAT MAKES A DAILY SCHEDULE FREE. The check sits above the point where the
+// Anthropic client is constructed, so a run on a day when no input changed exits
+// having spent nothing. Cost tracks how often the statistical agencies publish, not
+// how often the cron fires, which is why the schedule can be daily while the spend
+// stays monthly.
+//
+// WRITES NOTHING WHEN NOTHING MOVED. It used to stamp a fresh lastRefreshed on the way
+// out, which was harmless once a week and is daily commit noise on this schedule: a
+// string of commits that touch one timestamp and no data, burying the commits that
+// actually changed something. The run log already records that the check happened.
 if (!SIDE_MODE && priorRun && priorRun.inputHash === inputHash && pool.analysis?.text) {
-  bumpTimestampOnly(`inputs unchanged since the last run (${priorRun.runAt})`);
+  console.log(`analyst: inputs unchanged since the last run (${priorRun.runAt}); nothing to do`);
   process.exit(0);
 }
 

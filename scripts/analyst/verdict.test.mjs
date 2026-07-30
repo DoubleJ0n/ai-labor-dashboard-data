@@ -109,3 +109,42 @@ test("data-integrity failure -> CONFOUNDED (data_integrity), overrides everythin
 test("chainState breadth counts non-steady votes only", () => {
   assert.equal(chainState({ laborVoteStates: ["watch", "break", "steady"], capabilityOpen: true }).breadth, 2);
 });
+
+test("the early-warning line forces amber on its own, and matches the app", () => {
+  // Added to this file 2026-07-29; the app has had it longer. Without it the two
+  // repositories disagreed at breadth zero with the line crossed — the Dashboard tab
+  // would have shown amber while the Analyst tab showed green, and the line IS crossed
+  // today at -1.3%.
+  //
+  // Deliberately an ABSOLUTE level, not a deviation: a z-score can sit inside its band
+  // while employment falls outright, because the band is built from the series' own
+  // history. This asks the plainer question.
+  const quiet = { ...base, laborVoteStates: ["steady", "steady", "steady"] };
+
+  // Nothing firing and employment growing: green.
+  const green = deriveVerdict({ ...quiet, exposedJobGrowthPct: 1.2 });
+  assert.equal(green.mechanicalState, "STEADY");
+  assert.equal(green.earlyWarning, false);
+
+  // Nothing firing but exposed employment falling past the line: amber on its own.
+  const amber = deriveVerdict({ ...quiet, exposedJobGrowthPct: -1.3 });
+  assert.equal(amber.mechanicalState, "WATCH");
+  assert.equal(amber.earlyWarning, true);
+  assert.equal(amber.breadth, 0, "it must fire without any differential firing");
+
+  // Exactly on the line counts, matching every other inclusive threshold here.
+  assert.equal(deriveVerdict({ ...quiet, exposedJobGrowthPct: -1.0 }).earlyWarning, true);
+  assert.equal(deriveVerdict({ ...quiet, exposedJobGrowthPct: -0.9 }).earlyWarning, false);
+
+  // ABSENT IS NOT ZERO AND NOT SAFE-LOOKING. A missing figure must not silently read
+  // as healthy growth, so it leaves the line unfired rather than asserting anything.
+  const missing = deriveVerdict({ ...quiet, exposedJobGrowthPct: null });
+  assert.equal(missing.earlyWarning, false);
+  assert.equal(missing.mechanicalState, "STEADY");
+
+  // And it cannot promote a break: it is a floor on amber, never a route to red.
+  const bothFiring = deriveVerdict({
+    ...base, laborVoteStates: ["break", "watch", "steady"], exposedJobGrowthPct: -5.0,
+  });
+  assert.equal(bothFiring.mechanicalState, "BREAK", "breadth still decides red");
+});

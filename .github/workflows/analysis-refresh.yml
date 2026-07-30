@@ -18,7 +18,7 @@ name: analysis-refresh
 # data/analyst/runs.json (the audit record — both passes, usage, cost, input hash).
 on:
   schedule:
-    - cron: "0 13 * * 5" # 13:00 UTC Fridays (after the 08:30 ET BLS release window)
+    - cron: "0 16 * * *" # 16:00 UTC daily — an hour after the data chain finishes
   workflow_dispatch:
     inputs:
       dry_run:

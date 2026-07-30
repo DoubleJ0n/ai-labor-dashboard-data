@@ -5,7 +5,7 @@ name: discovery-refresh
 # METR/adoption/AEI. This workflow never commits to main.
 on:
   schedule:
-    - cron: "20 6 * * 1" # Mondays 06:20 UTC — after fred-refresh
+    - cron: "20 14 * * *" # 14:20 UTC daily — after fred-refresh
   workflow_dispatch:
 
 permissions:
