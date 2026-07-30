@@ -951,6 +951,19 @@ const STALE_PANEL_MONTHS = 6;
  * Written to pass through every band present rather than naming two, so extending
  * the extractor to the survey's full A-G set needs no change here.
  */
+/**
+ * The employment-size classes the app actually draws: smallest, the two where the climb
+ * becomes visible, and largest.
+ *
+ * MUST MATCH CHARTED_SIZE_BANDS in the app's ExtendedChartSpecs.kt. All seven are
+ * fetched and stored, and the middle three (5-9, 10-19, 20-49) sat within a couple of
+ * points of their neighbours — lines without information on a chart whose whole range is
+ * fifteen points. They are dropped from the payload as well as the chart for the reason
+ * every unrendered panel is: a figure the analyst can cite has to be one a reader can
+ * check on a chart, and sending a band the app does not draw breaks that.
+ */
+const CHARTED_SIZE_CLASSES = new Set(["A", "E", "F", "G"]);
+
 function adoptionBySize(bySize) {
   if (!bySize) return null;
   const bands = [];
@@ -959,7 +972,7 @@ function adoptionBySize(bySize) {
   // slots only ever carried the two extremes, which is why the gradient below could
   // previously be read as a direction and not as a distribution.
   const source = Array.isArray(bySize.bands) && bySize.bands.length
-    ? bySize.bands
+    ? bySize.bands.filter((b) => CHARTED_SIZE_CLASSES.has(b.code))
     : ["smallest", "small", "mid", "large", "larger", "largest"]
         .map((key) => bySize[key])
         .filter(Boolean);
