@@ -3,9 +3,18 @@ name: discovery-refresh
 # Model-authored benchmark data is PROPOSED as a pull request for human
 # review (audit-2026-07 finding 4 / C-3) — the same governance as
 # METR/adoption/AEI. This workflow never commits to main.
+# CADENCE: WEEKLY, AND DELIBERATELY NOT DAILY. This is the one scheduled job
+# besides the analyst that spends money, and unlike the analyst it has no gate:
+# the model call is the first thing it does, because the question it asks — has a
+# tracked benchmark saturated and does it need a successor — can only be answered
+# by going and looking at the web. There is no local input to hash and skip on.
+#
+# It was moved to daily along with the free data fetches, which was a mistake:
+# benchmark saturation is a quarterly event at best, so six of every seven runs
+# were paying to be told nothing had changed. Weekly is already generous.
 on:
   schedule:
-    - cron: "20 14 * * *" # 14:20 UTC daily — after fred-refresh
+    - cron: "20 14 * * 1" # 14:20 UTC Mondays — paid and ungated, see above
   workflow_dispatch:
 
 permissions:

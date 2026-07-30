@@ -8,11 +8,16 @@ name: analysis-refresh
 # verdict and numbers, and writes the what-changed narrative and the notification
 # line; it cannot change the verdict, and disagreement is logged instead.
 #
-# CADENCE: weekly, skipped when nothing moved. The first-Friday monthly gate is
-# retired — the run is now gated on the DATA rather than the calendar: the script
+# CADENCE: checked daily, skipped when nothing moved. The first-Friday monthly gate
+# is retired — the run is now gated on the DATA rather than the calendar: the script
 # hashes the input snapshot and exits without a paid call when that hash matches the
 # last run's. Labor series only move monthly, but METR and GDPval move mid-month, so
-# a real weekly change gets a real weekly run and a quiet week costs nothing.
+# a real change gets a run the next day and a quiet day costs nothing.
+#
+# Verified rather than assumed: rebuilding the payload from an unchanged pool
+# reproduces the previous run's hash exactly, so the schedule can be daily while the
+# spend tracks how often the statistical agencies publish. The one exception is the
+# month boundary, where panel ages tick over and one run is paid for.
 #
 # Every run APPENDS: data/analyst/dissent_log.json (the app's timeline) and
 # data/analyst/runs.json (the audit record — both passes, usage, cost, input hash).
