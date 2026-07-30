@@ -3,7 +3,7 @@
   "source": "US Census Bureau, Business Trends and Outlook Survey (BTOS) — share of firms using AI to produce goods or services",
   "sourceUrl": "https://www.census.gov/hfp/btos/",
   "note": "Live from the Census BTOS National.xlsx (share of firms using AI in ANY business function). Broader than the older 'producing goods/services' supplement. Parsed with deterministic invariants.",
-  "lastRefreshed": "2026-07-17",
+  "lastRefreshed": "2026-07-30",
   "points": [
     {
       "date": "2025-11-01",
@@ -46,9 +46,306 @@
   "bySize": {
     "source": "US Census Bureau, BTOS Employment Size Class.xlsx — AI use in any business function (Yes), by firm employment-size class",
     "sourceUrl": "https://www.census.gov/hfp/btos/downloads/Employment%20Size%20Class.xlsx",
-    "note": "Share of firms using AI in any business function, split by employment size (1–4 vs 250+ staff). Context only — big-employer adoption bears most on displacement, but the RED gate stays on the all-firms share. Cycles 202521–202523 (Oct–Nov 2025) were uncollected (funding lapse) and appear as gaps, never zero.",
+    "note": "Share of firms using AI in any business function, split by employment size across all 7 published classes. Context only: big-employer adoption bears most on displacement, and adoption conditions nothing mechanically since July 2026. Cycles 202521–202523 (Oct–Nov 2025) were uncollected (funding lapse) and appear as gaps, never zero.",
+    "bands": [
+      {
+        "code": "A",
+        "label": "1 to 4 employees",
+        "points": [
+          {
+            "date": "2025-11-01",
+            "pct": 17
+          },
+          {
+            "date": "2025-12-01",
+            "pct": 17.7
+          },
+          {
+            "date": "2026-01-01",
+            "pct": 18.5
+          },
+          {
+            "date": "2026-02-01",
+            "pct": 18.2
+          },
+          {
+            "date": "2026-03-01",
+            "pct": 19
+          },
+          {
+            "date": "2026-04-01",
+            "pct": 19
+          },
+          {
+            "date": "2026-05-01",
+            "pct": 20
+          },
+          {
+            "date": "2026-06-01",
+            "pct": 20
+          },
+          {
+            "date": "2026-07-01",
+            "pct": 20.8
+          }
+        ]
+      },
+      {
+        "code": "B",
+        "label": "Between 5 and 9 employees",
+        "points": [
+          {
+            "date": "2025-11-01",
+            "pct": 15.5
+          },
+          {
+            "date": "2025-12-01",
+            "pct": 18.3
+          },
+          {
+            "date": "2026-01-01",
+            "pct": 17.9
+          },
+          {
+            "date": "2026-02-01",
+            "pct": 17.1
+          },
+          {
+            "date": "2026-03-01",
+            "pct": 17.5
+          },
+          {
+            "date": "2026-04-01",
+            "pct": 19.5
+          },
+          {
+            "date": "2026-05-01",
+            "pct": 19
+          },
+          {
+            "date": "2026-06-01",
+            "pct": 19.7
+          },
+          {
+            "date": "2026-07-01",
+            "pct": 20.5
+          }
+        ]
+      },
+      {
+        "code": "C",
+        "label": "Between 10 and 19 employees",
+        "points": [
+          {
+            "date": "2025-11-01",
+            "pct": 17.8
+          },
+          {
+            "date": "2025-12-01",
+            "pct": 16
+          },
+          {
+            "date": "2026-01-01",
+            "pct": 18.9
+          },
+          {
+            "date": "2026-02-01",
+            "pct": 17.4
+          },
+          {
+            "date": "2026-03-01",
+            "pct": 18.2
+          },
+          {
+            "date": "2026-04-01",
+            "pct": 19.4
+          },
+          {
+            "date": "2026-05-01",
+            "pct": 21.6
+          },
+          {
+            "date": "2026-06-01",
+            "pct": 20
+          },
+          {
+            "date": "2026-07-01",
+            "pct": 22.5
+          }
+        ]
+      },
+      {
+        "code": "D",
+        "label": "Between 20 and 49 employees",
+        "points": [
+          {
+            "date": "2025-11-01",
+            "pct": 18.7
+          },
+          {
+            "date": "2025-12-01",
+            "pct": 18.5
+          },
+          {
+            "date": "2026-01-01",
+            "pct": 19.4
+          },
+          {
+            "date": "2026-02-01",
+            "pct": 18.6
+          },
+          {
+            "date": "2026-03-01",
+            "pct": 19.4
+          },
+          {
+            "date": "2026-04-01",
+            "pct": 21.3
+          },
+          {
+            "date": "2026-05-01",
+            "pct": 21.5
+          },
+          {
+            "date": "2026-06-01",
+            "pct": 22.6
+          },
+          {
+            "date": "2026-07-01",
+            "pct": 25.1
+          }
+        ]
+      },
+      {
+        "code": "E",
+        "label": "Between 50 and 99 employees",
+        "points": [
+          {
+            "date": "2025-11-01",
+            "pct": 20.7
+          },
+          {
+            "date": "2025-12-01",
+            "pct": 17.5
+          },
+          {
+            "date": "2026-01-01",
+            "pct": 25.1
+          },
+          {
+            "date": "2026-02-01",
+            "pct": 20.3
+          },
+          {
+            "date": "2026-03-01",
+            "pct": 21.8
+          },
+          {
+            "date": "2026-04-01",
+            "pct": 25.8
+          },
+          {
+            "date": "2026-05-01",
+            "pct": 24.4
+          },
+          {
+            "date": "2026-06-01",
+            "pct": 25.5
+          },
+          {
+            "date": "2026-07-01",
+            "pct": 27.6
+          }
+        ]
+      },
+      {
+        "code": "F",
+        "label": "Between 100 and 249 employees",
+        "points": [
+          {
+            "date": "2025-11-01",
+            "pct": 23.7
+          },
+          {
+            "date": "2025-12-01",
+            "pct": 25.4
+          },
+          {
+            "date": "2026-01-01",
+            "pct": 24.6
+          },
+          {
+            "date": "2026-02-01",
+            "pct": 25
+          },
+          {
+            "date": "2026-03-01",
+            "pct": 28.8
+          },
+          {
+            "date": "2026-04-01",
+            "pct": 32
+          },
+          {
+            "date": "2026-05-01",
+            "pct": 31.1
+          },
+          {
+            "date": "2026-06-01",
+            "pct": 34.2
+          },
+          {
+            "date": "2026-07-01",
+            "pct": 30.5
+          }
+        ]
+      },
+      {
+        "code": "G",
+        "label": "250 or more employees",
+        "points": [
+          {
+            "date": "2025-11-01",
+            "pct": 30.5
+          },
+          {
+            "date": "2025-12-01",
+            "pct": 32.7
+          },
+          {
+            "date": "2026-01-01",
+            "pct": 34.8
+          },
+          {
+            "date": "2026-02-01",
+            "pct": 33.5
+          },
+          {
+            "date": "2026-03-01",
+            "pct": 37
+          },
+          {
+            "date": "2026-04-01",
+            "pct": 37.3
+          },
+          {
+            "date": "2026-05-01",
+            "pct": 36.8
+          },
+          {
+            "date": "2026-06-01",
+            "pct": 40.3
+          },
+          {
+            "date": "2026-07-01",
+            "pct": 38.8
+          }
+        ]
+      }
+    ],
     "smallest": {
-      "label": "1–4 employees",
+      "code": "A",
+      "label": "1 to 4 employees",
       "points": [
         {
           "date": "2025-11-01",
@@ -89,7 +386,8 @@
       ]
     },
     "largest": {
-      "label": "250+ employees",
+      "code": "G",
+      "label": "250 or more employees",
       "points": [
         {
           "date": "2025-11-01",

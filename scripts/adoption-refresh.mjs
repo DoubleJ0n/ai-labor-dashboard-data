@@ -25,10 +25,22 @@ const FEED_URL = "https://www.census.gov/hfp/btos/downloads/National.xlsx";
 // came from the data tool's own bundle (census.gov/hfp/btos/js/app.*.js).
 const SIZE_URL = "https://www.census.gov/hfp/btos/downloads/Employment%20Size%20Class.xlsx";
 const SHEET = "Response Estimates";
-// Size classes we plot: A = 1–4 employees (smallest), G = 250+ (largest). The
-// gap between them is the point — big-employer adoption bears most on displacement.
+// ALL SEVEN SIZE CLASSES, A through G.
+//
+// Only A and G were extracted until 2026-07-29, which gave the two ends and nothing
+// between them. That was enough to say "bigger employers adopt more" and not enough to
+// say HOW adoption climbs with size — and the shape is the interesting part, because it
+// is the only thing on this dashboard that speaks to how many WORKERS are at an
+// AI-using employer rather than how many firms are. A gradient that jumps at 250+ means
+// something different from one that rises smoothly from 20 upward.
+//
+// The labels are read from the workbook's own Data Dictionary sheet rather than
+// hardcoded here. They are published, they could be revised, and inventing them in
+// source would be the same class of error as inventing a series id.
+const SIZE_CLASSES = ["A", "B", "C", "D", "E", "F", "G"];
 const SIZE_SMALLEST = "A";
 const SIZE_LARGEST = "G";
+const DICTIONARY_SHEET = "Data Dictionary";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SNAPSHOT_PATH = path.join(repoRoot, "data", "adoption", "ai_adoption.json");
@@ -90,6 +102,27 @@ function extractSizeSeries(rows, header, empsize, label) {
   return { label, points };
 }
 
+/**
+ * The published label for each size class, from the workbook's Data Dictionary sheet.
+ *
+ * Fail-loud on a missing code: if Census renames or drops a class, an unlabelled band
+ * would ship to the app as a legend entry reading "F", which is worse than stopping.
+ */
+function readSizeLabels(wb) {
+  const sheet = wb.Sheets[DICTIONARY_SHEET];
+  if (!sheet) fail(`size-class workbook has no '${DICTIONARY_SHEET}' sheet`);
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false });
+  const labels = {};
+  for (const r of rows) {
+    const item = String(r?.[0] ?? "").trim();
+    const desc = String(r?.[1] ?? "").trim();
+    if (SIZE_CLASSES.includes(item) && desc) labels[item] = desc;
+  }
+  const missing = SIZE_CLASSES.filter((c) => !labels[c]);
+  if (missing.length) fail(`no label in the data dictionary for size class(es): ${missing.join(", ")}`);
+  return labels;
+}
+
 /** Fetch + parse the size-class workbook; returns the bySize block. Fail-loud. */
 async function fetchBySize() {
   const r = await fetch(SIZE_URL).catch((e) => fail(`size-class download threw: ${e.message ?? e}`));
@@ -114,8 +147,17 @@ async function fetchBySize() {
   ) {
     fail(`size-class header changed: ${JSON.stringify(header.slice(0, 5))}`);
   }
-  const smallest = extractSizeSeries(rows, header, SIZE_SMALLEST, "1–4 employees");
-  const largest = extractSizeSeries(rows, header, SIZE_LARGEST, "250+ employees");
+  const labels = readSizeLabels(wb);
+  const bands = SIZE_CLASSES.map((code) => ({
+    code,
+    ...extractSizeSeries(rows, header, code, labels[code]),
+  }));
+  // MONOTONIC-ISH, NOT MONOTONIC. Adoption rises with employer size overall, but
+  // adjacent bands legitimately cross by a few tenths on survey noise, so only the two
+  // ENDS are asserted — the same invariant as before, which catches a row/column mixup
+  // without failing the run over ordinary sampling wobble between C and D.
+  const smallest = bands.find((b) => b.code === SIZE_SMALLEST);
+  const largest = bands.find((b) => b.code === SIZE_LARGEST);
   // INVARIANT: big employers adopt at least as much as the smallest at the latest
   // shared reading. A flip means a row/column mixup, not real data.
   const lgLatest = largest.points[largest.points.length - 1].pct;
@@ -125,9 +167,14 @@ async function fetchBySize() {
     source: "US Census Bureau, BTOS Employment Size Class.xlsx — AI use in any business function (Yes), by firm employment-size class",
     sourceUrl: SIZE_URL,
     note:
-      "Share of firms using AI in any business function, split by employment size (1–4 vs 250+ staff). " +
-      "Context only — big-employer adoption bears most on displacement, but the RED gate stays on the all-firms share. " +
+      "Share of firms using AI in any business function, split by employment size across " +
+      `all ${SIZE_CLASSES.length} published classes. Context only: big-employer adoption bears most on ` +
+      "displacement, and adoption conditions nothing mechanically since July 2026. " +
       "Cycles 202521–202523 (Oct–Nov 2025) were uncollected (funding lapse) and appear as gaps, never zero.",
+    // All seven, in size order, with the labels the workbook publishes.
+    bands,
+    // The two ends, kept as their own fields so anything reading the older shape keeps
+    // working. They are the same objects as the first and last entries of bands.
     smallest,
     largest,
   };

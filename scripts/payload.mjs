@@ -954,14 +954,22 @@ const STALE_PANEL_MONTHS = 6;
 function adoptionBySize(bySize) {
   if (!bySize) return null;
   const bands = [];
-  for (const key of ["smallest", "small", "mid", "large", "larger", "largest"]) {
-    const b = bySize[key];
+  // Prefers the published band ARRAY (all seven classes, added 2026-07-29) and falls
+  // back to the older named-slot shape so a stale snapshot still renders. The named
+  // slots only ever carried the two extremes, which is why the gradient below could
+  // previously be read as a direction and not as a distribution.
+  const source = Array.isArray(bySize.bands) && bySize.bands.length
+    ? bySize.bands
+    : ["smallest", "small", "mid", "large", "larger", "largest"]
+        .map((key) => bySize[key])
+        .filter(Boolean);
+  for (const b of source) {
     if (!b?.points?.length) continue;
     const pts = b.points;
     const latest = pts[pts.length - 1];
     const first = pts[0];
     bands.push({
-      band: b.label ?? key,
+      band: b.label ?? b.code ?? "unlabelled size class",
       latest_percent: round1(latest.pct),
       latest_date: String(latest.date).slice(0, 7),
       first_percent: round1(first.pct),
