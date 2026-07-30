@@ -157,6 +157,41 @@ Working here.`;
   assert.equal(parsePass1(ok.replace("AUGMENTATION", "CONFOUNDED")), null);
 });
 
+test("the load-bearing panel list is cleaned, capped, and safe when absent", () => {
+  // These names choose the two charts on someone's home screen, so the list has to
+  // survive ordinary sloppiness (spaces, a repeat, more names than asked for) and has
+  // to degrade to empty rather than to something wrong — an empty list makes the widget
+  // fall back to its own rotation, which is always safe.
+  const base = `VERDICT: DISPLACEMENT
+CONFIDENCE: LOW
+CONFOUNDER: NONE
+OVERTURN_PANEL: reabsorption
+OVERTURN_FIELD: headline.change_over_12_months
+OVERTURN_COMPARATOR: at_or_above
+OVERTURN_VALUE: 0
+OVERTURN_BY: 2026-10-27
+REASONING_LOG:
+Working here.`;
+
+  const withList = base.replace(
+    "CONFOUNDER: NONE",
+    "LOAD_BEARING_PANELS: exposed_vs_control_jobs, reabsorption , exposed_vs_control_jobs, job_postings_spread, worker_share_of_income\nCONFOUNDER: NONE",
+  );
+  assert.deepEqual(
+    parsePass1(withList).loadBearingPanels,
+    ["exposed_vs_control_jobs", "reabsorption", "job_postings_spread"],
+    "must trim, drop the duplicate, and cap at three in the order given",
+  );
+
+  // Absent entirely (an older model, or a run that skipped the line) and an explicit
+  // NONE both mean "no preference", not "no charts".
+  assert.deepEqual(parsePass1(base).loadBearingPanels, []);
+  assert.deepEqual(
+    parsePass1(base.replace("CONFOUNDER: NONE", "LOAD_BEARING_PANELS: NONE\nCONFOUNDER: NONE")).loadBearingPanels,
+    [],
+  );
+});
+
 test("confidence fails safe: anything that is not an explicit HIGH reads LOW", () => {
   const base = `VERDICT: DISPLACEMENT
 CONFOUNDER: NONE

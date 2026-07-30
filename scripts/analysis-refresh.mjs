@@ -441,10 +441,44 @@ try {
   process.exit(1);
 }
 
+/**
+ * Keep only names that are real panels, and only ones entitled to carry a verdict.
+ *
+ * TWO FILTERS, BOTH NECESSARY. A name the payload does not contain is a
+ * misremembering, and passing it through would leave the widget silently selecting
+ * nothing — the failure would look like the feature not working rather than like bad
+ * input, so it is logged. And a panel whose role says it contributes nothing must not
+ * become a home-screen chart labelled as what the verdict rests on, whatever the model
+ * says: the prompt tells it not to, and a rule the code can enforce should not be left
+ * to instruction-following.
+ */
+function validLoadBearing(names) {
+  const byName = new Map(payload.map((p) => [p.panel, p]));
+  const kept = [];
+  for (const n of names) {
+    const panel = byName.get(n);
+    if (!panel) {
+      console.warn(`WARN load-bearing panel "${n}" is not in the payload; ignoring`);
+      continue;
+    }
+    if (panel.panel_role === "does_not_contribute") {
+      console.warn(`WARN load-bearing panel "${n}" contributes nothing by role; ignoring`);
+      continue;
+    }
+    kept.push(n);
+  }
+  return kept;
+}
+
+const loadBearingPanels = validLoadBearing(result.pass1.loadBearingPanels ?? []);
+
 appendEntry(
   {
     date: dataMonth,
     runAt: result.finishedAt,
+    // Which panels the analyst says the reading rests on. The widget shows these
+    // instead of guessing from whichever panel sits furthest from its baseline.
+    loadBearingPanels,
     verdict: result.pass1.verdict,
     // Rated in pass 1, committed with the verdict and before pass 2 writes a word a
     // reader sees. Rating it afterwards would let the write-up talk itself into a

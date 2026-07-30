@@ -316,10 +316,18 @@ the reason a doubt did not move you is the part a reader most needs.
 The rating changes how the verdict is DISPLAYED, not whether it is published. LOW and
 MEDIUM are shown as a watch; HIGH is shown at full strength.
 
+WHICH PANELS CARRIED IT
+Name the panels this reading actually rests on, most important first, at most three. Use
+the exact panel names from the payload. This is not a summary of everything you looked at
+and it is not the same list as CONFIDENCE_BASIS, which names both sides: this is the
+short answer to "if you could only show someone two or three charts, which ones made you
+say this". A panel whose panel_role says it contributes nothing may not appear.
+
 OUTPUT - exactly this line-delimited format, nothing before the first label:
 VERDICT: AUGMENTATION or DISPLACEMENT or CONFOUNDED
 CONFIDENCE: LOW or MEDIUM or HIGH
 CONFIDENCE_BASIS: one line naming the panels that corroborate, the panels that refute or fail to corroborate, and any of the three doubts above that is unmet
+LOAD_BEARING_PANELS: one to three payload panel names, comma separated, most important first
 CONFOUNDER: if CONFOUNDED, the specific named cause and the series supporting it, on one line; otherwise NONE
 OVERTURN_PANEL: the panel name from the payload
 OVERTURN_FIELD: the numeric field on that panel. Spell it exactly as the JSON spells it, using a dotted path where the panel nests, e.g. headline.change_over_12_months. Where a panel carries a list of sub-readings, each one gives its own address in its overturn_key field, e.g. secondary.long_term_unemployed_share; use that string, optionally with a dotted field after it, and NOT the array name. If the field you want has no such address, choose another field, because an unaddressable one is scored as no prediction at all
@@ -644,6 +652,24 @@ export function parsePass1(text) {
     : "LOW";
   const confidenceBasis = grab("CONFIDENCE_BASIS") ?? "";
 
+  // WHICH PANELS THE READING RESTS ON, for the widget's two chart slots.
+  //
+  // The widget used to pick those slots mechanically, by whichever panel sat furthest
+  // from its own baseline. That is a reasonable guess and it is only a guess: it can
+  // put a quiet panel on someone's home screen while the panel the verdict actually
+  // turned on sits unshown. Asking is better than inferring.
+  //
+  // VALIDATED AGAINST THE PAYLOAD BY THE CALLER, not here. An unknown name has to
+  // fail visibly rather than silently select nothing, and this parser has no access to
+  // the panel list. Names are normalised and de-duplicated; the cap is three because
+  // the widget shows two and one spare covers a panel with no chart of its own.
+  const loadBearingPanels = (grab("LOAD_BEARING_PANELS") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && !/^none$/i.test(s))
+    .filter((s, i, a) => a.indexOf(s) === i)
+    .slice(0, 3);
+
   const conf = grab("CONFOUNDER");
   const named = conf && !/^none$/i.test(conf) ? conf : null;
   // A CONFOUNDED verdict with no named cause fails its own evidentiary bar.
@@ -692,6 +718,7 @@ export function parsePass1(text) {
     verdict,
     confidence,
     confidenceBasis,
+    loadBearingPanels,
     confounder: named,
     falsifier: {
       ...primary,
