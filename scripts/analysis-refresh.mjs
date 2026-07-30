@@ -260,11 +260,42 @@ const changes = changesSinceLastRun(
 );
 
 // The input snapshot hash. Without it you cannot audit why a past verdict looked
-// reasonable at the time, so it is recorded on every run and gates the weekly
-// re-run: unchanged inputs mean there is nothing new to say.
+// reasonable at the time, so it is recorded on every run and gates the re-run:
+// unchanged inputs mean there is nothing new to say.
 const round = (v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v);
+
+/**
+ * The payload as the GATE sees it, which is not quite the payload the model sees.
+ *
+ * ONE PANEL MOVES FASTER THAN ANY VERDICT CAN. macro_regime reads four Treasury
+ * series — the real 10-year yield, both yield-curve spreads, and expected inflation —
+ * and those print every business day. Its as_of is the latest print date and its
+ * levels are carried to one decimal, so the 10y-2y spread reading 0.36, 0.34, 0.35 on
+ * three consecutive days lands as 0.4, 0.3, 0.4 and the hash changes each time.
+ *
+ * That did not matter while the data jobs ran weekly. It matters now they run daily:
+ * every business day would look like new input, the gate would never trip, and the
+ * analyst would spend about 77 cents to reproduce yesterday's verdict roughly twenty
+ * times a month.
+ *
+ * What this panel is FOR is naming a competing cause — whether the bond market is
+ * independently pricing an ordinary recession. That is a state, not a level. The state
+ * stays in the hash, so an actual inversion still wakes the analyst the next morning.
+ * The levels and the print date do not, because a two-basis-point wiggle in a spread
+ * cannot change a reading about who is losing jobs, and if it could, the reading was
+ * never about labor in the first place.
+ *
+ * The model still receives the full panel. This narrowing decides only WHEN to ask.
+ */
+const gateView = (panels) =>
+  panels.map((p) =>
+    p?.panel === "macro_regime"
+      ? { panel: p.panel, yield_curve_inverted: p.yield_curve_inverted ?? null }
+      : p,
+  );
+
 const inputHash = createHash("sha256")
-  .update(JSON.stringify({ payload, dataMonth }, (k, v) => round(v)))
+  .update(JSON.stringify({ payload: gateView(payload), dataMonth }, (k, v) => round(v)))
   .digest("hex");
 
 // --- Deterministic CONFOUNDED: decline to ask rather than override the model --
