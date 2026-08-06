@@ -1,0 +1,53 @@
+name: pages
+
+# Publishes docs/ (the privacy policy) to GitHub Pages.
+#
+# WHY THIS FILE EXISTS. Pages was on the legacy "deploy from a branch" setting,
+# which rebuilds the site on EVERY push to main. main receives a push whenever any
+# refresh job commits a number, which is several times a day and has nothing to do
+# with the site: docs/ holds one static page that changes about twice a year. Those
+# rebuilds queued behind each other, started cancelling each other, and eventually
+# left the Pages deployment stuck in errored, failing every run since. The published
+# page kept serving from the last good build, so nothing was visibly broken, which is
+# the reason it went unnoticed.
+#
+# Two changes fix it. The path filter means a deploy happens when the SITE changes
+# rather than when a spreadsheet number does. The concurrency group means that if two
+# ever do overlap, the second waits rather than racing the first.
+#
+# THE URL IS LOAD-BEARING. Google Play holds this address as the app's privacy
+# policy, so it has to keep resolving:
+#   https://doublej0n.github.io/ai-labor-dashboard-data/privacy.html
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# NOT cancel-in-progress. A half-finished deploy that gets cancelled is how the
+# legacy setup wedged itself; letting the second one wait costs a minute.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deployment
+        uses: actions/deploy-pages@v4
