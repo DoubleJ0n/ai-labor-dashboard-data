@@ -11,7 +11,13 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+
+# Shares the pool-write group with every other refresh job, so commits to main
+# never race. These push directly now rather than opening a pull request, which
+# makes the shared lock load-bearing rather than tidy.
+concurrency:
+  group: pool-write
+  cancel-in-progress: false
 
 jobs:
   refresh:
@@ -25,14 +31,17 @@ jobs:
         name: Fetch AEI augment/automate trend
         run: node scripts/aei-refresh.mjs
 
-      - name: Open PR on change
+      # Auto-commit, not a pull request. See GOVERNANCE in the script header.
+      - name: Commit the AEI update
         if: steps.aei.outputs.status == 'changes'
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
-        with:
-          branch: aei-update
-          base: main
-          title: ${{ steps.aei.outputs.title }}
-          body-path: aei-refresh-report.md
-          labels: needs-review
-          add-paths: data/aei/augmentation.json
-          delete-branch: true
+        run: |
+          git config user.name "pool-refresh-bot"
+          git config user.email "actions@github.com"
+          git add data/aei/augmentation.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "${{ steps.aei.outputs.title }}" -m "$(cat aei-refresh-report.md)"
+            git pull --rebase origin main
+            git push
+          fi

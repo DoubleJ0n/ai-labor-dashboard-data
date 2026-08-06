@@ -11,8 +11,14 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
-  issues: write
+  issues: write # a methodology shift opens an issue and fails
+
+# Shares the pool-write group with every other refresh job, so commits to main
+# never race. These push directly now rather than opening a pull request, which
+# makes the shared lock load-bearing rather than tidy.
+concurrency:
+  group: pool-write
+  cancel-in-progress: false
 
 jobs:
   fetch:
@@ -27,18 +33,20 @@ jobs:
         name: Fetch + diff METR feed
         run: node scripts/metr-fetch.mjs
 
-      - name: Open PR for new models / revisions
+      # Auto-commit, not a pull request. See GOVERNANCE in the script header.
+      - name: Commit new models and revisions
         if: steps.metr.outputs.status == 'changes'
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
-        with:
-          branch: metr-update
-          base: main
-          title: ${{ steps.metr.outputs.title }}
-          body-path: metr-fetch-report.md
-          labels: needs-review
-          add-paths: data/metr/time_horizons.json
-          delete-branch: true
-
+        run: |
+          git config user.name "pool-refresh-bot"
+          git config user.email "actions@github.com"
+          git add data/metr/time_horizons.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "${{ steps.metr.outputs.title }}" -m "$(cat metr-fetch-report.md)"
+            git pull --rebase origin main
+            git push
+          fi
       - name: Open issue on methodology shift, then fail
         if: steps.metr.outputs.status == 'methodology'
         env:

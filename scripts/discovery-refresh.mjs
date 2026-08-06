@@ -4,20 +4,30 @@
 // needs a successor, per the M-V6 selection rules. Rewrites ONLY the
 // "capability" slots + normalized points.
 //
-// NOTE: METR time horizons are NO LONGER handled here. That data is
-// human-gated through data/metr/time_horizons.json + the metr-fetch workflow
-// (a revision to a published horizon is an event that needs review, not an
-// auto-commit). This job only owns the normalized benchmark slots.
+// NOTE: METR time horizons are NO LONGER handled here. That data has its own
+// fetch job. This job only owns the normalized benchmark slots.
 //
 // MODEL: Haiku 4.5 (claude-haiku-4-5-20251001) — this is data extraction;
 // deliberately not a bigger model. Haiku 4.5 uses the basic
 // web_search_20250305 server tool (the _20260209 variant needs newer models).
 //
-// GOVERNANCE (audit-2026-07 finding 4 / C-3): model-authored benchmark points
-// are PROPOSED as a pull request for human review — the same path as
-// METR/adoption/AEI — never auto-committed. Points are validated (0-100
-// range, date sanity, source required) and APPENDED with supersession marks;
-// the published history is never replaced wholesale.
+// GOVERNANCE, revised 2026-08. audit-2026-07 finding 4 / C-3 put model-authored
+// benchmark points behind a pull request for human review, and that gate is now
+// removed along with the ones on adoption, AEI, GDPval and METR. The reason is that
+// it was not being exercised: three proposals sat unread for up to a fortnight, the
+// reviewer had no independent way to check them, and the adoption panel went stale
+// waiting on a click that added nothing a parser had not already established. A gate
+// nobody can act on is not oversight, it is latency wearing oversight's clothes.
+//
+// What replaces it is what was doing the real work anyway. Points are validated
+// (0-100 range, date sanity, source URL required) and APPENDED with supersession
+// marks, so the published history is never replaced wholesale; anything that fails
+// validation is dropped and named; and every commit is revertible. A wrong number
+// reaches readers and is wrong in public, which is the bargain the analyst's verdict
+// already publishes under.
+//
+// ONE THING STILL STOPS THE JOB: a change to which benchmark fills a slot. See the
+// halt further down for why that is a different kind of act from a wrong reading.
 import { appendFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -166,7 +176,32 @@ const benchmarkSwaps = slotEntities
   .filter((s) => capability.slots.some((x) => x.slot === s.slot && x.benchmarkName !== s.benchmarkName))
   .map((s) => `${s.slot}: ${capability.slots.find((x) => x.slot === s.slot).benchmarkName} -> ${s.benchmarkName}`);
 
-if (added.length === 0 && benchmarkSwaps.length === 0) {
+// A NEW READING PUBLISHES ITSELF. A NEW INSTRUMENT DOES NOT.
+//
+// Everything else this job proposes is a score on a benchmark the app already
+// tracks, and those now go straight to main: if a number is wrong it is wrong in
+// public, which is the same bargain the analyst's verdict is published under.
+//
+// Swapping which benchmark fills a slot is a different act. It does not add a
+// reading, it redefines what the chart has been measuring, and it does so
+// retroactively: the published history was scored on the old benchmark and cannot
+// be compared with the new one. That is not a claim that can be right or wrong in
+// public, because the chart stops meaning one thing without saying so.
+//
+// So the job halts instead, the same way a GDPval pool roll halts, and for the same
+// reason: a change of instrument is a re-registration, and re-registration is
+// deliberate. It costs a red run and a config edit, and it happens about never.
+if (benchmarkSwaps.length) {
+  fail(
+    `benchmark identity changed (${benchmarkSwaps.join("; ")}). This redefines what the ` +
+      `slot has been measuring and breaks comparability with the published history, so it ` +
+      `will not auto-publish. Decide whether the swap is right, and what happens to the ` +
+      `existing points, then re-register the slot in dashboard-data.json before this job ` +
+      `runs again.`,
+  );
+}
+
+if (added.length === 0) {
   nochange(`no new data after validation${dropped.length ? ` (${dropped.length} points dropped: ${dropped.join("; ")})` : ""}`);
 }
 
