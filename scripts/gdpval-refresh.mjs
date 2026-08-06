@@ -27,7 +27,10 @@
 import { readFileSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { GDPVAL_POOL_VERSION, GDPVAL_MIN_RECORDS, GDPVAL_REQUIRED_LABS } from "./config.mjs";
+import {
+  GDPVAL_POOL_VERSION, GDPVAL_MIN_RECORDS, GDPVAL_REQUIRED_LABS,
+  GDPVAL_MAX_ELO, GDPVAL_MIN_TOP_ELO, GDPVAL_MIN_ELO_SPREAD,
+} from "./config.mjs";
 
 const PAGE_URL = "https://artificialanalysis.ai/evaluations/gdpval-aa";
 
@@ -123,9 +126,19 @@ const unlabelled = records.filter((r) => !r.lab);
 if (unlabelled.length) {
   fail(`${unlabelled.length} records have no lab (e.g. ${unlabelled[0].slug}) — creator join broke`);
 }
-const outOfRange = records.filter((r) => !Number.isFinite(r.elo) || r.elo < 100 || r.elo > 3000);
-if (outOfRange.length) {
-  fail(`${outOfRange.length} Elo values outside [100, 3000] (e.g. ${outOfRange[0].slug} ${outOfRange[0].elo})`);
+// See GDPVAL_MAX_ELO in config.mjs for why there is no per-value floor here.
+const unusable = records.filter((r) => !Number.isFinite(r.elo) || r.elo > GDPVAL_MAX_ELO);
+if (unusable.length) {
+  fail(`${unusable.length} Elo values are not finite or exceed ${GDPVAL_MAX_ELO} (e.g. ${unusable[0].slug} ${unusable[0].elo})`);
+}
+const elos = records.map((r) => r.elo);
+const topElo = Math.max(...elos);
+const eloSpread = topElo - Math.min(...elos);
+if (topElo < GDPVAL_MIN_TOP_ELO) {
+  fail(`top Elo is only ${topElo}, below ${GDPVAL_MIN_TOP_ELO} — this looks like a percentage or rank column, not Elo`);
+}
+if (eloSpread < GDPVAL_MIN_ELO_SPREAD) {
+  fail(`Elo spread is only ${Math.round(eloSpread)}, below ${GDPVAL_MIN_ELO_SPREAD} — the parsed column does not vary like Elo`);
 }
 const labs = new Set(records.map((r) => r.lab));
 const missingLabs = GDPVAL_REQUIRED_LABS.filter((l) => !labs.has(l));

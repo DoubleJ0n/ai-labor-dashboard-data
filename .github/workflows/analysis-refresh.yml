@@ -53,12 +53,12 @@ jobs:
       notify: ${{ steps.analyst.outputs.notify }}
       notification_line: ${{ steps.analyst.outputs.notification_line }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: main
       - name: Ensure latest pool
         run: git pull --rebase origin main
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: npm ci --no-audit --no-fund
@@ -86,7 +86,7 @@ jobs:
         run: node scripts/analysis-refresh.mjs --ab
       - name: Upload the A/B report
         if: ${{ github.event.inputs.ab_run == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: analyst-ab-report
           path: analyst-ab-report.json

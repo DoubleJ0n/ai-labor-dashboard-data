@@ -134,6 +134,26 @@ export const TREND_LOOKBACK_READINGS = 4; // readings compared for the drift
 export const GDPVAL_POOL_VERSION = "v2";
 export const GDPVAL_MIN_RECORDS = 50; // a smaller parse means the page changed shape
 export const GDPVAL_REQUIRED_LABS = ["Anthropic", "OpenAI"]; // the per-lab chart needs both
+
+// SANITY BOUNDS ON THE PARSE, which is a different job from bounding Elo itself.
+//
+// What can actually go wrong here is the regex latching onto the wrong number and
+// publishing a leaderboard of percentages, ranks, or release years. The first attempt
+// to catch that required every Elo to sit in [100, 3000], which conflated the two: it
+// read as a claim about how low an Elo can be, and Elo has no floor. The anchor is
+// arbitrary, only differences carry information, and the bottom of the pool sinks as
+// weaker models are added to it. The live board already ran from 6.64 to 1860 on the
+// day that check was written, so it failed on its first scheduled run and every run
+// after, and the panel sat frozen for ten days.
+//
+// The distribution is the honest discriminator, because the misparses all collapse it:
+// a percentage column tops out at 100, a rank column at the record count, a year column
+// spans about six. A real Elo pool has a leader far above any of those and spreads over
+// a thousand points. So no per-value floor; a ceiling to catch a runaway parse, and two
+// shape checks that a wrong column cannot satisfy.
+export const GDPVAL_MAX_ELO = 3000;       // above any plausible Elo; catches token counts
+export const GDPVAL_MIN_TOP_ELO = 800;    // live leader 1860; a percentage or rank column cannot reach this
+export const GDPVAL_MIN_ELO_SPREAD = 500; // live spread 1854; years span ~6, percentages <=100
 // 400 Elo = 10:1 odds. The scale constant in the logistic, not a tunable.
 export const ELO_SCALE = 400;
 
