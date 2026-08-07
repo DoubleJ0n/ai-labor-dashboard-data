@@ -370,16 +370,23 @@ test("the field that places the reabsorption axis is addressable for an overturn
   }
 });
 
-test("the reasoning log is budgeted, because uncapped meant truncated", async () => {
+test("the reasoning log is uncapped, because it is the only record of the reasoning", async () => {
   const { PASS1_SYSTEM } = await import("./analyst/prompt.mjs");
-  // Uncapped, it ran ~3x this and twice pushed pass 1 into its ceiling, losing the tail
-  // of the log. The budget is on the write-up; the thinking is explicitly not capped.
-  // Both passes emit one; pass 1's is the one that overflowed.
-  assert.match(PASS1_SYSTEM, /UNDER ABOUT 1,200 WORDS/);
-  // Whitespace-tolerant: the prompt is hand-wrapped and this phrase straddles a line.
-  assert.match(PASS1_SYSTEM.replace(/\s+/g, " "), /BUDGET IS ON THE WRITE-UP, NOT ON THE THINKING/i);
-  assert.ok(!/Uncapped: this is stored for audit/.test(PASS1_SYSTEM),
-    "the word that produced the truncation must not survive in the spec");
+  // A budget here saves ~11% of a run and destroys the only artifact that records why
+  // a verdict was reached. The truncation it was meant to prevent is handled by the
+  // ceiling plus a hard failure, neither of which costs an audit trail.
+  const flat = PASS1_SYSTEM.replace(/\s+/g, " ");
+  assert.match(PASS1_SYSTEM, /UNCAPPED, and uncapped on purpose/);
+  assert.match(flat, /ONLY SURVIVING RECORD/i,
+    "the reason the log is uncapped is the reason it must stay uncapped");
+
+  // No word or length budget may come back on this field. If truncation recurs the
+  // answer is a higher ceiling, not a shorter log.
+  assert.ok(!/UNDER ABOUT [\d,]+ WORDS/i.test(flat),
+    "a length budget on the sole audit artifact is the trade that was already rejected");
+
+  // And the analyst is told why length here is free, so it does not compress defensively.
+  assert.match(flat, /run is DISCARDED rather than published/i);
 });
 
 // --- A summary string may not overstate its own panel (2026-08-07) ------------
@@ -412,4 +419,26 @@ test("the streak names the line it actually crossed", async () => {
         `${p.panel}: z=${z} is past alarm_line=${dv.alarm_line}; the streak understates it`);
     }
   }
+});
+
+test("a run that hits its ceiling is discarded, not published", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync("scripts/analysis-refresh.mjs", "utf8");
+
+  // The failure this guards is silent by construction: the structured fields serialise
+  // BEFORE the reasoning log, so a truncation removes the audit trail and leaves a
+  // verdict that parses cleanly and looks complete. A warning is not enough for that,
+  // because nobody reads a warning inside a green run.
+  const guard = src.slice(src.indexOf("stop_reason"), src.indexOf("stop_reason") + 900);
+  assert.match(guard, /throw new Error/,
+    "a truncated pass must abort the run, not warn and continue");
+  assert.ok(!/console\.warn\([^)]*ceiling/i.test(src),
+    "the warn-and-continue version must not come back alongside the throw");
+
+  // Sized against the observed worst case (a pass 1 that truncated at 16000, whose true
+  // demand is therefore unknown and higher), and it must clear thinking plus text.
+  const m = src.match(/const MAX_TOKENS = (\d+)/);
+  assert.ok(m, "MAX_TOKENS must stay a named constant");
+  assert.ok(Number(m[1]) >= 32000,
+    `MAX_TOKENS is ${m[1]}; lowering it re-opens the truncation this run failed on`);
 });

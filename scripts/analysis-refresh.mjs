@@ -68,19 +68,27 @@ const EFFORT = "high";
 // 1500 was set when this call didn't think; at high effort it would truncate
 // mid-sentence, so it is generous now and the request streams.
 //
-// RAISED 16000 -> 24000 ON 2026-08-07, BECAUSE 16000 WAS NOT GENEROUS ENOUGH AND THE
-// FAILURE WAS SILENT. Pass 1 output landed on exactly 16000 tokens twice in five runs
-// and the reasoning log ended mid-sentence both times. Nothing errored: the structured
-// fields survived only because the log serialises last, so a truncation ate the one
-// field nobody reads instead of the verdict. Reorder those fields and the same
-// truncation loses the falsifier.
+// RAISED 16000 -> 32000 ON 2026-08-07, IN TWO STEPS AND FOR TWO DIFFERENT REASONS.
+// Pass 1 landed on exactly 16000 twice in five runs with the reasoning log cut off
+// mid-sentence, and nothing errored, because the structured fields serialise before
+// the log — so the truncation ate the audit trail and left a verdict that parsed.
 //
-// This ceiling covers thinking AND text together, so the reasoning log's new ~1,200
-// word budget (see prompt.mjs) is the other half of the fix: the budget lowers the
-// text, and this headroom means a long think cannot be cut off by a long write-up.
-// Raising it costs nothing on a run that does not need it — output is billed on what
-// is produced, not on the ceiling.
-const MAX_TOKENS = 24000;
+// The first fix paired 24000 with a word budget on the log. The budget is now gone: the
+// thinking is never returned, so that log is the only surviving record of how a verdict
+// was reached, and it costs about a ninth of a run against thinking's third. Budgeting
+// the sole audit artifact to save a ninth was the wrong trade, so the ceiling absorbs
+// the whole job instead.
+//
+// SIZED AGAINST THE OBSERVED WORST CASE, NOT GUESSED. The largest pass 1 on record is
+// the 16000 that truncated; the honest reading of a truncated run is that its true
+// demand is unknown and above 16000. 32000 is double that, and the ceiling covers
+// thinking AND text together, so it has to clear the sum of a long think and a long
+// write-up rather than either alone.
+//
+// It costs nothing on runs that do not use it — output bills on what is produced, not
+// on the ceiling. A run that DOES hit it now throws (see callModel) rather than
+// publishing a reading whose reasoning cannot be reconstructed.
+const MAX_TOKENS = 32000;
 
 // Per-million-token pricing. Sonnet 5's introductory rate ends 2026-08-31; both
 // sides are recorded so a cost computed after the cutover is still right.
@@ -416,25 +424,36 @@ async function callModel(request, label) {
   const message = await client.messages.stream(request).finalMessage();
   const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
 
-  // SAY SO WHEN THE CEILING IS HIT. This ran into MAX_TOKENS twice in five runs and
-  // said nothing either time — the only trace was an output-token count that happened
-  // to equal the ceiling exactly, and a reasoning log ending mid-sentence, neither of
-  // which anyone was reading. stop_reason is the authoritative signal; the token
-  // comparison is a belt-and-braces check in case a future SDK stops populating it.
-  const hitCeiling = message.stop_reason === "max_tokens" ||
-    (message.usage?.output_tokens ?? 0) >= MAX_TOKENS;
-  if (hitCeiling) {
-    console.warn(
-      `WARNING: ${label} hit the ${MAX_TOKENS}-token ceiling (stop_reason=${message.stop_reason}). ` +
-      "Its output is truncated — the tail of the reasoning log is gone, and if the field " +
-      "order ever changes a load-bearing field could be gone instead. Raise MAX_TOKENS or " +
-      "tighten the reasoning-log budget in prompt.mjs.",
+  // A TRUNCATED RUN IS DISCARDED, NOT PUBLISHED. This ran into MAX_TOKENS twice in five
+  // runs and said nothing either time; the only trace was an output-token count that
+  // happened to equal the ceiling exactly and a reasoning log ending mid-sentence.
+  //
+  // Warning was not enough. Nobody reads a warning in a green run, and the failure is
+  // silent by construction: the structured fields are emitted BEFORE the log, so a
+  // truncation eats the audit trail and leaves a verdict that parses cleanly and looks
+  // complete. That is the worst available outcome — a published reading whose reasoning
+  // cannot be reconstructed, indistinguishable from one whose reasoning was sound.
+  //
+  // So it throws. The workflow fails, the pool is not written, the dissent log is not
+  // appended, and the previous verdict stands until a complete run replaces it. A day
+  // with no new reading is a smaller loss than a day with a reading nobody can check,
+  // and this dashboard is gated on data movement anyway — the next run picks it up.
+  //
+  // stop_reason is authoritative; the token comparison is a fallback in case a future
+  // SDK stops populating it.
+  if (message.stop_reason === "max_tokens" || (message.usage?.output_tokens ?? 0) >= MAX_TOKENS) {
+    throw new Error(
+      `${label} hit the ${MAX_TOKENS}-token ceiling (stop_reason=${message.stop_reason}, ` +
+      `output=${message.usage?.output_tokens}). Its output is truncated, so this run is ` +
+      "discarded rather than published — a verdict whose reasoning log was cut off still " +
+      "parses, which is exactly why this fails loudly instead of warning. Raise MAX_TOKENS " +
+      "in this file; do not shorten the reasoning log to fit, since that log is the only " +
+      "record of the reasoning that produced the verdict.",
     );
   }
 
   return {
     text,
-    truncated: hitCeiling,
     usage: {
       inputTokens: message.usage?.input_tokens ?? 0,
       // Thinking bills as output, so this exceeds the visible text.

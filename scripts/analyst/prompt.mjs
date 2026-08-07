@@ -363,16 +363,20 @@ OVERTURN_ALSO_VALUE: a bare number, or NONE
 OVERTURN_BY: the date ${FALSIFIER_HORIZON_DAYS} days after run_date, which is given at the top of the payload
 OVERTURN_PLAIN: one sentence naming which chart moves first
 REASONING_LOG:
-<your working, UNDER ABOUT 1,200 WORDS. Stored for audit and never shown to readers. Panel
-by panel notes, the inversion for every supporting panel, rejected hypotheses and why, the
-news events you considered and set aside, and anything cross-panel you noticed.>
+<your full working. UNCAPPED, and uncapped on purpose. Stored for audit and never shown to
+readers. Panel by panel notes, the inversion for every supporting panel, rejected
+hypotheses and why, the news events you considered and set aside, and anything cross-panel
+you noticed.>
 
-  This was uncapped and ran to roughly three times that, which twice pushed this response
-  into its token ceiling and cut the log off mid-sentence — so the uncapped version was
-  not preserving more of your reasoning, it was losing the end of it. THE BUDGET IS ON THE
-  WRITE-UP, NOT ON THE THINKING: think for as long as the problem takes, then record the
-  load-bearing steps rather than the whole walk. Do not copy panel figures that are
-  already in the payload; naming the field is worth more than restating its value.
+  This carried a 1,200-word budget for exactly one day. It was removed because the
+  arithmetic behind it was wrong: your thinking is not returned to us, so THIS LOG IS THE
+  ONLY SURVIVING RECORD of how the verdict was reached, and it costs about a ninth of a
+  run while the thinking it describes costs three times that. Budgeting the only audit
+  artifact to save a ninth was the wrong trade.
+
+  So write as much as the work needs. If this response runs into its token ceiling the
+  run is DISCARDED rather than published, so a truncated log can never reach a reader as
+  though it were complete — which means there is no reason to compress defensively.
 
 Nothing you write here is shown to a reader, so write for the record rather than for an
 audience. If something in the data looks wrong, say so: a panel whose figures contradict
@@ -446,15 +450,11 @@ REASONING LOG - stored for audit, never shown to readers. Panel-level
 working, rejected hypotheses, the exact conditions you registered, threshold
 arithmetic. This is not the full analysis and must not be surfaced as it.
 
-  KEEP IT UNDER ABOUT 1,200 WORDS. It was uncapped and ran to roughly three times
-  that, which twice pushed this response into its token ceiling and truncated the
-  log mid-sentence — so the uncapped version was not preserving more reasoning, it
-  was losing the end of it. This budget is on the WRITE-UP, not on the thinking:
-  think as long as the problem takes, then record the load-bearing steps rather than
-  the walk. Record what a later reader would need to check your work — the
-  hypotheses you rejected and why, the arithmetic behind any threshold claim, the
-  conditions you registered. Do not restate panel figures that are already in the
-  payload; a pointer to the field is worth more than a copy of it.
+  UNCAPPED. Your thinking is not returned to us, so this log is the only surviving
+  record of how you got there. Write what a later reader would need to check your
+  work — the hypotheses you rejected and why, the arithmetic behind any threshold
+  claim, the conditions you registered. A run that hits its token ceiling is
+  discarded rather than published, so length here cannot cost a reader anything.
 
 PUBLISHED NOTE STRUCTURE:
   1. Bottom line in the first sentence. The verdict in plain words, no preamble.
