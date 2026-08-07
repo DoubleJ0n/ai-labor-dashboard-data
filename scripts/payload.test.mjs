@@ -130,3 +130,48 @@ test("the joint ring carries every month, tagged, and leaks no quadrant", async 
   assert.ok(outShare("BASELINE") < 0.2, `baseline should sit inside its own ring, got ${outShare("BASELINE")}`);
   assert.ok(outShare("OBSERVATION") > 0.6, `observation should sit outside, got ${outShare("OBSERVATION")}`);
 });
+
+// --- Gaps are named, and the employment break is not denied (2026-08-07) -------
+
+test("a hole in the joint table is named rather than left to be inferred", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { jointBaselinePosition } = await import("./payload.mjs");
+  const j = jointBaselinePosition(pool);
+
+  assert.ok(Array.isArray(j.months_absent), "months_absent must always be present");
+  const listed = j.months.map((r) => r[0]);
+  // Every gap between consecutive rows must appear in months_absent, or a reader
+  // walking the table reads a turning point onto the wrong month.
+  for (let i = 1; i < listed.length; i++) {
+    const a = listed[i - 1], b = listed[i];
+    const [ay, am] = a.split("-").map(Number);
+    const [by, bm] = b.split("-").map(Number);
+    for (let k = 1; k < (by * 12 + bm) - (ay * 12 + am); k++) {
+      const t = ay * 12 + (am - 1) + k;
+      const ym = `${String(Math.floor(t / 12)).padStart(4, "0")}-${String((t % 12) + 1).padStart(2, "0")}`;
+      assert.ok(j.months_absent.includes(ym), `gap month ${ym} is not declared in months_absent`);
+    }
+  }
+  assert.ok(!j.months_absent.some((m) => listed.includes(m)), "a listed month cannot also be absent");
+});
+
+test("the decomposition does not claim the employment leg is free of the control break", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const d = buildAnalysisPayload(pool).find((p) => p.panel === "reabsorption").headline.decomposition;
+
+  // The old wording said seasonal adjustment spared the employment series. It does
+  // not: SA removes a seasonal pattern, not a re-weighting break. Measured here, the
+  // SA prime-age employed series steps ~1.7M and ~1.0M at the January re-bases, so a
+  // note telling the analyst that leg is clean invites exactly the over-reading the
+  // rest of this caveat exists to prevent.
+  assert.ok(
+    !/employment is seasonally adjusted and does not carry the same discontinuity/i.test(d.caveat),
+    "the retired claim that employment escapes the control break must not come back",
+  );
+  assert.match(d.caveat, /employment leg carries the same break/i);
+  // And the ratio must still be named as the reliable measure.
+  assert.match(d.caveat, /ratio/i);
+});

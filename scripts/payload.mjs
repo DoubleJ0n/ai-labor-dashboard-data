@@ -841,6 +841,25 @@ export function jointBaselinePosition(pool) {
     return acc;
   }, {});
 
+  // GAPS ARE NAMED, NOT LEFT SILENT (2026-08-07). A month missing either axis is
+  // skipped above, which leaves a hole a reader of the table cannot see: the rows
+  // are consecutive-looking, so a trajectory read off them appears continuous and
+  // its turning points appear to sit on months that are merely the nearest
+  // SURVIVING months. That is not hypothetical — October 2025 is absent here
+  // (the CPS response gap), and October 2025 happens to be the exact trough of the
+  // attribution gap's two-year narrowing. An analyst reconstructing the path from
+  // this table dates the turn to November and cannot know October existed.
+  //
+  // Found by a model reading the payload, which noticed the discontinuity and
+  // correctly narrowed its own claim about the trough date. It should not have had
+  // to infer it.
+  const missing = [];
+  for (let i = 1; i < months.length; i++) {
+    if (monthsBetween(months[i - 1][0], months[i][0]) !== 1) {
+      missing.push(...monthsBetweenExclusive(months[i - 1][0], months[i][0]));
+    }
+  }
+
   return {
     sigmas: JOINT_BASELINE_SIGMAS,
     baseline_window: `${BASELINE_START}..${BASELINE_END}`,
@@ -853,6 +872,14 @@ export function jointBaselinePosition(pool) {
     outside_by_window: tally((r) => !r[4]),
     months_format: "[month, attribution_z, employment_change_12m, window, inside_baseline_range]",
     months,
+    months_absent: missing,
+    months_absent_note: missing.length
+      ? "These months fall inside the span of the table and are NOT in it, because one of " +
+        "the two axes has no reading for them. The rows above are therefore not evenly " +
+        "spaced. Do not read a turning point as sitting on a listed month without checking " +
+        "this list first — the true turn may fall in a gap, and a slope measured across one " +
+        "is measured over more than a month."
+      : "No gaps: every month between the first and last row is present.",
     note:
       "The range both axes occupied together through the fixed baseline decade, at " +
       `${JOINT_BASELINE_SIGMAS} standard deviations per axis. A month outside it is one where the ` +
@@ -911,10 +938,29 @@ export function reabsorptionDecomposition(pool) {
       "about +1.9 million at January 2025 and fell about -1.5 million at January 2026, " +
       "neither of which is people arriving or leaving. Any twelve-month comparison " +
       "necessarily spans one of those revisions, so the population change here is " +
-      "partly an artefact and its size should not be quoted. Employment is seasonally " +
-      "adjusted and does not carry the same discontinuity. The published ratio itself " +
-      "is the reliable measure, because it is computed consistently within each " +
-      "control regime; this decomposition is a direction check on it, nothing more.",
+      "partly an artefact and its size should not be quoted. " +
+      // CORRECTED 2026-08-07. This used to read "Employment is seasonally adjusted and
+      // does not carry the same discontinuity", which was wrong and wrong in the
+      // direction that invites over-reading. Seasonal adjustment removes a seasonal
+      // pattern; it cannot remove a re-weighting break, and these are different
+      // mechanisms. CPS employment LEVELS are the sample weighted to the population
+      // controls, so when the controls re-base the levels step with them. Measured in
+      // this pool: the seasonally adjusted prime-age employed series moved +1,724k at
+      // January 2025 and -1,024k at January 2026, against a typical month of ±100-250k.
+      // The January 2026 step alone is about 71% of the twelve-month decline this block
+      // reports. Caught by a model reading the payload and checking the claim rather
+      // than accepting it.
+      "THE EMPLOYMENT LEG CARRIES THE SAME BREAK, and the earlier version of this note " +
+      "wrongly said it did not. Seasonal adjustment does not undo a control re-basing: " +
+      "this employed series stepped about +1.7 million at January 2025 and about -1.0 " +
+      "million at January 2026, against a typical month of one to two hundred thousand. " +
+      "Any twelve-month change here therefore spans a break on BOTH legs, and neither " +
+      "figure's size should be quoted. " +
+      "The published ratio itself is the reliable measure, because numerator and " +
+      "denominator re-base together and it is computed consistently within each " +
+      "control regime — verified in this pool, where the ratio's January steps (0.2 and " +
+      "0.1 points) sit inside its ordinary monthly variation. This decomposition is a " +
+      "direction check on that ratio, nothing more.",
     what_this_does_and_does_not_settle:
       "It can tell you whether employment is falling at all, which is the question " +
       "that matters: if employment is down year-over-year then the share cannot be " +
@@ -1114,6 +1160,13 @@ function monthsBetween(ymA, ymB) {
   const [ay, am] = ymA.split("-").map(Number);
   const [by, bm] = ymB.split("-").map(Number);
   return (by * 12 + bm) - (ay * 12 + am);
+}
+
+/** The months strictly between two endpoints — the hole, not the edges. */
+function monthsBetweenExclusive(ymA, ymB) {
+  const out = [];
+  for (let i = 1; i < monthsBetween(ymA, ymB); i++) out.push(ymAdd(ymA, i));
+  return out;
 }
 
 /**
