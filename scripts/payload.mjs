@@ -2195,6 +2195,79 @@ export function buildAnalysisPayload(pool, extras = {}) {
         horizon_50pct_minutes: m.p50Min == null ? null : Math.round(m.p50Min),
       })),
       threshold: { rule: "descriptive context only. The 80 percent horizon is a reliability level METR measures at; reading it as the point where a task can be handed off rather than checked is OUR GLOSS AND YOU MAY REJECT IT. This was a capability gate until July 2026 and no longer conditions anything: a benchmark of clean, self-contained software tasks should not decide whether a real labor signal counts" },
+      // THE 40-HOUR BAR IS OURS AND WAS NEVER SENT HERE (added 2026-08-07). The app
+      // has shown it for months as the target of a projection; the analyst has never
+      // been told it exists, so it could not look for the two things that would make
+      // this panel interesting. It is attributed rather than asserted, because METR
+      // publishes no such bar and we picked the number.
+      //
+      // The self-defeating part is worth stating plainly rather than discovering
+      // later: at 2400 minutes the bar sits about 2.5x beyond the ~960-minute ceiling
+      // this same panel's caveat says the task suite can measure reliably. The
+      // crossing we are notionally watching for is therefore not cleanly observable
+      // on this instrument, which is a fact about our choice of bar, not about AI.
+      our_reference_bar: (() => {
+        const BAR_MIN = 2400, CEILING_MIN = 960;
+        const recs = (extras.metrRecords ?? [])
+          .filter((r) => r.p80Min != null && r.releaseDate)
+          .sort((a, b) => String(a.releaseDate).localeCompare(String(b.releaseDate)));
+        // Frontier = running maximum, which is the series a "when do we get there"
+        // question is actually about. One naive log-linear fit, reported as one.
+        let best = 0; const pts = [];
+        for (const r of recs) if (r.p80Min > best) { best = r.p80Min; pts.push([Date.parse(r.releaseDate), Math.log(r.p80Min)]); }
+        let doublingDays = null, naiveCrossing = null;
+        if (pts.length > 2) {
+          const n = pts.length;
+          const mx = pts.reduce((a, p) => a + p[0], 0) / n, my = pts.reduce((a, p) => a + p[1], 0) / n;
+          const denom = pts.reduce((a, p) => a + (p[0] - mx) ** 2, 0);
+          if (denom > 0) {
+            const slope = pts.reduce((a, p) => a + (p[0] - mx) * (p[1] - my), 0) / denom;
+            if (slope > 0) {
+              doublingDays = Math.round(Math.log(2) / slope / 86400000);
+              naiveCrossing = new Date((Math.log(BAR_MIN) - (my - slope * mx)) / slope).toISOString().slice(0, 7);
+            }
+          }
+        }
+        return {
+          bar_minutes: BAR_MIN,
+          bar_note:
+            "OURS, NOT METR'S — reject it if you have reason to. METR publishes time " +
+            "horizons at reliability levels; it publishes no 40-hour bar. We chose 40 " +
+            "hours because it is a working week, so it stands in for 'could do a " +
+            "person's week unsupervised' — a rhetorical reference point, not a " +
+            "measured threshold, and nothing in the verdict turns on it.",
+          frontier_latest_minutes: best ? Math.round(best) : null,
+          instrument_ceiling_minutes: CEILING_MIN,
+          bar_is_beyond_the_instrument:
+            "THE BAR SITS ABOUT 2.5x BEYOND WHAT THIS BENCHMARK CAN MEASURE. The caveat " +
+            "on this panel puts reliable measurement at roughly 960 minutes; the bar is " +
+            "2400. So the crossing is not cleanly observable here, and a projection to " +
+            "it is an extrapolation past the instrument rather than a forecast of " +
+            "something we will be able to see happen.",
+          naive_frontier_doubling_days: doublingDays,
+          naive_bar_crossing_month: naiveCrossing,
+          projection_caveat:
+            "The crossing month above is ONE naive log-linear fit on the running " +
+            "frontier maximum, computed here so you have something concrete to argue " +
+            "with. Do not quote it as the projection. The app fits this four ways — " +
+            "lead lab or pooled frontier, keeping or dropping points above the suite " +
+            "ceiling — and publishes the SPREAD precisely because those choices " +
+            "disagree materially and a single confident date would be the dishonest " +
+            "version.",
+          what_would_be_worth_noticing:
+            "Two things, and neither votes. (1) A SHARP BREAK in the frontier near the " +
+            "projected window would be worth remarking on, in either direction: arriving " +
+            "early, or stalling short. (2) A PLATEAU is the more interesting case and " +
+            "the more easily misread one — before calling it a capability slowdown, " +
+            "check where it plateaued. Flattening as the frontier approaches the " +
+            "~960-minute ceiling is what INSTRUMENT SATURATION looks like, and it is " +
+            "indistinguishable from capability plateauing if you only read the curve. " +
+            "A plateau well below the ceiling is the informative one. Either way this " +
+            "panel still cannot corroborate a labour reading; it can only tell you " +
+            "whether the capability story people assume is behind the labour data is " +
+            "actually still moving.",
+        };
+      })(),
       caveat: "the tasks are clean, self-contained, auto-scorable software, machine-learning and cyber problems, not the messy parts of a job; the human baselines are contractors working without prior context; and horizons past roughly 16 hours are beyond what the task suite can measure reliably",
     });
   }

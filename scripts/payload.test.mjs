@@ -314,3 +314,34 @@ test("the wage panel offers rising pay as a possible displacement signature, mar
   assert.match(a.weighting_rule, /predict the SAME observation/,
     "the reason the panel cannot separate the two stories is the point");
 });
+
+// --- The 40-hour bar is ours, and it is past the instrument (2026-08-07) ------
+
+test("the METR reference bar is attributed and admits it is beyond the benchmark", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const metrRecords = JSON.parse(readFileSync("data/metr/time_horizons.json", "utf8")).records ?? [];
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const b = buildAnalysisPayload(pool, { metrRecords, metrTop5: [] })
+    .find((p) => p.panel === "ai_capability_metr").our_reference_bar;
+
+  // METR publishes horizons at reliability levels. It publishes no 40-hour bar; we
+  // chose that number because a working week is a rhetorical reference point.
+  assert.match(b.bar_note, /OURS, NOT METR'S/);
+
+  // The bar is 2400 minutes and this panel's own caveat puts reliable measurement at
+  // ~960. A projection to it extrapolates past the instrument, and saying so is the
+  // difference between a reference point and a forecast.
+  assert.ok(b.bar_minutes > b.instrument_ceiling_minutes * 2,
+    "if the bar ever falls inside the measurable range this warning must be revisited");
+  assert.match(b.bar_is_beyond_the_instrument, /not cleanly observable/i);
+
+  // A single date would be the dishonest version; the app fits four ways and spreads.
+  assert.match(b.projection_caveat, /ONE naive log-linear fit/);
+  assert.match(b.projection_caveat, /Do not quote it as the projection/);
+
+  // The plateau trap: flattening near the ceiling is instrument saturation, and it
+  // looks exactly like capability plateauing if you only read the curve.
+  assert.match(b.what_would_be_worth_noticing, /INSTRUMENT SATURATION/);
+  assert.match(b.what_would_be_worth_noticing, /plateau well below the ceiling/i);
+});
