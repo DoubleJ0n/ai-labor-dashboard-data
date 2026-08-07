@@ -488,9 +488,23 @@ function streakString(oriented, cadence) {
     if (d > TREND_DRIFT_Z) drift = `drifting further toward weakness ${over}`;
     else if (d < -TREND_DRIFT_Z) drift = `recovering ${over}`;
   }
+  // THE WATCH STRING NAMED THE WRONG LINE (fixed 2026-08-07). "watch" is stateForZ's
+  // label for a reading past the ATTENTION line (WATCH_Z, z >= 1) and short of the
+  // ALARM line (BREAK_Z, z >= 2). It printed as "modestly past its alarm line", which
+  // is a false alarm-crossing in prose: at the current 1.82 the same panel's own
+  // deviation block reports alarm_line 2 and attention_line 1, and its differential
+  // trigger sits at -2.48 against a value of -2.35. Three fields said not-past and the
+  // summary string said past.
+  //
+  // Two analyst runs flagged it independently, the second while specifically auditing
+  // the payload for directional lean — and noted this was the one lean it could find,
+  // pointing toward alarm. A summary string that overstates its own panel is worse
+  // than a wrong number, because it is the field a reader trusts to save them reading
+  // the other three.
   const condition = current === "steady"
     ? "inside the range its own 2010s history defined"
-    : current === "watch" ? "modestly past its alarm line" : "well past its alarm line";
+    : current === "watch" ? "past its attention line but short of its alarm line"
+      : "well past its alarm line";
   const noun = consecutive === 1 ? "reading" : "readings";
   const prefix = censored ? "at least " : "";
   const tail = censored

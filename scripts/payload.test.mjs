@@ -381,3 +381,35 @@ test("the reasoning log is budgeted, because uncapped meant truncated", async ()
   assert.ok(!/Uncapped: this is stored for audit/.test(PASS1_SYSTEM),
     "the word that produced the truncation must not survive in the spec");
 });
+
+// --- A summary string may not overstate its own panel (2026-08-07) ------------
+
+test("the streak names the line it actually crossed", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const panels = buildAnalysisPayload(pool);
+
+  // "watch" is the label for past the ATTENTION line and short of the ALARM line. It
+  // printed as "modestly past its alarm line", which reads as an alarm crossing that
+  // the panel's own deviation, alarm_line and trigger all deny. Two analyst runs
+  // caught it; the second was auditing for directional lean and found this as the only
+  // one, pointing toward alarm.
+  for (const p of panels) {
+    const dv = p.deviation_from_normal ?? p.headline?.deviation_from_normal;
+    const streak = p.streak ?? p.headline?.streak;
+    if (!dv || !streak || typeof dv.against_fixed_pre2020_baseline !== "number") continue;
+    const z = dv.against_fixed_pre2020_baseline;
+    if (typeof dv.alarm_line !== "number") continue;
+
+    if (z < dv.alarm_line && /past its alarm line/.test(streak)) {
+      assert.match(streak, /short of its alarm line/,
+        `${p.panel}: z=${z} is inside alarm_line=${dv.alarm_line}, so the streak must not ` +
+        "claim an alarm crossing without saying it is short of it");
+    }
+    if (z >= dv.alarm_line) {
+      assert.ok(!/short of its alarm line/.test(streak),
+        `${p.panel}: z=${z} is past alarm_line=${dv.alarm_line}; the streak understates it`);
+    }
+  }
+});
