@@ -83,8 +83,11 @@ export const DIRECTIONAL = new Set(
  * fast signal behind a slow one delays exactly the warning this exists to give.
  *
  * Adoption stays computed, stays on the dashboard, and stays in the analyst's payload
- * with a DEPLOYMENT_GATE role saying it can permit a reading and never cause one. What
- * it no longer does is hold a verdict down.
+ * with a DEPLOYMENT_CONTEXT role. What it no longer does is hold a verdict down.
+ *
+ * That role was called DEPLOYMENT_GATE until 2026-08-07, which outlived the thing it
+ * named: the gating was removed here on 2026-07-29 and the label went on asserting it
+ * to every analyst run for a week afterwards.
  *
  * THE EARLY-WARNING LINE, added here 2026-07-29 to match the app, which has had it
  * since before this file did. Exposed-industry employment falling

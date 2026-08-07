@@ -38,7 +38,15 @@
 //   REABSORPTION        can show whether the outflow landed; cannot attribute
 //   COMPOSITION_CONTROL can say whether an average moved because pay changed or
 //                       because the population under it did
-//   DEPLOYMENT_GATE     can permit a displacement reading; can never cause one
+//   DEPLOYMENT_CONTEXT  says whether AI is deployed widely enough for an AI
+//                       explanation to be available at all; decides nothing. RENAMED
+//                       2026-08-07 from DEPLOYMENT_GATE, which named a function that
+//                       had already been removed: adoption stopped being able to hold
+//                       a verdict down on 2026-07-29 (see verdict.mjs), and the
+//                       panel's own saturation finished the job — at roughly a fifth
+//                       of firms the gate is permanently open, so a gate that cannot
+//                       close is not a gate. Calling it one told the analyst the panel
+//                       does something it does not.
 //   CONFOUNDER_CHECK    can name a competing cause; decides nothing itself
 //   GAINS_TEST          can show whether the promised productivity gains are visible
 //   DESCRIPTIVE         reports a quantity with no threshold and no vote
@@ -1263,6 +1271,49 @@ export function buildAnalysisPayload(pool, extras = {}) {
         "measure on the dashboard that can separate an AI-specific story from a general " +
         "economic one, which is why it is necessary. It cannot say whether work was " +
         "destroyed. Pair it with the reabsorption panel before concluding anything.",
+      // WHAT THESE AGGREGATES ACTUALLY COUNT (added 2026-08-07). Facts about the
+      // instrument, which this payload supplies; NOT a list of alternative
+      // explanations, which it deliberately does not — see INVERT EVERY SUPPORTING
+      // PANEL in the pass-1 prompt. The distinction is that an analyst cannot derive
+      // what an industry code contains by reasoning about the number, and can derive
+      // competing hypotheses.
+      //
+      // The specific trap: "information" reads as a synonym for tech, and it is not.
+      // Roughly a fifth of it is motion picture and sound recording, so an industrial
+      // dispute in Hollywood lands in this series as AI-exposed job loss. That is not
+      // hypothetical here — the 2023 writers' and actors' strikes sit inside the very
+      // months this differential reached its widest reading, and the sector ticked back
+      // up the month the second strike settled.
+      what_these_industry_codes_contain:
+        "EXPOSED. 'Information' is not a synonym for tech: alongside software and data " +
+        "processing it contains publishing, broadcasting, telecommunications, and motion " +
+        "picture and sound recording — so a strike, a merger, or a streaming write-down " +
+        "registers here as AI-exposed job loss with no AI in it. The 2023 writers' and " +
+        "actors' strikes fall inside the months this differential was at its widest. " +
+        "'Professional and business services' includes temporary help and staffing, which " +
+        "turns earlier and harder than the rest of the economy in ANY slowdown and is a " +
+        "recognised leading indicator in its own right; it also carries heavy federal " +
+        "contracting exposure. 'Financial activities' includes real estate and insurance, " +
+        "both rate-sensitive. " +
+        "CONTROL. Construction is the most interest-rate-sensitive industry in the " +
+        "economy; construction and leisure and hospitality are both immigration-sensitive " +
+        "on the labour-supply side, so a policy change can move the control leg without " +
+        "anything happening in exposed work. Education and health is substantially " +
+        "publicly funded and moves on budgets rather than the cycle. " +
+        "Neither leg is a clean read on 'AI exposure' or 'not AI exposure'; both are " +
+        "industry codes doing a job they were not designed for, which is the price of " +
+        "using monthly data that exists.",
+      how_this_survey_revises:
+        "CES is a survey with a model attached, and both parts move after publication. " +
+        "The two most recent months are preliminary and are revised at each release as " +
+        "late reporters arrive, so the newest point on this panel is the least reliable " +
+        "one and a turn that appears in it may not survive. Annually the whole series is " +
+        "benchmarked to the near-universe employer tax records, and those revisions have " +
+        "recently run to hundreds of thousands of jobs at the national level. Between " +
+        "benchmarks, new and closing firms are estimated by a birth-death model rather " +
+        "than counted, and that model is known to miss turning points in both directions " +
+        "— it under-counts losses entering a downturn and under-counts gains leaving one. " +
+        "Weight the shape of the last two or three months accordingly.",
       unit: "percent (year-over-year job growth)",
       // 2dp on all three, not 1dp. At 1dp the two sides did not sum to the
       // differential sitting beneath them (-1.3 and 1.3 against -2.5), which is the
@@ -1894,7 +1945,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
       panel: "ai_adoption",
       series_id: "US Census Bureau Business Trends and Outlook Survey, share of firms using AI",
       display_label: "Firms using AI in any business function",
-      panel_role: "DEPLOYMENT_GATE",
+      panel_role: "DEPLOYMENT_CONTEXT",
       // REWRITTEN 2026-08-07 FROM A RULE INTO ITS REASONS. The old note asserted that
       // adoption "PERMITS a displacement reading and no amount of adoption CAUSES one",
       // and gave two reasons for it. The conclusion is right and is kept. What changed
@@ -1909,9 +1960,11 @@ export function buildAnalysisPayload(pool, extras = {}) {
       // the most conspicuously missing.
       panel_role_note:
         "WHY THIS PANEL IS WEAK EVIDENCE ABOUT JOBS, AND WHAT IT IS STILL GOOD FOR. " +
-        "The role name says GATE, which is a summary of the reasoning below rather than " +
-        "an instruction: nothing here forbids you from using this panel. Weigh it on " +
-        "these facts, and if it carries a genuine finding, use it and say so. " +
+        "Nothing here forbids you from using this panel, and it is not a gate — it was " +
+        "called one until August 2026, and the name was wrong twice over: nothing in " +
+        "the verdict machinery has gated on it since July 2026, and reason (4) below " +
+        "means it could not gate anything now even if it did. Weigh it on these facts, " +
+        "and if it carries a genuine finding, use it and say so. " +
         "(1) It is self-reported by firms with an obvious incentive to look " +
         "forward-leaning, so a 'yes' can mean a pilot nobody uses. " +
         "(2) It measures whether a tool is PRESENT, not whether any use case proved a " +

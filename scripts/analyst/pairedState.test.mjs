@@ -258,7 +258,7 @@ test("the panel_role labels do not smuggle the verdict in", () => {
   assert.deepEqual(
     [...new Set(roles)].sort(),
     [
-      "ATTRIBUTION", "COMPOSITION_CONTROL", "CONFOUNDER_CHECK", "DEPLOYMENT_GATE",
+      "ATTRIBUTION", "COMPOSITION_CONTROL", "CONFOUNDER_CHECK", "DEPLOYMENT_CONTEXT",
       "DESCRIPTIVE", "GAINS_TEST", "REABSORPTION", "does_not_contribute",
     ],
   );

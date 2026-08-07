@@ -216,3 +216,43 @@ test("the analyst is told that citing a rule is not giving a reason", async () =
   // It must cut both ways, or it becomes a licence to drop inconvenient findings.
   assert.match(PASS1_SYSTEM, /never a reason to leave a genuine finding out/i);
 });
+
+// --- The gate is gone, and the codes say what they contain (2026-08-07) --------
+
+test("no panel is described to the analyst as a gate", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const panels = buildAnalysisPayload(pool);
+
+  // The gating was removed from verdict.mjs on 2026-07-29; the label survived it by a
+  // week and went on telling every run the panel did something it did not. A role name
+  // is read as a claim about function, so it has to stay true.
+  const adoption = panels.find((p) => p.panel === "ai_adoption");
+  assert.equal(adoption.panel_role, "DEPLOYMENT_CONTEXT");
+  for (const p of panels) {
+    assert.ok(!/GATE/.test(p.panel_role ?? ""), `${p.panel} still carries a GATE role`);
+  }
+  // And the note must not reintroduce it in prose.
+  assert.ok(!/says GATE/i.test(adoption.panel_role_note));
+});
+
+test("the jobs panel says what its industry codes actually contain", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const jobs = buildAnalysisPayload(pool).find((p) => p.panel === "exposed_vs_control_jobs");
+
+  // An analyst can generate competing hypotheses; it cannot derive what an industry
+  // code contains by reasoning about the number. That is the line this payload draws
+  // between facts about the instrument (supplied) and alternative explanations (not).
+  const c = jobs.what_these_industry_codes_contain;
+  assert.ok(c, "the composition note is the only place the analyst learns this");
+  assert.match(c, /motion picture/i, "the information-is-not-tech trap must stay named");
+  assert.match(c, /temporary help|staffing/i, "temp help turns early in any slowdown");
+  assert.match(c, /construction/i, "the control leg's rate sensitivity must stay named");
+
+  // Recent months are the least reliable, and the whole current finding rests on them.
+  assert.match(jobs.how_this_survey_revises, /preliminary|revised/i);
+  assert.match(jobs.how_this_survey_revises, /birth-death/i);
+});
