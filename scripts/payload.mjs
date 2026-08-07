@@ -1895,14 +1895,42 @@ export function buildAnalysisPayload(pool, extras = {}) {
       series_id: "US Census Bureau Business Trends and Outlook Survey, share of firms using AI",
       display_label: "Firms using AI in any business function",
       panel_role: "DEPLOYMENT_GATE",
+      // REWRITTEN 2026-08-07 FROM A RULE INTO ITS REASONS. The old note asserted that
+      // adoption "PERMITS a displacement reading and no amount of adoption CAUSES one",
+      // and gave two reasons for it. The conclusion is right and is kept. What changed
+      // is its standing: an analyst handed a rule repeats it as a rule, which is what
+      // happened — a run discounted this panel with the phrase "licenses no attribution",
+      // a sentence a reader cannot check and which reads as the prompt having decided the
+      // answer. The reasons below are checkable, and an analyst reasoning from them
+      // reaches the same place while being able to say why in its own words.
+      //
+      // Four of these came from the dashboard's author and were not previously stated
+      // anywhere the model could see them. The saturation point is the sharpest and was
+      // the most conspicuously missing.
       panel_role_note:
-        "A weak-form gate, and the direction of the logic is the whole point: real " +
-        "adoption PERMITS a displacement reading, and no amount of adoption CAUSES " +
-        "one. You cannot call it AI displacement with no deployment; you also cannot " +
-        "call it AI displacement from deployment alone, because firms adopting a tool " +
-        "is not an event in anyone's employment. It counts firms rather than workers, " +
-        "which understates worker exposure whenever adoption rises with employer size, " +
-        "and it does here.",
+        "WHY THIS PANEL IS WEAK EVIDENCE ABOUT JOBS, AND WHAT IT IS STILL GOOD FOR. " +
+        "The role name says GATE, which is a summary of the reasoning below rather than " +
+        "an instruction: nothing here forbids you from using this panel. Weigh it on " +
+        "these facts, and if it carries a genuine finding, use it and say so. " +
+        "(1) It is self-reported by firms with an obvious incentive to look " +
+        "forward-leaning, so a 'yes' can mean a pilot nobody uses. " +
+        "(2) It measures whether a tool is PRESENT, not whether any use case proved a " +
+        "role redundant — which is the thing that would actually cost a job, and this " +
+        "survey does not ask it. " +
+        "(3) It is an economy-wide aggregate with no firm-level linkage: nothing here " +
+        "connects any company's adoption to that same company's layoffs or hiring " +
+        "freeze, so a correlation between this series and any employment series is " +
+        "between two aggregates and licenses no claim about mechanism. " +
+        "(4) It is already past the level where displacement could be occurring. At " +
+        "roughly a fifth of firms, the question 'is there enough deployment for this to " +
+        "be happening' is already answered yes, so further movement mostly cannot change " +
+        "what is possible — which is why the LEVEL is nearly uninformative here and only " +
+        "a sharp BREAK would be worth remarking on. " +
+        "(5) It counts firms rather than workers, understating worker exposure whenever " +
+        "adoption rises with employer size, and it does here. " +
+        "Taken together: deployment has to exist for an AI explanation to be available " +
+        "at all, and its presence is not itself evidence that anyone lost work. Treat a " +
+        "rise here as removing an objection, not as supplying a reason.",
       unit: "percent (of firms)",
       latest_value: last ? round1(last.pct) : null,
       // YYYY-MM, matching prior_reading and full_series just below. This alone

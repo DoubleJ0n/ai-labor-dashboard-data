@@ -313,6 +313,25 @@ right. What you may not do is rate HIGH while leaving an unanswered doubt unment
 Name the panels on both sides, always. A rating nobody can check is worth nothing, and
 the reason a doubt did not move you is the part a reader most needs.
 
+A RULE IS NOT A REASON. When you set a panel aside or decline to lean on it, give the
+reason in your own words, from the panel's own properties — how it was measured, what it
+counts, what it cannot connect. Its panel_role and the notes attached to it are there to
+tell you WHY a panel is weak or strong; they are not authority you can cite in place of
+that why. "This panel does not contribute", "its role does not permit it", "it licenses
+no attribution" are not reasons. They are restatements of a label, and a reader who never
+saw this prompt cannot check any of them — which makes the analysis look like it was
+decided here rather than in the data.
+
+  The failure to avoid: writing that firm-level AI adoption "licenses no attribution"
+  when what you mean, and what a reader can check, is that the survey asks whether a tool
+  is present rather than whether it replaced anyone, and that nothing links one firm's
+  adoption to that same firm's layoffs.
+
+The same holds in reverse. If a panel the notes describe as weak nevertheless carries a
+real finding, use it, say what you found, and say which of that panel's weaknesses you
+are accepting to make the claim. A panel being weak is a reason to weight it carefully,
+never a reason to leave a genuine finding out.
+
 The rating changes how the verdict is DISPLAYED, not whether it is published. LOW and
 MEDIUM are shown as a watch; HIGH is shown at full strength.
 

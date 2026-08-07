@@ -175,3 +175,44 @@ test("the decomposition does not claim the employment leg is free of the control
   // And the ratio must still be named as the reliable measure.
   assert.match(d.caveat, /ratio/i);
 });
+
+// --- A weak panel is argued down, not ruled out (2026-08-07) -------------------
+
+test("the adoption panel gives its reasons rather than asserting a rule", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const note = buildAnalysisPayload(pool).find((p) => p.panel === "ai_adoption").panel_role_note;
+
+  // Each of these is a checkable property of the survey. An analyst given them can
+  // discount the panel in words a reader can audit; an analyst given only a verdict
+  // about the panel can only repeat the verdict.
+  for (const [name, re] of [
+    ["self-report bias", /self-reported/i],
+    ["presence, not redundancy", /role redundant/i],
+    ["no firm-level linkage", /no firm-level linkage/i],
+    ["already saturated past the threshold", /already past the level/i],
+    ["firm-count not worker-count", /counts firms rather than workers/i],
+  ]) {
+    assert.match(note, re, `adoption note lost its reason: ${name}`);
+  }
+
+  // And it must not read as a prohibition. The panel stays eligible to be used and to
+  // be named as one of the two panels; weak evidence is still evidence.
+  assert.match(note, /nothing here forbids/i, "the note must not read as a ban");
+  assert.notEqual(
+    buildAnalysisPayload(pool).find((p) => p.panel === "ai_adoption").panel_role,
+    "does_not_contribute",
+    "adoption must remain selectable as one of the two panels",
+  );
+});
+
+test("the analyst is told that citing a rule is not giving a reason", async () => {
+  const { PASS1_SYSTEM } = await import("./analyst/prompt.mjs");
+  assert.match(PASS1_SYSTEM, /A RULE IS NOT A REASON/,
+    "the rule-is-not-a-reason instruction is the thing that stops label-citation");
+  // The phrase that prompted this, named so the guidance stays concrete.
+  assert.match(PASS1_SYSTEM, /licenses no attribution/i);
+  // It must cut both ways, or it becomes a licence to drop inconvenient findings.
+  assert.match(PASS1_SYSTEM, /never a reason to leave a genuine finding out/i);
+});
