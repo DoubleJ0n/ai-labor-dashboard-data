@@ -191,7 +191,6 @@ test("the adoption panel gives its reasons rather than asserting a rule", async 
     ["self-report bias", /self-reported/i],
     ["presence, not redundancy", /role redundant/i],
     ["no firm-level linkage", /no firm-level linkage/i],
-    ["already saturated past the threshold", /already past the level/i],
     ["firm-count not worker-count", /counts firms rather than workers/i],
   ]) {
     assert.match(note, re, `adoption note lost its reason: ${name}`);
@@ -257,62 +256,48 @@ test("the jobs panel says what its industry codes actually contain", async () =>
   assert.match(jobs.how_this_survey_revises, /birth-death/i);
 });
 
-// --- Judgements are marked as judgements (2026-08-07) -------------------------
+// --- The payload argues nothing (2026-08-07, replacing the marking approach) ----
 
-test("a claim that is ours rather than the instrument's says so", async () => {
+test("no panel hands the analyst a pre-built conclusion, marked or otherwise", async () => {
   const { readFileSync } = await import("node:fs");
   const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
   const { buildAnalysisPayload } = await import("./payload.mjs");
   const panels = buildAnalysisPayload(pool);
 
-  // The test that separates the two cases: could the analyst derive this by reasoning
-  // about the numbers? Survey mechanics, industry composition and re-basing dates —
-  // no, so they are supplied flat. An inference about what a level implies — yes, so
-  // it must be attributed, or the dashboard publishes its author's priors under the
-  // model's name.
-  const adoption = panels.find((p) => p.panel === "ai_adoption");
-  assert.match(adoption.panel_role_note, /OUR INFERENCE, NOT A PROPERTY OF THE SURVEY/,
-    "the saturation argument is a judgement about the world, not a fact about the survey");
-  assert.match(adoption.panel_role_note, /reject it if the data gives you cause/i);
-
-  const wages = panels.find((p) => p.panel === "individual_wage_growth");
-  const r = wages.switcher_premium_reading;
-  if (r !== "no reading available") {
-    assert.match(r, /^MEASURED:/, "the arithmetic comes first and is labelled as such");
-    assert.match(r, /OUR READING, WHICH YOU MAY REJECT/,
-      "mapping a premium to a story about why people move is an interpretation, not a measurement");
+  // The marking approach lasted one analyst run. Attribution fixes a claim's
+  // PROVENANCE and does nothing about its DIRECTION, and every opinion we had added
+  // pointed the same way; the run listed them as advocacy and noted the pattern. So
+  // the opinions are gone rather than labelled, and the label is gone with them --
+  // a payload with no house arguments in it has nothing to attribute.
+  for (const p of panels) {
+    const blob = JSON.stringify(p);
+    assert.ok(!/OUR READING, WHICH YOU MAY REJECT|OUR INFERENCE, NOT A PROPERTY/.test(blob),
+      `${p.panel} still carries a marked house opinion; remove the claim, not just the label`);
   }
 
-  // The instrument facts stay unmarked, because they are not opinions.
-  const jobs = panels.find((p) => p.panel === "exposed_vs_control_jobs");
-  assert.ok(!/OUR READING|OUR INFERENCE/.test(jobs.what_these_industry_codes_contain),
-    "what an industry code contains is not a judgement and must not be hedged as one");
-});
+  // The wage panel's pre-built displacement argument is gone. Its PREMISE stays: a
+  // shrinking group's average rises when lower-paid workers leave. The analyst can
+  // take the step from premise to conclusion, and the step has to be its own.
+  const wages = panels.find((p) => p.panel === "exposed_vs_control_wages").measurement_artifact;
+  assert.equal(wages.rising_pay_as_a_displacement_signature, undefined,
+    "the pre-built argument must not come back, in this or any renamed field");
+  assert.match(wages.composition_artifact, /average pay across the group RISES/,
+    "the mechanism is a fact and stays");
 
-// --- The wage panel states the inversion, and states whose it is (2026-08-07) --
+  // Adoption keeps the four survey properties and lost the inference about whether a
+  // fifth of firms is 'enough'. The level is in the payload; the analyst can judge it.
+  const adoption = panels.find((p) => p.panel === "ai_adoption").panel_role_note;
+  assert.ok(!/already past the level/i.test(adoption),
+    "whether a fifth of firms is sufficient for anything is the analyst's call");
+  assert.match(adoption, /self-reported/i, "the survey properties are facts and stay");
 
-test("the wage panel offers rising pay as a possible displacement signature, marked", async () => {
-  const { readFileSync } = await import("node:fs");
-  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
-  const { buildAnalysisPayload } = await import("./payload.mjs");
-  const a = buildAnalysisPayload(pool).find((p) => p.panel === "exposed_vs_control_wages").measurement_artifact;
-
-  // The panel long said rising pay is not evidence of augmentation. The further claim
-  // — that the same configuration can point the other way, because the average rose by
-  // losing the bottom of the distribution — is the one an analyst would otherwise have
-  // to invent, and it is the reading that most flatters this project's own thesis.
-  const s = a.rising_pay_as_a_displacement_signature;
-  assert.ok(s, "the inversion is the non-obvious half of the composition artifact");
-  assert.match(s, /OUR READING, WHICH YOU MAY REJECT/, "a house opinion must carry its provenance");
-  assert.match(s, /never hired/i, "the mechanism is entry-level hiring stopping, not only pay not rising");
-  assert.match(s, /cannot see WHO left/, "the seniority step is inference, and must say so");
-  assert.match(s, /flatters/i, "the motivated-reasoning risk is part of the claim, not a footnote");
-
-  // And the weighting rule states the logic instead of issuing an order.
-  assert.ok(!/must not be cited/i.test(a.weighting_rule),
-    "a conclusion that follows from a stated fact does not also need to be commanded");
-  assert.match(a.weighting_rule, /predict the SAME observation/,
-    "the reason the panel cannot separate the two stories is the point");
+  // The switcher premium names both live explanations and argues for neither.
+  const r = panels.find((p) => p.panel === "individual_wage_growth").switcher_premium_reading;
+  if (r !== "no reading available") {
+    assert.match(r, /Two explanations fit that/,
+      "naming one reading and not its rival is a thumb on the scale whatever the label says");
+    assert.match(r, /composition/i);
+  }
 });
 
 // --- The 40-hour bar is ours, and it is past the instrument (2026-08-07) ------
@@ -334,14 +319,14 @@ test("the METR reference bar is attributed and admits it is beyond the benchmark
   // difference between a reference point and a forecast.
   assert.ok(b.bar_minutes > b.instrument_ceiling_minutes * 2,
     "if the bar ever falls inside the measurable range this warning must be revisited");
-  assert.match(b.bar_is_beyond_the_instrument, /not cleanly observable/i);
+  assert.match(b.bar_is_beyond_the_instrument, /PLACEMENT WAS DELIBERATE/);
 
   // A single date would be the dishonest version; the app fits four ways and spreads.
   assert.match(b.projection_caveat, /ONE naive log-linear fit/);
   assert.match(b.projection_caveat, /Do not quote it as the projection/);
 
-  // The plateau trap: flattening near the ceiling is instrument saturation, and it
-  // looks exactly like capability plateauing if you only read the curve.
-  assert.match(b.what_would_be_worth_noticing, /INSTRUMENT SATURATION/);
-  assert.match(b.what_would_be_worth_noticing, /plateau well below the ceiling/i);
+  // The plateau trap is a property of the benchmark: two different worlds produce the
+  // same curve. Stated as a limit, never as a hint about which one is happening.
+  assert.match(b.a_plateau_here_is_ambiguous, /saturation/i);
+  assert.match(b.a_plateau_here_is_ambiguous, /plateau well below the ceiling/i);
 });

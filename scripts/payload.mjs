@@ -1583,28 +1583,19 @@ export function buildAnalysisPayload(pool, extras = {}) {
           "first. Where the individual-level tracker disagrees with this panel, the " +
           "composition question is unresolved, and a figure quoted at face value is " +
           "quoting an unresolved question.",
-        // ADDED 2026-08-07 AT THE DASHBOARD AUTHOR'S REQUEST, and marked as opinion
-        // because that is what it is. The panel already said the composition artifact
-        // means rising pay is not evidence of augmentation. It did not say the further
-        // thing: that the same configuration can point the other way. Worth passing on,
-        // and worth flagging that it is the reading that most flatters this project's
-        // own thesis — which is exactly when a house opinion needs its provenance
-        // attached rather than blending into the arithmetic around it.
-        rising_pay_as_a_displacement_signature:
-          "OUR READING, WHICH YOU MAY REJECT. The most augmentation-shaped configuration " +
-          "this panel produces can be weak evidence for the opposite. If exposed average " +
-          "pay is RISING while exposed employment FALLS and the individual-level tracker " +
-          "is flat, the composition mechanism above is not merely available as an " +
-          "explanation, it is the one the three readings jointly point to: the average " +
-          "rose because lower-paid workers left the denominator. Who leaves a shrinking " +
-          "group first is usually the junior and lower-paid end, so that pattern is " +
-          "consistent with the 'never hired' half of this dashboard's question — " +
-          "entry-level hiring stopping — and not only with 'nobody got a raise'. " +
-          "Two limits on it, both real. This panel cannot see WHO left, only that the " +
-          "average moved, so the seniority story is inference and not observation. And " +
-          "it is the reading that most flatters the thesis this dashboard exists to " +
-          "test, so hold it to the standard you would hold an augmentation reading to " +
-          "before citing it.",
+        // REMOVED 2026-08-07, THE SAME DAY IT SHIPPED. This field carried a pre-built
+        // argument that the most augmentation-shaped configuration on the dashboard is
+        // really evidence of displacement. It was marked as opinion and that was not
+        // enough: the first analyst run to see it listed it as advocacy, alongside the
+        // adoption note, and observed that the payload's opinions all pointed the same
+        // way. It was right. Marking a house opinion fixes its PROVENANCE and does
+        // nothing about its DIRECTION, and there was no symmetric field putting the
+        // strongest case that rising exposed pay is simply people being paid more.
+        //
+        // The mechanism itself is not lost: composition_artifact states that a shrinking
+        // group's average rises when lower-paid workers leave, which is the whole
+        // premise. What is gone is us walking the analyst from that premise to a
+        // conclusion. It can take the step, or not, and either way the step is its own.
         exposed_employment_yoy_percent: round2(exposedEmploymentYoY(series)),
         exposed_employment_direction:
           exposedEmploymentYoY(series) == null ? "unknown"
@@ -1679,20 +1670,23 @@ export function buildAnalysisPayload(pool, extras = {}) {
       // people are moving is ours, it is contestable, and a run that disagrees with it
       // on this month's evidence should be free to say so without contradicting the
       // payload.
+      // BOTH READINGS, NEITHER ARGUED FOR (2026-08-07). This shipped for months as
+      // measurement-then-interpretation in one breath, and briefly as the same thing
+      // with the interpretation labelled. Labelling was not enough: naming one reading
+      // and not its rival still puts a thumb on the scale, whatever the label says. It
+      // now states the number and both live explanations, and stops.
       switcher_premium_reading: lastPremium == null ? "no reading available"
         : lastPremium[1] > 0
-          ? `MEASURED: switchers are ahead of stayers by ${round2(lastPremium[1])} points, ` +
-            `so changing jobs currently pays. OUR READING, WHICH YOU MAY REJECT: that is ` +
-            `the shape opportunity-driven mobility takes, with people moving because ` +
-            `somewhere else is bidding for them. A premium can also persist because the ` +
-            `people still able to switch are the strongest candidates, which is a ` +
-            `composition story rather than a demand one, and this series cannot separate ` +
-            `the two.`
-          : `MEASURED: switchers are BEHIND stayers by ${round2(-lastPremium[1])} points, ` +
-            `so people who change jobs are taking less than those who stay. OUR READING, ` +
-            `WHICH YOU MAY REJECT: that is the shape forced mobility takes, and it is the ` +
-            `pattern a displacement episode absorbed into worse work would produce while ` +
-            `the headline employment count held up.`,
+          ? `Switchers are ahead of stayers by ${round2(lastPremium[1])} points, so ` +
+            `changing jobs currently pays. Two explanations fit that and this series ` +
+            `cannot separate them: demand — somewhere else is bidding for these people; ` +
+            `or composition — the people still able to switch are the strongest ` +
+            `candidates, and the premium is who is moving rather than what moving pays.`
+          : `Switchers are BEHIND stayers by ${round2(-lastPremium[1])} points, so people ` +
+            `who change jobs are taking less than those who stay. Two explanations fit ` +
+            `that and this series cannot separate them: people are moving because they ` +
+            `have to and accepting worse terms; or the mix of who is switching has ` +
+            `shifted toward workers who command less, with nobody's terms having changed.`,
       measurement_artifact: {
         text:
           "This is a CPS-based measure, and the CPS has been degraded through this " +
@@ -2041,13 +2035,15 @@ export function buildAnalysisPayload(pool, extras = {}) {
         "connects any company's adoption to that same company's layoffs or hiring " +
         "freeze, so a correlation between this series and any employment series is " +
         "between two aggregates and licenses no claim about mechanism. " +
-        "(4) THIS ONE IS OUR INFERENCE, NOT A PROPERTY OF THE SURVEY — reject it if the " +
-        "data gives you cause. We read roughly a fifth of firms as already past the " +
-        "level at which displacement could be occurring, which would make the LEVEL " +
-        "nearly uninformative and leave only a sharp BREAK worth remarking on. The " +
-        "measurement is the level and its short history; the judgement that the level " +
-        "is already sufficient is ours, and it is the kind of claim you are better " +
-        "placed to test against this month's data than we were when we wrote it. " +
+        // (4) IS DELETED, 2026-08-07. It argued that a fifth of firms is already past
+        // the level at which displacement could occur, so the level is uninformative
+        // and only a break matters. That is an inference about the world, not a
+        // property of the survey, and it was the one item in this list that was not a
+        // measurable fact. An analyst run flagged it as the payload inviting a
+        // conclusion. The level and its history are both here; whether a fifth is
+        // enough for anything is a question the analyst can answer without our help,
+        // and one it is better placed to answer against current data than we were in
+        // advance.
         "(5) It counts firms rather than workers, understating worker exposure whenever " +
         "adoption rises with employer size, and it does here. " +
         "Taken together: deployment has to exist for an AI explanation to be available " +
@@ -2239,11 +2235,14 @@ export function buildAnalysisPayload(pool, extras = {}) {
           frontier_latest_minutes: best ? Math.round(best) : null,
           instrument_ceiling_minutes: CEILING_MIN,
           bar_is_beyond_the_instrument:
-            "THE BAR SITS ABOUT 2.5x BEYOND WHAT THIS BENCHMARK CAN MEASURE. The caveat " +
-            "on this panel puts reliable measurement at roughly 960 minutes; the bar is " +
-            "2400. So the crossing is not cleanly observable here, and a projection to " +
-            "it is an extrapolation past the instrument rather than a forecast of " +
-            "something we will be able to see happen.",
+            "THE BAR SITS ABOUT 2.5x BEYOND WHAT THIS BENCHMARK CURRENTLY MEASURES, AND " +
+            "THAT PLACEMENT WAS DELIBERATE. The caveat on this panel puts reliable " +
+            "measurement at roughly 960 minutes; the bar is 2400. It was set out there " +
+            "on purpose, on the assumption that METR extends the durations its suite can " +
+            "score — a bar inside today's ceiling would be reached and stop meaning " +
+            "anything. The consequence is still worth holding: until the suite extends, " +
+            "a projection to this bar extrapolates past the instrument, so treat the " +
+            "crossing as a marker on a forecast rather than an event anyone will observe.",
           naive_frontier_doubling_days: doublingDays,
           naive_bar_crossing_month: naiveCrossing,
           projection_caveat:
@@ -2254,18 +2253,18 @@ export function buildAnalysisPayload(pool, extras = {}) {
             "ceiling — and publishes the SPREAD precisely because those choices " +
             "disagree materially and a single confident date would be the dishonest " +
             "version.",
-          what_would_be_worth_noticing:
-            "Two things, and neither votes. (1) A SHARP BREAK in the frontier near the " +
-            "projected window would be worth remarking on, in either direction: arriving " +
-            "early, or stalling short. (2) A PLATEAU is the more interesting case and " +
-            "the more easily misread one — before calling it a capability slowdown, " +
-            "check where it plateaued. Flattening as the frontier approaches the " +
-            "~960-minute ceiling is what INSTRUMENT SATURATION looks like, and it is " +
-            "indistinguishable from capability plateauing if you only read the curve. " +
-            "A plateau well below the ceiling is the informative one. Either way this " +
-            "panel still cannot corroborate a labour reading; it can only tell you " +
-            "whether the capability story people assume is behind the labour data is " +
-            "actually still moving.",
+          // Reduced to the one thing here that is a fact rather than a suggestion. The
+          // previous version told the analyst which shapes "would be worth remarking
+          // on", which is us picking the findings. The saturation point stays because
+          // it is a property of the instrument: two different worlds produce the same
+          // curve, and no amount of reasoning about the curve alone separates them.
+          a_plateau_here_is_ambiguous:
+            "If the frontier flattens, where it flattened decides what it can mean. " +
+            "Flattening as it approaches the ~960-minute ceiling is what instrument " +
+            "saturation looks like, and from the curve alone that is indistinguishable " +
+            "from capability slowing; a plateau well below the ceiling has no such " +
+            "second explanation. This is a limit of the benchmark, not a hint about " +
+            "which is happening.",
         };
       })(),
       caveat: "the tasks are clean, self-contained, auto-scorable software, machine-learning and cyber problems, not the messy parts of a job; the human baselines are contractors working without prior context; and horizons past roughly 16 hours are beyond what the task suite can measure reliably",
