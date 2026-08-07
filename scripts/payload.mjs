@@ -1569,14 +1569,42 @@ export function buildAnalysisPayload(pool, extras = {}) {
           "left rather than who was paid more. The cross-check is economy-wide, so it " +
           "cannot confirm an exposed-industry story on its own — it can only tell you " +
           "whether the aggregate reading survives the composition question.",
+        // The prescription came out (2026-08-07) and the logic stayed. "Must not be
+        // cited as strong support" was us setting the weight; the sentence before it
+        // already says why the panel cannot separate the two stories, and a conclusion
+        // that follows from a stated fact does not also need to be ordered.
         weighting_rule:
-          "Weight this panel by the sign of exposed employment change. If exposed employment is " +
-          "RISING, the composition story cannot explain rising pay and this is clean evidence. If " +
-          "exposed employment is FALLING, this panel cannot distinguish augmentation from " +
-          "displacement and must not be cited as strong support for either. Where the " +
-          "individual-level tracker disagrees with this panel, treat the composition " +
-          "question as unresolved and let it weaken this reading rather than reporting " +
-          "the figure at face value.",
+          "The sign of exposed employment change decides what this panel can support. If " +
+          "exposed employment is RISING, the composition story cannot explain rising pay, " +
+          "and the reading is clean. If exposed employment is FALLING, the composition " +
+          "story and a genuine pay story predict the SAME observation, so this panel " +
+          "cannot separate them by itself — which is what makes it weak support for " +
+          "either reading rather than strong support for whichever one you reached " +
+          "first. Where the individual-level tracker disagrees with this panel, the " +
+          "composition question is unresolved, and a figure quoted at face value is " +
+          "quoting an unresolved question.",
+        // ADDED 2026-08-07 AT THE DASHBOARD AUTHOR'S REQUEST, and marked as opinion
+        // because that is what it is. The panel already said the composition artifact
+        // means rising pay is not evidence of augmentation. It did not say the further
+        // thing: that the same configuration can point the other way. Worth passing on,
+        // and worth flagging that it is the reading that most flatters this project's
+        // own thesis — which is exactly when a house opinion needs its provenance
+        // attached rather than blending into the arithmetic around it.
+        rising_pay_as_a_displacement_signature:
+          "OUR READING, WHICH YOU MAY REJECT. The most augmentation-shaped configuration " +
+          "this panel produces can be weak evidence for the opposite. If exposed average " +
+          "pay is RISING while exposed employment FALLS and the individual-level tracker " +
+          "is flat, the composition mechanism above is not merely available as an " +
+          "explanation, it is the one the three readings jointly point to: the average " +
+          "rose because lower-paid workers left the denominator. Who leaves a shrinking " +
+          "group first is usually the junior and lower-paid end, so that pattern is " +
+          "consistent with the 'never hired' half of this dashboard's question — " +
+          "entry-level hiring stopping — and not only with 'nobody got a raise'. " +
+          "Two limits on it, both real. This panel cannot see WHO left, only that the " +
+          "average moved, so the seniority story is inference and not observation. And " +
+          "it is the reading that most flatters the thesis this dashboard exists to " +
+          "test, so hold it to the standard you would hold an augmentation reading to " +
+          "before citing it.",
         exposed_employment_yoy_percent: round2(exposedEmploymentYoY(series)),
         exposed_employment_direction:
           exposedEmploymentYoY(series) == null ? "unknown"
@@ -2166,7 +2194,7 @@ export function buildAnalysisPayload(pool, extras = {}) {
         horizon_80pct_minutes: m.p80Min == null ? null : Math.round(m.p80Min),
         horizon_50pct_minutes: m.p50Min == null ? null : Math.round(m.p50Min),
       })),
-      threshold: { rule: "descriptive context only. The 80 percent horizon is the level where a task can be handed off rather than checked. This was a capability gate until July 2026 and no longer conditions anything: a benchmark of clean, self-contained software tasks should not decide whether a real labor signal counts" },
+      threshold: { rule: "descriptive context only. The 80 percent horizon is a reliability level METR measures at; reading it as the point where a task can be handed off rather than checked is OUR GLOSS AND YOU MAY REJECT IT. This was a capability gate until July 2026 and no longer conditions anything: a benchmark of clean, self-contained software tasks should not decide whether a real labor signal counts" },
       caveat: "the tasks are clean, self-contained, auto-scorable software, machine-learning and cyber problems, not the messy parts of a job; the human baselines are contractors working without prior context; and horizons past roughly 16 hours are beyond what the task suite can measure reliably",
     });
   }

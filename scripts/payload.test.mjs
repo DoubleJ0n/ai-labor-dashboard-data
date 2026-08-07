@@ -288,3 +288,29 @@ test("a claim that is ours rather than the instrument's says so", async () => {
   assert.ok(!/OUR READING|OUR INFERENCE/.test(jobs.what_these_industry_codes_contain),
     "what an industry code contains is not a judgement and must not be hedged as one");
 });
+
+// --- The wage panel states the inversion, and states whose it is (2026-08-07) --
+
+test("the wage panel offers rising pay as a possible displacement signature, marked", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const a = buildAnalysisPayload(pool).find((p) => p.panel === "exposed_vs_control_wages").measurement_artifact;
+
+  // The panel long said rising pay is not evidence of augmentation. The further claim
+  // — that the same configuration can point the other way, because the average rose by
+  // losing the bottom of the distribution — is the one an analyst would otherwise have
+  // to invent, and it is the reading that most flatters this project's own thesis.
+  const s = a.rising_pay_as_a_displacement_signature;
+  assert.ok(s, "the inversion is the non-obvious half of the composition artifact");
+  assert.match(s, /OUR READING, WHICH YOU MAY REJECT/, "a house opinion must carry its provenance");
+  assert.match(s, /never hired/i, "the mechanism is entry-level hiring stopping, not only pay not rising");
+  assert.match(s, /cannot see WHO left/, "the seniority step is inference, and must say so");
+  assert.match(s, /flatters/i, "the motivated-reasoning risk is part of the claim, not a footnote");
+
+  // And the weighting rule states the logic instead of issuing an order.
+  assert.ok(!/must not be cited/i.test(a.weighting_rule),
+    "a conclusion that follows from a stated fact does not also need to be commanded");
+  assert.match(a.weighting_rule, /predict the SAME observation/,
+    "the reason the panel cannot separate the two stories is the point");
+});
