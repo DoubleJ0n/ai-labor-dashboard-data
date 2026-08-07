@@ -66,9 +66,21 @@ const DEFAULT_MODEL = "claude-opus-5";
 const EFFORT = "high";
 // max_tokens is a HARD cap on thinking + visible text together. The previous
 // 1500 was set when this call didn't think; at high effort it would truncate
-// mid-sentence, so it is generous now and the request streams. Pass 1's reasoning
-// log is uncapped by design, which makes the headroom load-bearing.
-const MAX_TOKENS = 16000;
+// mid-sentence, so it is generous now and the request streams.
+//
+// RAISED 16000 -> 24000 ON 2026-08-07, BECAUSE 16000 WAS NOT GENEROUS ENOUGH AND THE
+// FAILURE WAS SILENT. Pass 1 output landed on exactly 16000 tokens twice in five runs
+// and the reasoning log ended mid-sentence both times. Nothing errored: the structured
+// fields survived only because the log serialises last, so a truncation ate the one
+// field nobody reads instead of the verdict. Reorder those fields and the same
+// truncation loses the falsifier.
+//
+// This ceiling covers thinking AND text together, so the reasoning log's new ~1,200
+// word budget (see prompt.mjs) is the other half of the fix: the budget lowers the
+// text, and this headroom means a long think cannot be cut off by a long write-up.
+// Raising it costs nothing on a run that does not need it — output is billed on what
+// is produced, not on the ceiling.
+const MAX_TOKENS = 24000;
 
 // Per-million-token pricing. Sonnet 5's introductory rate ends 2026-08-31; both
 // sides are recorded so a cost computed after the cutover is still right.
@@ -403,8 +415,26 @@ async function callModel(request, label) {
   // Streaming: max_tokens this large risks an HTTP timeout on a plain create().
   const message = await client.messages.stream(request).finalMessage();
   const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
+
+  // SAY SO WHEN THE CEILING IS HIT. This ran into MAX_TOKENS twice in five runs and
+  // said nothing either time — the only trace was an output-token count that happened
+  // to equal the ceiling exactly, and a reasoning log ending mid-sentence, neither of
+  // which anyone was reading. stop_reason is the authoritative signal; the token
+  // comparison is a belt-and-braces check in case a future SDK stops populating it.
+  const hitCeiling = message.stop_reason === "max_tokens" ||
+    (message.usage?.output_tokens ?? 0) >= MAX_TOKENS;
+  if (hitCeiling) {
+    console.warn(
+      `WARNING: ${label} hit the ${MAX_TOKENS}-token ceiling (stop_reason=${message.stop_reason}). ` +
+      "Its output is truncated — the tail of the reasoning log is gone, and if the field " +
+      "order ever changes a load-bearing field could be gone instead. Raise MAX_TOKENS or " +
+      "tighten the reasoning-log budget in prompt.mjs.",
+    );
+  }
+
   return {
     text,
+    truncated: hitCeiling,
     usage: {
       inputTokens: message.usage?.input_tokens ?? 0,
       // Thinking bills as output, so this exceeds the visible text.

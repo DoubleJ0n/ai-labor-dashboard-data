@@ -330,3 +330,54 @@ test("the METR reference bar is attributed and admits it is beyond the benchmark
   assert.match(b.a_plateau_here_is_ambiguous, /saturation/i);
   assert.match(b.a_plateau_here_is_ambiguous, /plateau well below the ceiling/i);
 });
+
+// --- Three defects an analyst run surfaced (2026-08-07) ------------------------
+
+test("the decomposition never contradicts the headline it decomposes", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const h = buildAnalysisPayload(pool).find((p) => p.panel === "reabsorption").headline;
+  const d = h.decomposition;
+  if (!d) return;
+
+  // It used to branch on the employed LEVEL alone, so it could announce that the share
+  // fell in a month the share had not moved. The ratio is the reliable series — its
+  // numerator and denominator re-base together in January while each leg alone steps —
+  // so the ratio decides the sentence and the legs explain it.
+  const flat = h.change_over_12_months === 0;
+  if (flat) {
+    assert.match(d.reading, /SHARE DID NOT MOVE/,
+      "a flat headline cannot be narrated as a fall, whatever the levels do");
+    assert.match(d.reading, /re-basing/i, "and the apparent disagreement has to be explained");
+  }
+  if (h.change_over_12_months < 0) assert.match(d.reading, /share fell/i);
+  if (h.change_over_12_months > 0) assert.match(d.reading, /share ROSE/);
+});
+
+test("the field that places the reabsorption axis is addressable for an overturn", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const r = buildAnalysisPayload(pool).find((p) => p.panel === "reabsorption");
+
+  // Every supporting readout advertised a path while the headline — the one field that
+  // PLACES the axis — shipped null, so an analyst looking for something to register
+  // against found only the lesser fields. The prompt's own worked example is this path.
+  assert.equal(r.headline.overturn_key, "headline.change_over_12_months");
+  for (const s of r.secondary_readouts ?? []) {
+    assert.ok(s.overturn_key, `secondary ${s.display_label} lost its overturn_key`);
+  }
+});
+
+test("the reasoning log is budgeted, because uncapped meant truncated", async () => {
+  const { PASS1_SYSTEM } = await import("./analyst/prompt.mjs");
+  // Uncapped, it ran ~3x this and twice pushed pass 1 into its ceiling, losing the tail
+  // of the log. The budget is on the write-up; the thinking is explicitly not capped.
+  // Both passes emit one; pass 1's is the one that overflowed.
+  assert.match(PASS1_SYSTEM, /UNDER ABOUT 1,200 WORDS/);
+  // Whitespace-tolerant: the prompt is hand-wrapped and this phrase straddles a line.
+  assert.match(PASS1_SYSTEM.replace(/\s+/g, " "), /BUDGET IS ON THE WRITE-UP, NOT ON THE THINKING/i);
+  assert.ok(!/Uncapped: this is stored for audit/.test(PASS1_SYSTEM),
+    "the word that produced the truncation must not survive in the spec");
+});

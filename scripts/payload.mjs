@@ -933,6 +933,20 @@ export function jointBaselinePosition(pool) {
  * absorbed yet, which is usually immigration or a big cohort ageing in. Reported
  * rather than resolved: the analyst decides what it means.
  */
+/**
+ * The 12-month change in the published prime-age employment RATIO — the same figure
+ * the reabsorption headline reports, recomputed here so the decomposition can be
+ * anchored to it. Kept separate from the legs on purpose: this is the series that
+ * survives the January control re-basing, because numerator and denominator re-base
+ * together, and it is therefore the one the decomposition must not contradict.
+ */
+function ratioChange12m(pool) {
+  const ratio = datedOf((pool.fred.series ?? {})[REABSORPTION.primeAgeEpop]);
+  if (!ratio.length) return null;
+  const chg = changeOverMonths(ratio, REABSORPTION_CHANGE_MONTHS);
+  return chg.length ? round2(chg[chg.length - 1][1]) : null;
+}
+
 export function reabsorptionDecomposition(pool) {
   const series = pool.fred.series ?? {};
   const emp = datedOf(series[REABSORPTION.primeAgeEmployed]);
@@ -951,12 +965,40 @@ export function reabsorptionDecomposition(pool) {
     population_change_thousands: Math.round(p[1]),
     employed_change_percent: round2(empPct),
     population_change_percent: round2(popPct),
-    // The whole point of sending this.
-    reading: e[1] < 0
-      ? "The employment share fell with employment ITSELF falling: fewer prime-age people are working than a year ago."
-      : popPct != null && empPct != null && popPct > empPct
-        ? "The employment share fell WITHOUT employment falling: more prime-age people are here, and the job market has not absorbed the increase. That is a different claim from people losing work."
-        : "Employment grew at least as fast as the prime-age population.",
+    // READ THE RATIO FIRST (2026-08-07). This used to branch on the EMPLOYED LEVEL
+    // alone, which let it assert "the employment share fell" in a month when the
+    // share had not moved: an analyst run found `reading` saying the share fell with
+    // employment falling while `headline.change_over_12_months` was 0 and
+    // `headline.direction` was "flat" — adjacent fields, opposite claims.
+    //
+    // The ratio is the reliable measure here and the legs are not, because both legs
+    // step at the January control re-basing while the ratio does not (numerator and
+    // denominator re-base together). So the ratio decides what this says, and the legs
+    // explain it rather than overriding it. Where the two disagree, that disagreement
+    // is the finding and is reported as one instead of being resolved in the levels'
+    // favour.
+    reading: (() => {
+      const ratio = ratioChange12m(pool);
+      const legs = e[1] < 0 ? "the employment leg is lower than a year ago"
+        : "the employment leg is higher than a year ago";
+      if (ratio == null) {
+        return `No twelve-month change is available for the share itself, so this decomposition ` +
+          `stands alone: ${legs}, and the population leg changed by ${round1(p[1])} thousand. ` +
+          `Both legs cross the January re-basing — see caveat.`;
+      }
+      if (Math.abs(ratio) < 1e-9) {
+        return `THE SHARE DID NOT MOVE over twelve months. That is the reliable reading. ` +
+          `The levels beneath it appear to disagree — ${legs} — but both legs cross the ` +
+          `January control re-basing and the ratio does not, so treat the level comparison ` +
+          `as unusable here rather than as a contradiction of the flat share.`;
+      }
+      if (ratio < 0) {
+        return e[1] < 0
+          ? "The employment share fell and the employment leg fell with it: fewer prime-age people are working than a year ago. Direction only — the size of the level change is not quotable, see caveat."
+          : "The employment share fell WITHOUT the employment leg falling: more prime-age people are here, and the job market has not absorbed the increase. That is a different claim from people losing work.";
+      }
+      return `The employment share ROSE over twelve months; ${legs}.`;
+    })(),
     caveat:
       "THIS IS NOT COMPARABLE TO THE PAYROLL FIGURE IN THE NEWS PACKAGE, and the two " +
       "will look wildly inconsistent if read side by side. This decomposition is the " +
@@ -1427,6 +1469,20 @@ export function buildAnalysisPayload(pool, extras = {}) {
       joint_position_with_attribution: jointBaselinePosition(pool),
       headline: {
         ...r.headline,
+        // THE AXIS-BEARING FIELD IS NOW ADDRESSABLE (2026-08-07). reabsorptionComponent
+        // builds every component with `overturn_key: key ? "secondary."+key : null`, and
+        // the headline is built without a key — so the one field that PLACES this axis
+        // shipped as `overturn_key: null` while four supporting readouts each advertised
+        // a path. An analyst looking for something to register against found the
+        // secondaries addressable and the headline not.
+        //
+        // Nothing was actually blocked: the falsifier validator resolves dotted paths
+        // and a prior run registered `headline.change_over_12_months` successfully. This
+        // was a discoverability failure, which is worse than a hard one — the prompt's
+        // own worked example uses this exact path, so the payload was contradicting the
+        // brief in a way that only shows up as an analyst quietly choosing a lesser
+        // field. Found by a run that noticed the contradiction and said so.
+        overturn_key: "headline.change_over_12_months",
         // WHY the ratio moved: employment, or population. A ratio can fall two ways
         // and they mean opposite things — people losing work, versus a growing
         // working-age population the job market has not absorbed yet. The panel says
