@@ -91,3 +91,42 @@ test("a reader recomputing the z from the printed stats lands within rounding", 
     );
   }
 });
+
+// --- The joint baseline ring (2026-08-06) ------------------------------------
+
+test("the joint ring carries every month, tagged, and leaks no quadrant", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { jointBaselinePosition } = await import("./payload.mjs");
+  const j = jointBaselinePosition(pool);
+  assert.ok(j, "no joint position computed");
+
+  // Every placeable month, oldest first, nothing filtered.
+  assert.ok(j.months.length > 150, `expected the whole record, got ${j.months.length}`);
+  const ms = j.months.map((m) => m[0]);
+  assert.deepEqual(ms, [...ms].sort(), "months must be in date order");
+  assert.equal(new Set(ms).size, ms.length, "no duplicate months");
+
+  // All three windows represented, and the pandemic LABELLED rather than dropped.
+  const byWin = (w) => j.months.filter((m) => m[3] === w).length;
+  for (const w of ["BASELINE", "PANDEMIC", "OBSERVATION"]) {
+    assert.ok(byWin(w) > 0, `window ${w} is missing from the payload`);
+    assert.equal(byWin(w), j.total_by_window[w], `${w} tally disagrees with the detail`);
+  }
+
+  // THE WITHHELD STATE MUST NOT ARRIVE UNDER A NEW NAME. No quadrant, no verdict.
+  const blob = JSON.stringify(j).toUpperCase();
+  for (const forbidden of ["REALLOCATION", "DISPLACEMENT", "NOT_AI", "STABLE", "INDETERMINATE"]) {
+    assert.ok(!blob.includes(forbidden), `joint ring leaks the withheld state name ${forbidden}`);
+  }
+  for (const m of j.months) {
+    assert.equal(m.length, 5, "each row must match months_format");
+    assert.equal(typeof m[4], "boolean");
+  }
+
+  // The ring must discriminate, or sending it is noise.
+  const outShare = (w) =>
+    j.months.filter((m) => m[3] === w && !m[4]).length / byWin(w);
+  assert.ok(outShare("BASELINE") < 0.2, `baseline should sit inside its own ring, got ${outShare("BASELINE")}`);
+  assert.ok(outShare("OBSERVATION") > 0.6, `observation should sit outside, got ${outShare("OBSERVATION")}`);
+});

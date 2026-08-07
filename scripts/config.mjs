@@ -369,6 +369,20 @@ export const ATTRIBUTION_SUSTAIN_MONTHS = 3;
 // displacement, and fires on 27% of the observation period including now.
 export const REABSORPTION_AXIS_LINE = 0.0;
 
+// The "historical norm" ring on the four-corner grid: how many standard deviations of
+// the FIXED baseline, per axis, count as the range that decade occupied on both axes
+// at once.
+//
+// Two, which holds 109 of the 120 baseline months. Registered here rather than chosen
+// at the drawing site because it is now sent to the analyst, and a number a model
+// reasons about belongs where every other pre-registered value lives.
+//
+// Checked before adoption that it does not swallow the period it is meant to judge:
+// 34 of the 41 observation months fall outside it, and against the one-sigma version
+// not a single one falls inside. A norm marker that contains the thing being judged
+// would prove nothing while looking like evidence.
+export const JOINT_BASELINE_SIGMAS = 2.0;
+
 // The early-warning TRIGGER. Separate from the display above, and it lives in the
 // stoplight. Exposed-industry employment falling this much year-over-year is the
 // pre-registered warning line.

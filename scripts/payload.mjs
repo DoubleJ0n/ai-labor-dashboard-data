@@ -58,6 +58,7 @@ import {
   DIFFERENTIALS, LABOR_SHARE_CHANGE_QUARTERS,
   REABSORPTION, REABSORPTION_CHANGE_MONTHS, REABSORPTION_FAST_CHANGE_MONTHS,
   REABSORPTION_REFERENCE_YEAR, REABSORPTION_SHORTFALL_POINTS,
+  JOINT_BASELINE_SIGMAS,
   INDIVIDUAL_WAGE_GROWTH,
   ELO_SCALE,
 } from "./config.mjs";
@@ -745,12 +746,15 @@ export function reabsorptionReference(pool) {
 }
 
 /**
- * Deterioration-positive shortfall against the reference: POINTS BELOW 2019.
- * Positive means fewer prime-age people are working than in 2019.
+ * Deterioration-positive 12-MONTH CHANGE in the prime-age employment share, against
+ * raw zero. Positive means fewer prime-age people are working than a year ago.
  *
- * A level, not a change. See REABSORPTION_REFERENCE_YEAR in config for why the
- * change version was retired: the 2010-2019 baseline of changes is a decade of
- * recovery, so any mature-expansion year scored as deteriorating against it.
+ * THIS COMMENT USED TO DESCRIBE THE OPPOSITE RULE (corrected 2026-08-06). It said
+ * "POINTS BELOW 2019. A level, not a change", which is the version that was retired
+ * — the body below has computed the change against zero since REABSORPTION_AXIS_LINE
+ * was re-registered. A doc comment describing the rule its own function replaced is
+ * the most expensive kind of stale prose, because the next person reads it instead
+ * of the code.
  */
 export function reabsorptionAxisOriented(pool) {
   const series = pool.fred.series ?? {};
@@ -760,6 +764,103 @@ export function reabsorptionAxisOriented(pool) {
   // threshold. "Is the share of prime-age people working rising or falling" is a
   // question with a natural zero and no parameters.
   return changeOverMonths(epop, REABSORPTION_CHANGE_MONTHS).map(([m, v]) => [m, -v]);
+}
+
+/**
+ * WHERE THE TWO AXES SIT TOGETHER, against the range the calm decade occupied.
+ *
+ * WHY THIS IS SENT AND WHY IT IS NOT THE PAIRED STATE. Read the header of
+ * the withheld state module first (which this file may not name, by test): the
+ * the analyst, and the one-way dependency (that module imports from this one and
+ * never the reverse) is the structural guarantee keeping it out of the request.
+ *
+ * Nothing here breaks that. No quadrant is named, no state is computed, no verdict
+ * label appears. What is sent is a descriptive fact about the two axes the analyst
+ * ALREADY receives: how far each month sits from the joint range of the fixed
+ * baseline. That is the same kind of thing as the z-score every other panel carries,
+ * and it is genuinely new information — it depends on the JOINT spread of a decade,
+ * so an analyst holding the two axis values separately cannot reconstruct it.
+ *
+ * EVERY MONTH GOES AND THE PANDEMIC IS LABELLED RATHER THAN DROPPED. Sending only
+ * the months outside the ring, or only the observation period, would hand the
+ * analyst a selection and ask it to judge whether the selection was fair — which
+ * cannot be done from a selection. The pandemic months are the most extreme in the
+ * record and they are excluded from every statistic here; the analyst is entitled to
+ * see them, weigh them, or say that excluding them does more work than this project
+ * admits. As it happens 32 of the 36 are outside the ring too, so "outside the ring"
+ * is not evidence of anything on its own — which is exactly why the window travels
+ * with each month.
+ */
+export function jointBaselinePosition(pool) {
+  const attribution = attributionAxisOriented(pool);
+  const reabsorption = reabsorptionAxisOriented(pool);
+  if (!attribution.length || !reabsorption.length) return null;
+
+  // Scored against the WHOLE fixed baseline, one yardstick for every month. The path
+  // that builds the trail deliberately scores each month against history up to itself, to
+  // avoid hindsight when reconstructing what a past reading looked like at the time.
+  // This asks a different question — where does this month sit against the calm decade
+  // — and for that a growing yardstick would mean earlier months were judged by less.
+  const attrBase = attribution.filter(([m]) => inBaseline(m)).map(([, v]) => v);
+  const reabBase = reabsorption.filter(([m]) => inBaseline(m)).map(([, v]) => v);
+  if (attrBase.length < BASELINE_MIN_READINGS || reabBase.length < BASELINE_MIN_READINGS) return null;
+
+  const meanOf = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  const sdOf = (a, m) => Math.sqrt(a.reduce((s, v) => s + (v - m) * (v - m), 0) / a.length);
+  const cx = meanOf(attrBase); const sx = sdOf(attrBase, cx);
+  const cy = meanOf(reabBase); const sy = sdOf(reabBase, cy);
+  if (sx <= 0 || sy <= 0) return null;
+  const rx = sx * JOINT_BASELINE_SIGMAS;
+  const ry = sy * JOINT_BASELINE_SIGMAS;
+
+  const reab = new Map(reabsorption);
+  const windowOf = (m) =>
+    m >= UNUSABLE_START && m <= UNUSABLE_END ? "PANDEMIC"
+      : m >= OBSERVATION_START ? "OBSERVATION" : "BASELINE";
+
+  // TUPLES, NOT OBJECTS. Every month is sent — that is the whole point, and it is not
+  // negotiable — but repeating five field names 197 times costs about 16KB of the
+  // model's context for no information at all. A stated schema plus positional rows
+  // carries the same content in roughly a third of the tokens. Retaining the data and
+  // spending tokens on it are different decisions.
+  const months = [];
+  for (const [m, attrRaw] of attribution) {
+    if (!reab.has(m)) continue; // a month missing either axis cannot be placed
+    const y = reab.get(m);
+    const u = (attrRaw - cx) / rx; const v = (y - cy) / ry;
+    months.push([
+      m,
+      round2((attrRaw - cx) / sx),
+      round2(-y), // published sign: negative = employment fell
+      windowOf(m),
+      u * u + v * v <= 1,
+    ]);
+  }
+  const tally = (pred) => months.reduce((acc, r) => {
+    if (pred(r)) acc[r[3]] = (acc[r[3]] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  return {
+    sigmas: JOINT_BASELINE_SIGMAS,
+    baseline_window: `${BASELINE_START}..${BASELINE_END}`,
+    // The centre and radii are quoted in the SAME units as the month rows below.
+    // Sideways is a z, so its radius is the sigma count exactly, by construction.
+    // Up-down is in points a year, so its radius is in points.
+    centre: { attribution_z: 0, employment_change_12m: round2(-cy) },
+    radii: { attribution_z: JOINT_BASELINE_SIGMAS, employment_change_12m: round2(ry) },
+    total_by_window: tally(() => true),
+    outside_by_window: tally((r) => !r[4]),
+    months_format: "[month, attribution_z, employment_change_12m, window, inside_baseline_range]",
+    months,
+    note:
+      "The range both axes occupied together through the fixed baseline decade, at " +
+      `${JOINT_BASELINE_SIGMAS} standard deviations per axis. A month outside it is one where the ` +
+      "COMBINATION of the two readings is unusual against that decade, which neither axis " +
+      "shows on its own. It is not a threshold and nothing fires on it. Note that most " +
+      "pandemic months are outside it too, for reasons that have nothing to do with AI — " +
+      "which is why every month is sent with the window it belongs to rather than filtered.",
+  };
 }
 
 /**
@@ -1183,6 +1284,17 @@ export function buildAnalysisPayload(pool, extras = {}) {
         "hired in a control one is invisible to the exposed-vs-control gap but visible " +
         "here. None of these series requires knowing where any individual went.",
       unit: "see each component",
+      // WHERE THE TWO AXES SIT TOGETHER, against the calm decade's joint range.
+      //
+      // Attached here rather than made its own panel, because it is not a measurement
+      // of its own: it is a statement about this panel and the exposed-vs-control jobs
+      // panel read together, and a separate panel entry would make it nameable as
+      // load-bearing when there is nothing extra to look at.
+      //
+      // Carries no quadrant, no state and no verdict label. See the function's own
+      // comment, and the withheld state module's own header, for why that boundary is
+      // structural rather than a matter of taste.
+      joint_position_with_attribution: jointBaselinePosition(pool),
       headline: {
         ...r.headline,
         // WHY the ratio moved: employment, or population. A ratio can fall two ways
