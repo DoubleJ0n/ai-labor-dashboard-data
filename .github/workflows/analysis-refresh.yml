@@ -41,6 +41,10 @@ on:
 
 permissions:
   contents: write
+  # Lets this workflow ask GitHub for a signed identity token. Without it the
+  # token endpoint is not exposed to the job at all and the fetch step below
+  # fails with a blank environment variable rather than a clear error.
+  id-token: write
 
 concurrency:
   group: pool-write
@@ -52,6 +56,19 @@ jobs:
     outputs:
       notify: ${{ steps.analyst.outputs.notify }}
       notification_line: ${{ steps.analyst.outputs.notification_line }}
+    # NO API KEY. These four name which federation rule to evaluate and which
+    # identity to act as; none of them is a secret, which is the point — the
+    # only credential is the short-lived token fetched below, and it expires in
+    # minutes rather than never.
+    #
+    # ANTHROPIC_API_KEY MUST NOT BE SET ANYWHERE IN THIS FILE. It outranks
+    # federation in the SDK's credential order, so a leftover key does not
+    # conflict or warn — it silently wins, and the federation path never runs.
+    env:
+      ANTHROPIC_FEDERATION_RULE_ID: fdrl_0112i6P3fgfPizW2U52xrqmc
+      ANTHROPIC_ORGANIZATION_ID: 162abba6-d77f-43fb-bbc2-5bb3aecc9e65
+      ANTHROPIC_SERVICE_ACCOUNT_ID: svac_01LksEFtDXJ2JS37D6HchcJs
+      ANTHROPIC_IDENTITY_TOKEN_FILE: /tmp/gha-jwt
     steps:
       - uses: actions/checkout@v5
         with:
@@ -77,12 +94,22 @@ jobs:
         if: ${{ github.event.inputs.dry_run == 'true' }}
         run: node scripts/analysis-refresh.mjs --dry-run
 
+      # Fetched HERE, immediately before the steps that call the model, rather
+      # than at the top of the job. GitHub's identity token is only good for
+      # about five minutes; a checkout, an npm install and a test run can eat
+      # most of that, and the token has to still be valid at EXCHANGE time, not
+      # at fetch time. The steps between this one and the analyst are skipped on
+      # an ordinary run, so the token is seconds old when it is spent.
+      - name: Fetch the GitHub identity token
+        run: |
+          curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://api.anthropic.com" \
+            | jq -r .value > "$ANTHROPIC_IDENTITY_TOKEN_FILE"
+
       # A/B: two models, one input snapshot, both at high effort. Publishes
       # nothing — it writes analyst-ab-report.json and uploads it for review.
       - name: A/B run (Sonnet 5 vs Opus 5)
         if: ${{ github.event.inputs.ab_run == 'true' }}
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/analysis-refresh.mjs --ab
       - name: Upload the A/B report
         if: ${{ github.event.inputs.ab_run == 'true' }}
@@ -98,8 +125,6 @@ jobs:
       - name: Analyst (two-pass, high effort)
         id: analyst
         if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' && github.event.inputs.verify_series == '' }}
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/analysis-refresh.mjs
 
       - name: Commit the pool + both append-only logs

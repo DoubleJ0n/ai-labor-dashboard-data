@@ -19,6 +19,9 @@ on:
 
 permissions:
   contents: write
+  # Lets this workflow ask GitHub for a signed identity token; see the analyst
+  # workflow for the full note.
+  id-token: write
 
 # Shares the pool-write group with every other refresh job, so commits to main
 # never race. These push directly now rather than opening a pull request, which
@@ -30,16 +33,28 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    # NO API KEY — the same federation rule as the analyst. ANTHROPIC_API_KEY
+    # must not be set anywhere in this file: it outranks federation silently.
+    env:
+      ANTHROPIC_FEDERATION_RULE_ID: fdrl_0112i6P3fgfPizW2U52xrqmc
+      ANTHROPIC_ORGANIZATION_ID: 162abba6-d77f-43fb-bbc2-5bb3aecc9e65
+      ANTHROPIC_SERVICE_ACCOUNT_ID: svac_01LksEFtDXJ2JS37D6HchcJs
+      ANTHROPIC_IDENTITY_TOKEN_FILE: /tmp/gha-jwt
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: npm ci --no-audit --no-fund
+      # Fetched immediately before the model call — GitHub's token is good for
+      # about five minutes and must still be valid when it is exchanged.
+      - name: Fetch the GitHub identity token
+        run: |
+          curl -sS -H "Authorization: Bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=https://api.anthropic.com" \
+            | jq -r .value > "$ANTHROPIC_IDENTITY_TOKEN_FILE"
       - id: discovery
         name: Discovery (Haiku 4.5 + web search)
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: node scripts/discovery-refresh.mjs
 
       # Auto-commit, not a pull request. See GOVERNANCE in the script header.
