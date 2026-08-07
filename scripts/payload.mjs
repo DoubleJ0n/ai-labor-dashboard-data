@@ -52,6 +52,32 @@
 //   DESCRIPTIVE         reports a quantity with no threshold and no vote
 //   does_not_contribute shown for context, counted in nothing
 //
+// --- WHAT THIS PAYLOAD MAY TELL THE ANALYST, AND WHAT IT MAY NOT ------------
+//
+// Added 2026-08-07, after an audit found the line had drifted in both directions.
+// Pass 1 refuses to hand over a list of alternative explanations, on the grounds
+// that a list creates closure: the model works it, finds nothing left, and stops.
+// That rule governs here too, and the test that separates the two cases is:
+//
+//   CAN THE ANALYST DERIVE THIS BY REASONING ABOUT THE NUMBERS?
+//
+// If it cannot, this file supplies it. What an industry code contains, how a survey
+// is collected, when a series was re-based, which readout places an axis — none of
+// that is recoverable from the figures, and withholding it does not make the
+// analysis more independent, only less informed. The measurement_artifact blocks
+// have always been this category.
+//
+// If it can, this file stays quiet. Competing explanations, what a pattern means,
+// which story fits — those are the work, and pre-empting them is how a dashboard
+// ends up publishing its author's priors under a model's name.
+//
+// Where a judgement is genuinely worth passing on and is NOT a property of the
+// instrument, mark it: say plainly that it is ours and may be rejected, so the
+// analyst can weigh it as a claim rather than obey it as a fact. Two notes carry
+// that marking today — the saturation argument on ai_adoption and the mobility
+// reading on individual_wage_growth. Both were previously stated flat, in the same
+// voice as the arithmetic beside them.
+//
 // The lower-case odd one out is deliberate: it is the string the demotion brief
 // specified, and matching it exactly is worth more than tidy casing.
 
@@ -1617,15 +1643,28 @@ export function buildAnalysisPayload(pool, extras = {}) {
       switcher_premium: round2(lastPremium?.[1]),
       latest_date: lastStayer?.[0] ?? null,
       prior_reading: priorReading(premium),
+      // MEASUREMENT FIRST, THEN OUR READING OF IT, MARKED (2026-08-07). This used to
+      // run the two together — the premium, then "that is what OPPORTUNITY-DRIVEN
+      // mobility looks like" — in one breath, which presents an economic
+      // interpretation with the same authority as the arithmetic. Only the first
+      // clause is measured. The mapping from a positive premium to a story about why
+      // people are moving is ours, it is contestable, and a run that disagrees with it
+      // on this month's evidence should be free to say so without contradicting the
+      // payload.
       switcher_premium_reading: lastPremium == null ? "no reading available"
         : lastPremium[1] > 0
-          ? `Switchers are ahead of stayers by ${round2(lastPremium[1])} points, so changing ` +
-            `jobs currently pays. That is what OPPORTUNITY-DRIVEN mobility looks like: ` +
-            `people are moving because somewhere else is bidding for them.`
-          : `Switchers are BEHIND stayers by ${round2(-lastPremium[1])} points, so people who ` +
-            `change jobs are taking less than those who stay. That is what FORCED mobility ` +
-            `looks like, and it is the pattern a displacement episode absorbed into worse ` +
-            `work would produce while the headline employment count held up.`,
+          ? `MEASURED: switchers are ahead of stayers by ${round2(lastPremium[1])} points, ` +
+            `so changing jobs currently pays. OUR READING, WHICH YOU MAY REJECT: that is ` +
+            `the shape opportunity-driven mobility takes, with people moving because ` +
+            `somewhere else is bidding for them. A premium can also persist because the ` +
+            `people still able to switch are the strongest candidates, which is a ` +
+            `composition story rather than a demand one, and this series cannot separate ` +
+            `the two.`
+          : `MEASURED: switchers are BEHIND stayers by ${round2(-lastPremium[1])} points, ` +
+            `so people who change jobs are taking less than those who stay. OUR READING, ` +
+            `WHICH YOU MAY REJECT: that is the shape forced mobility takes, and it is the ` +
+            `pattern a displacement episode absorbed into worse work would produce while ` +
+            `the headline employment count held up.`,
       measurement_artifact: {
         text:
           "This is a CPS-based measure, and the CPS has been degraded through this " +
@@ -1974,11 +2013,13 @@ export function buildAnalysisPayload(pool, extras = {}) {
         "connects any company's adoption to that same company's layoffs or hiring " +
         "freeze, so a correlation between this series and any employment series is " +
         "between two aggregates and licenses no claim about mechanism. " +
-        "(4) It is already past the level where displacement could be occurring. At " +
-        "roughly a fifth of firms, the question 'is there enough deployment for this to " +
-        "be happening' is already answered yes, so further movement mostly cannot change " +
-        "what is possible — which is why the LEVEL is nearly uninformative here and only " +
-        "a sharp BREAK would be worth remarking on. " +
+        "(4) THIS ONE IS OUR INFERENCE, NOT A PROPERTY OF THE SURVEY — reject it if the " +
+        "data gives you cause. We read roughly a fifth of firms as already past the " +
+        "level at which displacement could be occurring, which would make the LEVEL " +
+        "nearly uninformative and leave only a sharp BREAK worth remarking on. The " +
+        "measurement is the level and its short history; the judgement that the level " +
+        "is already sufficient is ours, and it is the kind of claim you are better " +
+        "placed to test against this month's data than we were when we wrote it. " +
         "(5) It counts firms rather than workers, understating worker exposure whenever " +
         "adoption rises with employer size, and it does here. " +
         "Taken together: deployment has to exist for an AI explanation to be available " +

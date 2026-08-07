@@ -256,3 +256,35 @@ test("the jobs panel says what its industry codes actually contain", async () =>
   assert.match(jobs.how_this_survey_revises, /preliminary|revised/i);
   assert.match(jobs.how_this_survey_revises, /birth-death/i);
 });
+
+// --- Judgements are marked as judgements (2026-08-07) -------------------------
+
+test("a claim that is ours rather than the instrument's says so", async () => {
+  const { readFileSync } = await import("node:fs");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const panels = buildAnalysisPayload(pool);
+
+  // The test that separates the two cases: could the analyst derive this by reasoning
+  // about the numbers? Survey mechanics, industry composition and re-basing dates —
+  // no, so they are supplied flat. An inference about what a level implies — yes, so
+  // it must be attributed, or the dashboard publishes its author's priors under the
+  // model's name.
+  const adoption = panels.find((p) => p.panel === "ai_adoption");
+  assert.match(adoption.panel_role_note, /OUR INFERENCE, NOT A PROPERTY OF THE SURVEY/,
+    "the saturation argument is a judgement about the world, not a fact about the survey");
+  assert.match(adoption.panel_role_note, /reject it if the data gives you cause/i);
+
+  const wages = panels.find((p) => p.panel === "individual_wage_growth");
+  const r = wages.switcher_premium_reading;
+  if (r !== "no reading available") {
+    assert.match(r, /^MEASURED:/, "the arithmetic comes first and is labelled as such");
+    assert.match(r, /OUR READING, WHICH YOU MAY REJECT/,
+      "mapping a premium to a story about why people move is an interpretation, not a measurement");
+  }
+
+  // The instrument facts stay unmarked, because they are not opinions.
+  const jobs = panels.find((p) => p.panel === "exposed_vs_control_jobs");
+  assert.ok(!/OUR READING|OUR INFERENCE/.test(jobs.what_these_industry_codes_contain),
+    "what an industry code contains is not a judgement and must not be hedged as one");
+});
