@@ -526,3 +526,45 @@ test("removing the token ceiling did not remove the ability to notice a costly r
     "an expensive run that produced good output is not an error, and the message must say so");
   assert.match(src, /costAlarm/, "the run record must carry the flag, not only the console");
 });
+
+// --- No named standing explanations in the brief (2026-08-08) -----------------
+
+test("the prompt names no standing non-AI explanation", async () => {
+  const { PASS1_SYSTEM, PASS2_SYSTEM } = await import("./analyst/prompt.mjs");
+
+  // This file carried one — the 2021-22 hiring correction, which pass 1 was told to
+  // weigh AGAINST every displacement reading. It was the single exception to the
+  // no-list rule the prompt sets for itself, and exceptions to that rule do not stay
+  // singular: war-driven inflation, immigration policy and the rate cycle are each
+  // equally defensible on the day they are added, and collectively they are the
+  // checklist this brief refuses to give.
+  for (const [name, s] of [["PASS1", PASS1_SYSTEM], ["PASS2", PASS2_SYSTEM]]) {
+    const flat = s.replace(/\s+/g, " ");
+    assert.ok(!/2021-22 hiring correction/i.test(flat),
+      `${name} still names the hiring correction; the analyst must reach it itself or not at all`);
+    assert.ok(!/STANDING NON-AI EXPLANATION/i.test(flat),
+      `${name} still carries a standing explanation, which is a list with one entry`);
+  }
+
+  // The general rule that makes the deletion safe has to survive it.
+  assert.match(PASS1_SYSTEM, /INVERT EVERY SUPPORTING PANEL/);
+  assert.match(PASS1_SYSTEM.replace(/\s+/g, " "), /a list creates closure/);
+});
+
+test("news incentives are named in both directions", async () => {
+  const { PASS1_SYSTEM } = await import("./analyst/prompt.mjs");
+  const flat = PASS1_SYSTEM.replace(/\s+/g, " ");
+
+  // The rule that matters is unchanged and must stay: the news raises suspects, the
+  // series convict. What changed is the claim that only one direction of attribution
+  // is interested.
+  assert.match(flat, /News generates hypotheses\. News never moves the verdict\./);
+
+  // It used to discount AI-attributing coverage and declare the other side clean.
+  // Employers have reasons to reach for AI (it reads forward-leaning) and reasons to
+  // avoid it (political and regulatory attention), so neither direction is disinterested.
+  assert.ok(!/carries no such incentive/i.test(flat),
+    "declaring non-AI attribution incentive-free is a thumb, however comfortable its direction");
+  assert.match(flat, /incentives, which run BOTH ways/i);
+  assert.match(flat, /reason NOT to/i, "the counter-incentive has to be named, not implied");
+});

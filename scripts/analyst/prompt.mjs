@@ -48,6 +48,31 @@
 // cross-panel - a lead-lag relationship that breaks, two series that historically
 // track and stop, a flat panel whose volatility turns before its level does - and
 // a prescribed procedure would cap that at today's capability.
+//
+// NO NAMED STANDING EXPLANATIONS EITHER, as of 2026-08-08. This file carried one: the
+// 2021-22 hiring correction, which pass 1 was told to weigh AGAINST every displacement
+// reading. It is gone, along with the two worked examples that named it, and nothing
+// replaces it. Three reasons, and the third is the one that generalises.
+//
+//   It was the exception to the no-list rule above, and exceptions to that rule do not
+//   stay singular. A standing explanation for war-driven inflation would be equally
+//   defensible on the day it was added, then immigration policy, then the rate cycle —
+//   each traceable to one incident, and collectively the checklist this file refuses.
+//
+//   It was ageing into a permanent thumb. A 2021-22 bulge is already old and will be
+//   older; instructing the analyst in 2028 to weigh it against every reading is a
+//   standing correction for a temporary condition.
+//
+//   Its evidence was withheld from the panel it applied to. Every panel's statistics
+//   exclude 2020-01..2022-12 by design, so the analyst was asked to weigh a confounder
+//   it could not check on the instrument it was told to apply it to — the shape of claim
+//   that gets accepted rather than tested.
+//
+// Nothing is lost that the data does not already carry. Every run on record found the
+// narrowing arc unprompted, which is the shape that explanation predicts; the joint
+// position table ships the 2020-22 months tagged for anyone who wants to look; and
+// INVERT EVERY SUPPORTING PANEL already requires counter-readings to be generated
+// rather than supplied.
 
 export const VERDICT_NAMES = ["AUGMENTATION", "DISPLACEMENT", "CONFOUNDED"];
 
@@ -154,11 +179,6 @@ over an industry aggregate covering the same ground. Where only the aggregate ex
 the composition question as unresolved and let it weaken the panel rather than reporting
 the figure at face value.
 
-THE 2021-22 HIRING CORRECTION IS A STANDING NON-AI EXPLANATION
-Exposed industries hired heavily in 2021-22 and have been unwinding it since, which
-predates current AI tools. Weigh it AGAINST the displacement reading, not alongside it. Say
-what it explains and what residual it leaves.
-
 THE YIELD CURVE CANNOT CLEAR THE BUSINESS CYCLE FOR WEAKNESS ALREADY OBSERVED
 It prices expected conditions, not past ones, so do not use it to exculpate weakness
 already in the data. The contemporaneous test is the right one: if the weakness were
@@ -188,10 +208,11 @@ being wrong would produce.
 
 WORKED EXAMPLE, and note it concerns a TRIGGER, which fires toward displacement rather
 than away from it. The idea transfers; the direction does not. Say you want a trigger at
--40 on a series. Check the confounders first: if the 2021-22 hiring correction already
-drove that series to -42.7 on its own, then -40 discriminates nothing, because a second
-correction trips it exactly as readily as displacement would. Apply the same discipline in
-whichever direction your own condition points.
+-40 on a series. Check the confounders first: if some ordinary non-AI process you have
+identified already drove that series to -42.7 on its own at some point in the record, then
+-40 discriminates nothing, because a repeat of that process trips it exactly as readily as
+displacement would. Apply the same discipline in whichever direction your own condition
+points.
 
 If no such condition exists on your preferred panel, say so plainly and move to
 another panel or to a compound condition.
@@ -248,9 +269,13 @@ disclaimer.
 
 News generates hypotheses. News never moves the verdict. The verdict moves on series values.
 
-Note the asymmetry: employers have reason to attribute headcount decisions to AI and
-coverage inherits it, so a report doing so is a hypothesis to test against the series,
-never corroboration. News suggesting a non-AI cause carries no such incentive.
+Note the incentives, which run BOTH ways, and which coverage inherits from whoever it
+quoted. An employer has reason to attribute headcount decisions to AI: it reads as
+forward-leaning rather than as demand falling away. An employer has reason NOT to, as
+well: layoffs attributed to AI attract political attention, regulatory interest and
+employee anger that "macro headwinds" does not. So neither direction of attribution is
+disinterested, and a report in either direction is a hypothesis to test against the
+series rather than corroboration of one. Say which way you tested it.
 
 UNCERTAINTY
 Hedge where a hedge is warranted. "I suspect", "this could be", "I can't tell from this
@@ -493,10 +518,10 @@ materially cuts against the verdict, or that is the strongest single signal in t
 must appear in the note with the SAME FORCE it carried in the reasoning. Do not soften a
 residual, an unexplained gap, or an anomaly in the course of compression.
 
-  The failure to avoid: reasoning that the hiring correction leaves an unexplained
-  residual, because an unwind should keep closing and the gap has instead parked in place
-  for twenty-one months, and then publishing only that the correction "accounts for most of
-  what we can see." The residual IS the signal. Compression removed it.
+  The failure to avoid: reasoning that whichever non-AI explanation you settled on leaves
+  an unexplained residual — it should have kept closing and the gap has instead parked in
+  place for twenty-one months — and then publishing only that the explanation "accounts for
+  most of what we can see." The residual IS the signal. Compression removed it.
 
 Cutting words is fine. Cutting the force of a finding is not. This rule sets a FLOOR on
 what the note must contain, and the length rule forbids padding past what is needed: a
