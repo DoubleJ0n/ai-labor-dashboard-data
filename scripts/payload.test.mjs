@@ -435,10 +435,20 @@ test("a run that hits its ceiling is discarded, not published", async () => {
   assert.ok(!/console\.warn\([^)]*ceiling/i.test(src),
     "the warn-and-continue version must not come back alongside the throw");
 
-  // Sized against the observed worst case (a pass 1 that truncated at 16000, whose true
-  // demand is therefore unknown and higher), and it must clear thinking plus text.
-  const m = src.match(/const MAX_TOKENS = (\d+)/);
-  assert.ok(m, "MAX_TOKENS must stay a named constant");
-  assert.ok(Number(m[1]) >= 32000,
-    `MAX_TOKENS is ${m[1]}; lowering it re-opens the truncation this run failed on`);
+  // THE CEILING IS NOT A NUMBER IN THIS FILE ANY MORE. It went 1500 -> 16000 -> 24000
+  // -> 32000 in under a year, each raise following a truncation, which means every
+  // value it ever held was one a later run proved too small. A constant here encodes
+  // today's guess about how much a model needs to think, and the premise of paying for
+  // this job is that a better model may think longer.
+  assert.ok(!/const MAX_TOKENS = \d/.test(src),
+    "a hardcoded ceiling is a guess about how much a future model needs to think");
+  assert.match(src, /max_tokens: await maxTokensFor\(model\)/,
+    "the ceiling must be asked of the model rather than written down here");
+
+  // The fallback covers an unreachable Models API and must err large: a fallback that is
+  // too big is rejected by the API with a clear error, one that is too small truncates
+  // silently. Large is the recoverable direction.
+  const fb = src.match(/const MAX_TOKENS_FALLBACK = (\d+)/);
+  assert.ok(fb && Number(fb[1]) >= 64000,
+    "the fallback must stay generous; too small fails silently, too large fails loudly");
 });

@@ -68,27 +68,51 @@ const EFFORT = "high";
 // 1500 was set when this call didn't think; at high effort it would truncate
 // mid-sentence, so it is generous now and the request streams.
 //
-// RAISED 16000 -> 32000 ON 2026-08-07, IN TWO STEPS AND FOR TWO DIFFERENT REASONS.
-// Pass 1 landed on exactly 16000 twice in five runs with the reasoning log cut off
-// mid-sentence, and nothing errored, because the structured fields serialise before
-// the log — so the truncation ate the audit trail and left a verdict that parsed.
+// THERE IS NO HARDCODED CEILING ANY MORE. The API requires max_tokens, so the field
+// cannot be omitted, but the NUMBER is no longer written down here: it is fetched per
+// model from the Models API and set to whatever that model can produce.
 //
-// The first fix paired 24000 with a word budget on the log. The budget is now gone: the
-// thinking is never returned, so that log is the only surviving record of how a verdict
-// was reached, and it costs about a ninth of a run against thinking's third. Budgeting
-// the sole audit artifact to save a ninth was the wrong trade, so the ceiling absorbs
-// the whole job instead.
+// The history is the argument. This constant went 1500 -> 16000 -> 24000 -> 32000 in
+// under a year, and every raise came after a truncation, which means every value it
+// held was a number that later turned out to be too small. A ceiling chosen today
+// encodes today's guess about how much a model needs to think, and the whole premise of
+// paying for this job is that a better model may think longer. Truncating a future
+// model that reasons further, because of an integer typed in August 2026, is the exact
+// failure this dashboard should not have.
 //
-// SIZED AGAINST THE OBSERVED WORST CASE, NOT GUESSED. The largest pass 1 on record is
-// the 16000 that truncated; the honest reading of a truncated run is that its true
-// demand is unknown and above 16000. 32000 is double that, and the ceiling covers
-// thinking AND text together, so it has to clear the sum of a long think and a long
-// write-up rather than either alone.
-//
-// It costs nothing on runs that do not use it — output bills on what is produced, not
-// on the ceiling. A run that DOES hit it now throws (see callModel) rather than
-// publishing a reading whose reasoning cannot be reconstructed.
-const MAX_TOKENS = 32000;
+// The remaining guard is the one that matters: if a response somehow reaches even the
+// model's own maximum, callModel throws and the run is discarded rather than published.
+// Cost is unaffected by the ceiling — output bills on what is produced, not on what was
+// permitted — so a generous cap costs nothing on any run that does not need it.
+const MAX_TOKENS_FALLBACK = 64000;
+
+/**
+ * The model's own output ceiling, asked rather than assumed. Cached per model because
+ * a two-pass run asks twice and the answer cannot change mid-run.
+ *
+ * Falls back to a deliberately generous constant if the lookup fails — an unreachable
+ * Models API should not take the analyst down with it, and a fallback that is too large
+ * is rejected by the API with a clear error, while one that is too small silently
+ * truncates. Erring large is the recoverable direction.
+ */
+const maxTokensCache = new Map();
+async function maxTokensFor(model) {
+  if (maxTokensCache.has(model)) return maxTokensCache.get(model);
+  // A dry run makes no model call, so it needs no real ceiling — and asking for one
+  // would put a network round trip and a credential requirement into the one mode
+  // that is meant to work offline. It also exits before the client is constructed.
+  if (DRY_RUN) return MAX_TOKENS_FALLBACK;
+  let limit = MAX_TOKENS_FALLBACK;
+  try {
+    const info = await client.models.retrieve(model);
+    if (Number.isInteger(info?.max_tokens) && info.max_tokens > 0) limit = info.max_tokens;
+    else console.warn(`models.retrieve(${model}) returned no usable max_tokens; using ${limit}`);
+  } catch (err) {
+    console.warn(`models.retrieve(${model}) failed (${err?.message}); using ${limit}`);
+  }
+  maxTokensCache.set(model, limit);
+  return limit;
+}
 
 // Per-million-token pricing. Sonnet 5's introductory rate ends 2026-08-31; both
 // sides are recorded so a cost computed after the cutover is still right.
@@ -361,20 +385,22 @@ if (!SIDE_MODE && priorRun && priorRun.inputHash === inputHash && pool.analysis?
 }
 
 // --- Request builders --------------------------------------------------------
-function pass1Request(model) {
+// Both builders are async: the ceiling is asked of the model rather than assumed, so
+// assembling a request now needs one await. See maxTokensFor.
+async function pass1Request(model) {
   return {
     model,
-    max_tokens: MAX_TOKENS,
+    max_tokens: await maxTokensFor(model),
     thinking: { type: "adaptive" },
     output_config: { effort: EFFORT },
     system: PASS1_SYSTEM,
     messages: [{ role: "user", content: buildPass1Message(payload, changes, news.text, !priorEntry, nowIso().slice(0, 10)) }],
   };
 }
-function pass2Request(model, pass1) {
+async function pass2Request(model, pass1) {
   return {
     model,
-    max_tokens: MAX_TOKENS,
+    max_tokens: await maxTokensFor(model),
     thinking: { type: "adaptive" },
     output_config: { effort: EFFORT },
     // The first-run addendum appends itself only when there is genuinely no prior
@@ -388,7 +414,7 @@ function pass2Request(model, pass1) {
 }
 
 if (DRY_RUN) {
-  const body = pass1Request(DEFAULT_MODEL);
+  const body = await pass1Request(DEFAULT_MODEL);
   writeFileSync(
     "analyst-request-dryrun.json",
     JSON.stringify({ mechanical, dataMonth, inputHash, newsSources: news.sources, pass1Request: body }, null, 2) + "\n",
@@ -424,7 +450,7 @@ async function callModel(request, label) {
   const message = await client.messages.stream(request).finalMessage();
   const text = message.content.filter((b) => b.type === "text").map((b) => b.text).join("\n").trim();
 
-  // A TRUNCATED RUN IS DISCARDED, NOT PUBLISHED. This ran into MAX_TOKENS twice in five
+  // A TRUNCATED RUN IS DISCARDED, NOT PUBLISHED. This ran into its ceiling twice in five
   // runs and said nothing either time; the only trace was an output-token count that
   // happened to equal the ceiling exactly and a reasoning log ending mid-sentence.
   //
@@ -441,14 +467,19 @@ async function callModel(request, label) {
   //
   // stop_reason is authoritative; the token comparison is a fallback in case a future
   // SDK stops populating it.
-  if (message.stop_reason === "max_tokens" || (message.usage?.output_tokens ?? 0) >= MAX_TOKENS) {
+  // The ceiling is whatever this request asked for, which is the model's own maximum —
+  // so reaching it means the model produced as much as it is capable of producing, not
+  // that a number here was set too low. There is nothing left to raise.
+  const ceiling = request.max_tokens;
+  if (message.stop_reason === "max_tokens" || (message.usage?.output_tokens ?? 0) >= ceiling) {
     throw new Error(
-      `${label} hit the ${MAX_TOKENS}-token ceiling (stop_reason=${message.stop_reason}, ` +
-      `output=${message.usage?.output_tokens}). Its output is truncated, so this run is ` +
-      "discarded rather than published — a verdict whose reasoning log was cut off still " +
-      "parses, which is exactly why this fails loudly instead of warning. Raise MAX_TOKENS " +
-      "in this file; do not shorten the reasoning log to fit, since that log is the only " +
-      "record of the reasoning that produced the verdict.",
+      `${label} hit its ${ceiling}-token ceiling (stop_reason=${message.stop_reason}, ` +
+      `output=${message.usage?.output_tokens}). That ceiling is ${request.model}'s own output ` +
+      "maximum, so this is not a limit that can be raised — the response is genuinely as " +
+      "long as the model can make it. The run is discarded rather than published, because a " +
+      "verdict whose reasoning log was cut off still parses and would be indistinguishable " +
+      "from a complete one. Do not fix this by shortening the reasoning log: that log is the " +
+      "only surviving record of the reasoning behind the verdict.",
     );
   }
 
@@ -466,12 +497,12 @@ async function callModel(request, label) {
 /** One full two-pass run on one model. Returns everything needed to log or compare. */
 async function runAnalyst(model) {
   const startedAt = nowIso();
-  const first = await callModel(pass1Request(model), "pass1");
+  const first = await callModel(await pass1Request(model), "pass1");
   const pass1 = parsePass1(first.text);
   if (!pass1) {
     throw new Error(`pass 1 output did not parse (model ${model}). First 600 chars:\n${first.text.slice(0, 600)}`);
   }
-  const second = await callModel(pass2Request(model, pass1), "pass2");
+  const second = await callModel(await pass2Request(model, pass1), "pass2");
   const pass2 = parsePass2(second.text);
   if (!pass2) {
     throw new Error(`pass 2 output did not parse (model ${model}). First 600 chars:\n${second.text.slice(0, 600)}`);
