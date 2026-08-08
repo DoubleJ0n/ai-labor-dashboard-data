@@ -86,6 +86,13 @@ const EFFORT = "high";
 // permitted — so a generous cap costs nothing on any run that does not need it.
 const MAX_TOKENS_FALLBACK = 64000;
 
+// What a run is expected to cost, so an unexpected one announces itself. Six live runs
+// have landed between $0.74 and $0.82; this sits near double the top of that range.
+// Not a cap — nothing here can stop a run mid-flight, and capping by cost would mean
+// truncating reasoning to hit a number, which is the trade this file has now rejected
+// twice. See the alarm in runAnalyst.
+const COST_ALARM_USD = 1.5;
+
 /**
  * The model's own output ceiling, asked rather than assumed. Cached per model because
  * a two-pass run asks twice and the answer cannot change mid-run.
@@ -542,8 +549,32 @@ async function runAnalyst(model) {
   const finishedAt = nowIso();
   const inTok = first.usage.inputTokens + second.usage.inputTokens;
   const outTok = first.usage.outputTokens + second.usage.outputTokens;
+
+  // A COST TRIPWIRE, BECAUSE THE CEILING IS NO LONGER A BUDGET. max_tokens is now the
+  // model's own maximum, which is the right way to avoid truncating a model that
+  // reasons further than the last one — but it means nothing in this file bounds spend
+  // any more. That is a deliberate trade and it needs a smoke alarm, not a lock: you
+  // cannot know a run's cost until it is over, so this cannot prevent an expensive run,
+  // only guarantee you find out about one.
+  //
+  // The observed range across six live runs is $0.74 to $0.82, tightly clustered. The
+  // threshold sits near double that: high enough never to fire on ordinary variation,
+  // low enough to catch a model that has started writing very much more than the ones
+  // measured here. If this fires repeatedly and the output is good, raise it — a run
+  // that reasons longer for a reason is what the ceiling was removed to permit.
+  const cost = costUsd(model, inTok, outTok, finishedAt);
+  if (cost != null && cost > COST_ALARM_USD) {
+    console.warn(
+      `COST ALARM: this ${model} run cost $${cost.toFixed(2)}, over the $${COST_ALARM_USD.toFixed(2)} ` +
+      `expected ceiling (${inTok} in / ${outTok} out; the six runs before this one ranged ` +
+      "$0.74-$0.82). The run is complete and published — this is a notice, not a failure. " +
+      "Check whether the output justifies the spend before assuming it is a problem.",
+    );
+  }
+
   return {
     model, effort: EFFORT, startedAt, finishedAt,
+    costAlarm: cost != null && cost > COST_ALARM_USD,
     pass1, pass2,
     rawPass1: first.text, rawPass2: second.text,
     usage: {
@@ -672,7 +703,7 @@ console.log(
   `; note ${result.compliance.words}w (${result.compliance.lengthBand})/${result.compliance.numbers}n` +
   `; analysis ${result.analysisStats.present ? `${result.analysisStats.words}w` : "ABSENT"}` +
   ` — usage (log only): ${result.usage.totalInputTokens} in / ${result.usage.totalOutputTokens} out, ` +
-  `est $${result.usage.costUsd.toFixed(4)}`,
+  `est $${result.usage.costUsd.toFixed(4)}${result.costAlarm ? " <== OVER THE EXPECTED CEILING" : ""}`,
 );
 
 /**

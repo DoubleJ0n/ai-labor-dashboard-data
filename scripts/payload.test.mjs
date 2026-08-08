@@ -503,3 +503,26 @@ test("only panels that can move a verdict, and only real data, can order a run",
   // The narrowing is the gate's alone: every panel still travels to the model.
   assert.equal(panels.length, 13, "the payload the model sees is unchanged by any of this");
 });
+
+test("removing the token ceiling did not remove the ability to notice a costly run", async () => {
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync("scripts/analysis-refresh.mjs", "utf8");
+
+  // max_tokens is now the model's own maximum, so nothing in that file bounds spend.
+  // That is the right trade — a ceiling low enough to be a budget is a ceiling that
+  // truncates a model reasoning further than the last one — but it needs a smoke alarm.
+  // A cost guard cannot be a cap: you do not know a run's cost until it is finished.
+  const m = src.match(/const COST_ALARM_USD = ([\d.]+)/);
+  assert.ok(m, "an uncapped ceiling needs a cost tripwire beside it");
+  const threshold = Number(m[1]);
+
+  // Six live runs landed in $0.74-$0.82. Too tight and it cries wolf on ordinary
+  // variation; too loose and it never fires on the thing it exists to catch.
+  assert.ok(threshold >= 1.2 && threshold <= 2.5,
+    `alarm at $${threshold} is outside the useful band against an observed $0.74-$0.82`);
+
+  assert.match(src, /COST ALARM/, "the alarm must be loud in the run log");
+  assert.match(src, /this is a notice, not a failure/i,
+    "an expensive run that produced good output is not an error, and the message must say so");
+  assert.match(src, /costAlarm/, "the run record must carry the flag, not only the console");
+});
