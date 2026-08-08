@@ -331,12 +331,44 @@ const round = (v) => (typeof v === "number" ? Math.round(v * 100) / 100 : v);
  *
  * The model still receives the full panel. This narrowing decides only WHEN to ask.
  */
+/*
+ * TWO MORE NARROWINGS, 2026-08-07, both found by auditing why this fired six times in
+ * nine days when the underlying labour month changed once.
+ *
+ * PANELS THAT CANNOT CHANGE THE VERDICT DO NOT GET TO ORDER A RUN. Three panels carry
+ * panel_role "does_not_contribute" — they are shown for context and counted in nothing,
+ * and the prompt tells the analyst they cannot corroborate a labour reading in either
+ * direction. One of them, the GDPval leaderboard, was the single most frequent trigger
+ * in the record: four content changes in sixty days against one for the monthly labour
+ * data. Paying 80 cents to re-read the labour market because a benchmark leaderboard
+ * reshuffled is buying a verdict that, by the payload's own rules, could not have moved.
+ * They still travel in the payload; they just no longer decide WHEN to ask.
+ *
+ * THE CALENDAR IS NOT NEW DATA. attachVintage stamps every panel with as_of_months_old
+ * and a staleness flag computed against today, so on the first of each month every
+ * panel aged by one and the hash moved with no new observation anywhere. That is
+ * exactly what happened on 2026-08-01: the only series that changed that day were the
+ * gated yield levels, identical to the two days either side of it which correctly did
+ * not fire. as_of itself stays in the hash — it is derived from the data and a change
+ * in it means a real release. Only the age arithmetic is dropped, because "time passed"
+ * is not a finding and a panel that quietly went stale will be reported on the next run
+ * that has something to say.
+ *
+ * Both narrowings affect only the GATE. The model still receives every panel, its
+ * vintage, and its staleness note in full; this decides when to ask, never what to send.
+ */
+const CALENDAR_DERIVED = ["as_of_months_old", "stale", "stale_note"];
 const gateView = (panels) =>
-  panels.map((p) =>
-    p?.panel === "macro_regime"
-      ? { panel: p.panel, yield_curve_inverted: p.yield_curve_inverted ?? null }
-      : p,
-  );
+  panels
+    .filter((p) => p?.panel_role !== "does_not_contribute")
+    .map((p) => {
+      if (p?.panel === "macro_regime") {
+        return { panel: p.panel, yield_curve_inverted: p.yield_curve_inverted ?? null };
+      }
+      const out = { ...p };
+      for (const k of CALENDAR_DERIVED) delete out[k];
+      return out;
+    });
 
 const inputHash = createHash("sha256")
   .update(JSON.stringify({ payload: gateView(payload), dataMonth }, (k, v) => round(v)))

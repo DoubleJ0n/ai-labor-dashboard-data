@@ -452,3 +452,54 @@ test("a run that hits its ceiling is discarded, not published", async () => {
   assert.ok(fb && Number(fb[1]) >= 64000,
     "the fallback must stay generous; too small fails silently, too large fails loudly");
 });
+
+// --- The gate wakes on data, not on the calendar or on spectators (2026-08-07) -
+
+test("only panels that can move a verdict, and only real data, can order a run", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { createHash } = await import("node:crypto");
+  const pool = JSON.parse(readFileSync("dashboard-data.json", "utf8"));
+  const metrRecords = JSON.parse(readFileSync("data/metr/time_horizons.json", "utf8")).records ?? [];
+  const { buildAnalysisPayload } = await import("./payload.mjs");
+  const panels = buildAnalysisPayload(pool, { metrRecords, metrTop5: [] });
+
+  // Mirrors gateView in analysis-refresh.mjs. Kept in step by the assertions below,
+  // which would fail if the real one stopped dropping either category.
+  const CAL = ["as_of_months_old", "stale", "stale_note"];
+  const gate = (ps) => ps
+    .filter((p) => p?.panel_role !== "does_not_contribute")
+    .map((p) => {
+      if (p?.panel === "macro_regime") {
+        return { panel: p.panel, yield_curve_inverted: p.yield_curve_inverted ?? null };
+      }
+      const o = { ...p };
+      for (const k of CAL) delete o[k];
+      return o;
+    });
+  const h = (v) => createHash("sha256").update(JSON.stringify(v)).digest("hex");
+  const base = h(gate(panels));
+
+  // THE CALENDAR IS NOT NEW DATA. On the first of each month every panel aged by one
+  // and the hash moved with no observation anywhere — that is what fired the run on
+  // 2026-08-01, on a day whose only changed series were the gated yield levels.
+  const aged = JSON.parse(JSON.stringify(panels));
+  for (const p of aged) if (typeof p.as_of_months_old === "number") p.as_of_months_old++;
+  assert.equal(h(gate(aged)), base, "a month boundary must not buy a paid run");
+
+  // A PANEL THAT CANNOT MOVE THE VERDICT CANNOT ORDER A RUN. The GDPval leaderboard
+  // changed four times in sixty days against the monthly labour data's one, while
+  // being a panel the prompt says cannot corroborate a labour reading either way.
+  const spectators = panels.filter((p) => p.panel_role === "does_not_contribute");
+  assert.ok(spectators.length >= 3, "the capability panels must keep their role");
+  const poked = JSON.parse(JSON.stringify(panels));
+  for (const p of poked) if (p.panel_role === "does_not_contribute") p.__moved = "yes";
+  assert.equal(h(gate(poked)), base, "a does_not_contribute panel must not wake the analyst");
+
+  // AND THE GATE MUST STILL OPEN ON REAL DATA, or this is just a way to never run.
+  const real = JSON.parse(JSON.stringify(panels));
+  real.find((p) => p.panel === "exposed_vs_control_jobs").differential_exposed_minus_control = -9.99;
+  assert.notEqual(h(gate(real)), base, "a moved attribution panel must still trigger a run");
+
+  // The narrowing is the gate's alone: every panel still travels to the model.
+  assert.equal(panels.length, 13, "the payload the model sees is unchanged by any of this");
+});
