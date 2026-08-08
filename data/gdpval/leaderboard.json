@@ -632,7 +632,7 @@
       },
       {
         "slug": "ling-3-0-flash",
-        "model": "Ling-3.0-flash",
+        "model": "Ling 3.0 Flash",
         "lab": "InclusionAI",
         "releaseDate": "2026-08-04",
         "elo": 1107.63,
@@ -903,11 +903,11 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "ling-3-0-tiny-rc2",
+        "slug": "ling-3-0-tiny",
         "model": "Ling 3.0 Tiny",
         "lab": "InclusionAI",
         "releaseDate": "2026-08-06",
-        "elo": 772.35,
+        "elo": 772.47,
         "poolVersion": "v2"
       },
       {
@@ -968,7 +968,7 @@
       },
       {
         "slug": "nvidia-nemotron-3-super-120b-a12b",
-        "model": "NVIDIA Nemotron 3 Super 120B A12B (Reasoning)",
+        "model": "Nemotron 3 Super 120B A12B (Reasoning)",
         "lab": "NVIDIA",
         "releaseDate": "2026-03-11",
         "elo": 698.17,
@@ -1439,7 +1439,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-08-07"
+    "lastRefreshed": "2026-08-08"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
