@@ -27,7 +27,7 @@
         "model": "Grok 4.6 (high)",
         "lab": "SpaceXAI",
         "releaseDate": "2026-08-12",
-        "elo": 1753.09,
+        "elo": 1749.2,
         "poolVersion": "v2"
       },
       {
@@ -83,7 +83,7 @@
         "model": "Muse Spark 1.2 (xhigh)",
         "lab": "Meta",
         "releaseDate": "2026-08-05",
-        "elo": 1627.54,
+        "elo": 1628,
         "poolVersion": "v2"
       },
       {
@@ -107,7 +107,15 @@
         "model": "Claude Sonnet 5 (Adaptive Reasoning, Max Effort)",
         "lab": "Anthropic",
         "releaseDate": "2026-06-30",
-        "elo": 1598.21,
+        "elo": 1598,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v4-pro",
+        "model": "DeepSeek V4 Pro 0813 (Reasoning, Max Effort)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-08-13",
+        "elo": 1590.01,
         "poolVersion": "v2"
       },
       {
@@ -131,7 +139,7 @@
         "model": "GPT-5.6 Terra (max)",
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
-        "elo": 1577.75,
+        "elo": 1578,
         "poolVersion": "v2"
       },
       {
@@ -251,7 +259,7 @@
         "model": "Gemini 3.6 Flash (high)",
         "lab": "Google",
         "releaseDate": "2026-07-21",
-        "elo": 1422.26,
+        "elo": 1422,
         "poolVersion": "v2"
       },
       {
@@ -343,7 +351,7 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "deepseek-v4-pro",
+        "slug": "deepseek-v4-pro-0424",
         "model": "DeepSeek V4 Pro (Reasoning, Max Effort)",
         "lab": "DeepSeek",
         "releaseDate": "2026-04-24",
@@ -359,11 +367,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "deepseek-v4-pro-high",
+        "slug": "deepseek-v4-pro-0424-high",
         "model": "DeepSeek V4 Pro (Reasoning, High Effort)",
         "lab": "DeepSeek",
         "releaseDate": "2026-04-24",
         "elo": 1291.32,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "solar-pro4",
+        "model": "Solar Pro 4",
+        "lab": "Upstage",
+        "releaseDate": "2026-08-06",
+        "elo": 1275.76,
         "poolVersion": "v2"
       },
       {
@@ -372,6 +388,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
         "elo": 1275.73,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "motif-3",
+        "model": "Motif 3",
+        "lab": "Motif Technologies",
+        "releaseDate": "2026-08-12",
+        "elo": 1274.54,
         "poolVersion": "v2"
       },
       {
@@ -631,11 +655,27 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "solar-open2-250b",
+        "model": "Solar Open2 250B",
+        "lab": "Upstage",
+        "releaseDate": "2026-08-12",
+        "elo": 1121.9,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "qwen3-6-27b-non-reasoning",
         "model": "Qwen3.6 27B (Non-reasoning)",
         "lab": "Alibaba",
         "releaseDate": "2026-04-22",
         "elo": 1112.41,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "a-x-k2",
+        "model": "A.X-K2",
+        "lab": "SK Telecom",
+        "releaseDate": "2026-08-12",
+        "elo": 1109.4,
         "poolVersion": "v2"
       },
       {
@@ -748,6 +788,14 @@
         "lab": "Alibaba",
         "releaseDate": "2026-02-24",
         "elo": 987.74,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "k-exaone-2-0-0803",
+        "model": "K-EXAONE 2.0 0803",
+        "lab": "LG AI Research",
+        "releaseDate": "2026-08-12",
+        "elo": 979.1,
         "poolVersion": "v2"
       },
       {
@@ -1463,7 +1511,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-08-12"
+    "lastRefreshed": "2026-08-13"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
