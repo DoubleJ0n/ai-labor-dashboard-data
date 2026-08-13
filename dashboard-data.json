@@ -67247,7 +67247,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": "2026-07-13T13:52:07Z",
+    "lastRefreshed": "2026-08-03T19:12:21Z",
     "points": [
       {
         "metricId": "metr",
@@ -67491,35 +67491,166 @@
         "value": 75,
         "sourceUrl": "https://github.com/Future-House/LAB-Bench",
         "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-15",
+        "label": "GPT-4o (HLE)",
+        "value": 3,
+        "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-15",
+        "label": "Claude 3.5 Sonnet (HLE)",
+        "value": 4,
+        "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-15",
+        "label": "OpenAI o1 (HLE)",
+        "value": 8,
+        "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-03-01",
+        "label": "Gemini 3 Pro Preview (HLE)",
+        "value": 38,
+        "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-03-01",
+        "label": "Claude Opus 4.6 Thinking Max (HLE)",
+        "value": 34,
+        "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-05-01",
+        "label": "Claude Fable 5 (HLE)",
+        "value": 53,
+        "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-03-01",
+        "label": "Claude Opus 4.1 (SWE-bench Pro)",
+        "value": 23,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-08-01",
+        "label": "OpenAI GPT-5 (SWE-bench Pro)",
+        "value": 23,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-06-01",
+        "label": "GPT-5.4 xHigh (SWE-bench Pro)",
+        "value": 59,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-06-01",
+        "label": "Claude Opus 4.8 (SWE-bench Pro vendor)",
+        "value": 69,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "biology",
+        "pointDate": "2026-05-01",
+        "label": "Claude Opus 4.5 (LABBench2)",
+        "value": 35,
+        "sourceUrl": "https://arxiv.org/pdf/2604.09554",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "biology",
+        "pointDate": "2026-05-01",
+        "label": "Claude Opus 4.6 (LABBench2)",
+        "value": 38,
+        "sourceUrl": "https://arxiv.org/pdf/2604.09554",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "biology",
+        "pointDate": "2026-05-01",
+        "label": "GPT-5.2 Pro (LABBench2)",
+        "value": 32,
+        "sourceUrl": "https://arxiv.org/pdf/2604.09554",
+        "fetchDate": "2026-08-03"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "biology",
+        "pointDate": "2026-03-01",
+        "label": "Gemini 3.1 Pro (biology tasks)",
+        "value": 44,
+        "sourceUrl": "https://arxiv.org/pdf/2604.09554",
+        "fetchDate": "2026-08-03"
       }
     ],
     "slots": [
       {
         "slot": "reasoning",
         "benchmarkName": "Humanity's Last Exam (HLE)",
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13",
+        "sourceUrl": "https://labs.scale.com/leaderboard/humanitys_last_exam",
+        "fetchDate": "2026-08-03",
         "saturated": false,
-        "note": "Expert-vetted multi-domain questions across 100+ subjects; frontier models score 20-54% with substantial headroom."
+        "note": "Expert-authored 2,500-question benchmark testing frontier knowledge across mathematics, sciences, humanities with meaningful headroom at 22-37% frontier performance."
       },
       {
         "slot": "coding",
-        "benchmarkName": "SWE-bench Verified",
-        "sourceUrl": "https://benchlm.ai/benchmarks",
-        "fetchDate": "2026-07-13",
-        "saturated": false,
-        "note": "Real GitHub issue resolution with meaningful spread (77-81%) across frontier models; flagged for data contamination but remains standard."
+        "benchmarkName": "SWE-bench Pro",
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-08-03",
+        "saturated": true,
+        "note": "Successor to saturated SWE-bench Verified (80%+ clustering); Pro uses 1,865 contamination-resistant tasks with meaningful frontier spread at 23-60% range."
       },
       {
         "slot": "biology",
-        "benchmarkName": "LAB-Bench",
-        "sourceUrl": "https://github.com/Future-House/LAB-Bench",
-        "fetchDate": "2026-07-13",
+        "benchmarkName": "LABBench2",
+        "sourceUrl": "https://arxiv.org/pdf/2604.09554",
+        "fetchDate": "2026-08-03",
         "saturated": false,
-        "note": "Practical research capabilities: literature reasoning, figure interpretation, sequence manipulation, protocol troubleshooting—not memorization."
+        "note": "Successor to LAB-Bench (May 2026); evaluates protocol debugging, sequence analysis, literature synthesis with 26-46% accuracy drop vs. original, showing meaningful research-task difficulty."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-08-03",
+        "foundNew": true,
+        "summary": "+14 points (0 superseded); benchmark change: coding: SWE-bench Verified -> SWE-bench Pro, biology: LAB-Bench -> LABBench2"
+      },
       {
         "runDate": "2026-07-13",
         "foundNew": true,
