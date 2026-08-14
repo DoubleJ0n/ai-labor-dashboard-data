@@ -27,7 +27,7 @@
         "model": "Grok 4.6 (high)",
         "lab": "SpaceXAI",
         "releaseDate": "2026-08-12",
-        "elo": 1749.2,
+        "elo": 1746.42,
         "poolVersion": "v2"
       },
       {
@@ -59,7 +59,15 @@
         "model": "GPT-5.6 Sol (max)",
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
-        "elo": 1727.78,
+        "elo": 1725.18,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-8-2-4t-a95b",
+        "model": "Qwen3.8 2.4T A95B",
+        "lab": "Alibaba",
+        "releaseDate": "2026-08-12",
+        "elo": 1720.39,
         "poolVersion": "v2"
       },
       {
@@ -123,7 +131,7 @@
         "model": "Claude Opus 4.8 (Adaptive Reasoning, Max Effort)",
         "lab": "Anthropic",
         "releaseDate": "2026-05-28",
-        "elo": 1586.09,
+        "elo": 1584.12,
         "poolVersion": "v2"
       },
       {
@@ -183,6 +191,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "gemini-3-7-flash",
+        "model": "Gemini 3.7 Flash (high)",
+        "lab": "Google",
+        "releaseDate": "2026-08-13",
+        "elo": 1525.3,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "gpt-5-6-terra-high",
         "model": "GPT-5.6 Terra (high)",
         "lab": "OpenAI",
@@ -204,6 +220,14 @@
         "lab": "Anthropic",
         "releaseDate": "2026-06-30",
         "elo": 1502.39,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-7-flash-medium",
+        "model": "Gemini 3.7 Flash (medium)",
+        "lab": "Google",
+        "releaseDate": "2026-08-13",
+        "elo": 1498.3,
         "poolVersion": "v2"
       },
       {
@@ -244,6 +268,14 @@
         "lab": "Anthropic",
         "releaseDate": "2026-07-24",
         "elo": 1455.65,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-7-flash-low",
+        "model": "Gemini 3.7 Flash (low)",
+        "lab": "Google",
+        "releaseDate": "2026-08-13",
+        "elo": 1452.19,
         "poolVersion": "v2"
       },
       {
@@ -299,7 +331,7 @@
         "model": "MiniMax-M3",
         "lab": "MiniMax",
         "releaseDate": "2026-06-01",
-        "elo": 1388.62,
+        "elo": 1387.97,
         "poolVersion": "v2"
       },
       {
@@ -707,7 +739,7 @@
         "model": "Grok 4.3 (high)",
         "lab": "SpaceXAI",
         "releaseDate": "2026-04-30",
-        "elo": 1087.46,
+        "elo": 1087.5,
         "poolVersion": "v2"
       },
       {
@@ -1099,7 +1131,7 @@
         "model": "Gemini 3.1 Flash-Lite",
         "lab": "Google",
         "releaseDate": "2026-03-03",
-        "elo": 647.03,
+        "elo": 647.06,
         "poolVersion": "v2"
       },
       {
@@ -1511,7 +1543,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-08-13"
+    "lastRefreshed": "2026-08-14"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
