@@ -516,10 +516,31 @@ test("removing the token ceiling did not remove the ability to notice a costly r
   assert.ok(m, "an uncapped ceiling needs a cost tripwire beside it");
   const threshold = Number(m[1]);
 
-  // Six live runs landed in $0.74-$0.82. Too tight and it cries wolf on ordinary
-  // variation; too loose and it never fires on the thing it exists to catch.
-  assert.ok(threshold >= 1.2 && threshold <= 2.5,
-    `alarm at $${threshold} is outside the useful band against an observed $0.74-$0.82`);
+  // THE BAND BELONGS TO A MODEL, SO IT IS READ FROM THE MODEL. An alarm calibrated on
+  // Opus prices sits at three to five times a Sonnet run and never fires — a smoke
+  // alarm with the battery out — and that is exactly the failure this assertion was
+  // rewritten to catch. Too tight and it cries wolf on ordinary variation; too loose
+  // and it never fires on the thing it exists to catch, so the band is anchored to the
+  // top of the expected range for whichever model the file is actually configured for.
+  //
+  // Six live Opus 5 runs landed in $0.74-$0.82. The Sonnet figures are that range
+  // scaled by the rate ratio and are NOT yet measured: ~$0.44-$0.49 at the standard
+  // $3/$15, lower still while the introductory $2/$10 holds. Replace them with real
+  // numbers once Sonnet runs have landed.
+  const modelMatch = src.match(/const DEFAULT_MODEL = "([^"]+)"/);
+  assert.ok(modelMatch, "the analyst must pin a model, so the band knows what it is judging");
+  const model = modelMatch[1];
+
+  const EXPECTED_TOP = { "claude-sonnet-5": 0.49, "claude-opus-5": 0.82 };
+  const top = EXPECTED_TOP[model];
+  assert.ok(top,
+    `no expected-cost range recorded for ${model}; measure a few runs and add one here ` +
+    "rather than leaving the alarm calibrated for a model this file no longer uses");
+
+  // Useful means roughly 1.5x to 3.5x the top of the expected range.
+  assert.ok(threshold >= top * 1.5 && threshold <= top * 3.5,
+    `alarm at $${threshold} is outside the useful band for ${model}, whose runs are ` +
+    `expected to top out near $${top} (want $${(top * 1.5).toFixed(2)}-$${(top * 3.5).toFixed(2)})`);
 
   assert.match(src, /COST ALARM/, "the alarm must be loud in the run log");
   assert.match(src, /this is a notice, not a failure/i,

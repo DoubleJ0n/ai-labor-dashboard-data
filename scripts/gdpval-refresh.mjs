@@ -85,8 +85,20 @@ if (poolVersion !== GDPVAL_POOL_VERSION) {
 // --- slug -> display name + lab, from the model-picker array ------------------
 const nameBySlug = new Map();
 const labBySlug = new Map();
+// ANCHOR ON THE KEYS THAT MATTER, NOT ON FIELD ADJACENCY. This regex used to require
+// "isReasoning" to sit immediately before "creator". On 2026-08-16 upstream inserted a
+// "releaseDate" field between them and every record stopped matching at once — the job
+// went red daily reporting a restructured payload, when in fact the three fields this
+// parser actually reads (slug, name, creator.name) were all still there, unchanged and
+// in the same order.
+//
+// A schema that grows a field is the ordinary case, not a break, and it should not cost
+// a red run: the halt for a genuine restructure is the `nameBySlug.size === 0` check
+// below, which still fires if slug/name/creator really do move or vanish. So the
+// middle of the record is now "any number of simple scalar fields", which absorbs the
+// next added field too.
 for (const m of flat.matchAll(
-  /\{"slug":"([^"]+)","name":"([^"]+)","deprecated":(?:true|false),"isReasoning":(?:true|false),"creator":\{"id":"[^"]+","name":"([^"]+)"/g,
+  /\{"slug":"([^"]+)","name":"([^"]+)","deprecated":(?:true|false),"isReasoning":(?:true|false),(?:"[A-Za-z_][A-Za-z0-9_]*":(?:"[^"]*"|-?[0-9.]+|true|false|null),)*"creator":\{"id":"[^"]+","name":"([^"]+)"/g,
 )) {
   nameBySlug.set(m[1], m[2]);
   labBySlug.set(m[1], m[3]);

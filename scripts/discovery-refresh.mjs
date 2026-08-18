@@ -41,6 +41,14 @@ const EARLIEST_POINT_DATE = "2015-01-01"; // sanity floor for model-supplied dat
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPORT_PATH = path.join(repoRoot, "discovery-report.md");
 
+// The halt for a change of instrument (see below) is the only path that ends
+// this job red; every other dead end is a nochange. Same shape as the fail() in
+// gdpval/adoption/aei/metr-fetch.
+function fail(msg) {
+  console.error(`discovery-refresh FATAL: ${msg}`);
+  process.exit(1);
+}
+
 function setOutput(key, value) {
   if (process.env.GITHUB_OUTPUT) {
     appendFileSync(process.env.GITHUB_OUTPUT, `${key}<<EOF\n${value}\nEOF\n`);

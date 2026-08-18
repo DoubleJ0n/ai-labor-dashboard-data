@@ -62,7 +62,7 @@ function readJson(rel) {
 // Pinned exactly, not by a family alias. Model IDs from the 4.6 generation on are
 // dateless but are still pinned snapshots rather than evergreen pointers, so this
 // string cannot silently repoint mid-series and break the track record.
-const DEFAULT_MODEL = "claude-opus-5";
+const DEFAULT_MODEL = "claude-sonnet-5";
 const EFFORT = "high";
 // max_tokens is a HARD cap on thinking + visible text together. The previous
 // 1500 was set when this call didn't think; at high effort it would truncate
@@ -86,12 +86,21 @@ const EFFORT = "high";
 // permitted — so a generous cap costs nothing on any run that does not need it.
 const MAX_TOKENS_FALLBACK = 64000;
 
-// What a run is expected to cost, so an unexpected one announces itself. Six live runs
-// have landed between $0.74 and $0.82; this sits near double the top of that range.
-// Not a cap — nothing here can stop a run mid-flight, and capping by cost would mean
-// truncating reasoning to hit a number, which is the trade this file has now rejected
-// twice. See the alarm in runAnalyst.
-const COST_ALARM_USD = 1.5;
+// What a run is expected to cost, so an unexpected one announces itself. Not a cap —
+// nothing here can stop a run mid-flight, and capping by cost would mean truncating
+// reasoning to hit a number, which is the trade this file has now rejected twice. See
+// the alarm in runAnalyst.
+//
+// RECALIBRATED FOR SONNET, AND NOT YET MEASURED. The $0.74-$0.82 range quoted below is
+// six live runs on Opus 5. The Sonnet figures are that range multiplied by the rate
+// ratio, not observed: at the introductory $2/$10 (through 2026-08-31) a run should land
+// near $0.30-$0.33, and at the standard $3/$15 after it, near $0.44-$0.49. A threshold
+// left at double the OPUS range would sit at three to five times the Sonnet one and
+// would never fire, which is a smoke alarm with the battery out. This sits near double
+// the standard-rate estimate instead, so it still means something after the introductory
+// rate lapses. Replace the arithmetic with real numbers once a few Sonnet runs have
+// landed, and raise it if it fires on output that is good.
+const COST_ALARM_USD = 1.0;
 
 /**
  * The model's own output ceiling, asked rather than assumed. Cached per model because
@@ -557,18 +566,19 @@ async function runAnalyst(model) {
   // cannot know a run's cost until it is over, so this cannot prevent an expensive run,
   // only guarantee you find out about one.
   //
-  // The observed range across six live runs is $0.74 to $0.82, tightly clustered. The
-  // threshold sits near double that: high enough never to fire on ordinary variation,
-  // low enough to catch a model that has started writing very much more than the ones
-  // measured here. If this fires repeatedly and the output is good, raise it — a run
-  // that reasons longer for a reason is what the ceiling was removed to permit.
+  // The threshold is set near double the expected run cost — high enough never to fire
+  // on ordinary variation, low enough to catch a model that has started writing very
+  // much more than expected. See COST_ALARM_USD for how the figure was derived, and
+  // note it is arithmetic from the Opus measurements rather than measured on Sonnet. If
+  // this fires repeatedly and the output is good, raise it — a run that reasons longer
+  // for a reason is what the ceiling was removed to permit.
   const cost = costUsd(model, inTok, outTok, finishedAt);
   if (cost != null && cost > COST_ALARM_USD) {
     console.warn(
       `COST ALARM: this ${model} run cost $${cost.toFixed(2)}, over the $${COST_ALARM_USD.toFixed(2)} ` +
-      `expected ceiling (${inTok} in / ${outTok} out; the six runs before this one ranged ` +
-      "$0.74-$0.82). The run is complete and published — this is a notice, not a failure. " +
-      "Check whether the output justifies the spend before assuming it is a problem.",
+      `expected ceiling (${inTok} in / ${outTok} out). The run is complete and published — ` +
+      "this is a notice, not a failure. Check whether the output justifies the spend " +
+      "before assuming it is a problem.",
     );
   }
 
