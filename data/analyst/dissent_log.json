@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "description": "Append-only Analyst timeline. Reset 2026-07-27 when the baseline, the reabsorption axis and the falsifier format all changed; earlier entries were scored against a rolling baseline and are not comparable. Archived under archive/.",
-  "lastRefreshed": "2026-08-15T16:17:32Z",
+  "lastRefreshed": "2026-08-20T16:26:23Z",
   "entries": [
     {
       "date": "2026-06",
@@ -1130,6 +1130,122 @@
         },
         "job_postings_spread": {
           "value": -28.7,
+          "date": "2026-08"
+        },
+        "worker_share_of_income": {
+          "value": -1,
+          "date": "2026-03"
+        },
+        "ai_adoption": {
+          "value": 21.8,
+          "date": "2026-07"
+        },
+        "ai_use_automation_vs_augmentation": {
+          "value": 43.1,
+          "date": "2025-09-15"
+        },
+        "macro_regime": {
+          "value": 0.5,
+          "date": null
+        },
+        "ai_capability_metr": {
+          "value": 186,
+          "date": "Claude Mythos Preview"
+        },
+        "ai_capability_gdpval_ratings": {
+          "value": 1848.8,
+          "date": "2026-08"
+        },
+        "ai_capability_vs_human_experts": {
+          "value": 70.9,
+          "date": "2025-12"
+        }
+      }
+    },
+    {
+      "date": "2026-07",
+      "runAt": "2026-08-20T16:26:23Z",
+      "loadBearingPanels": [
+        "reabsorption",
+        "exposed_vs_control_jobs",
+        "job_postings_spread"
+      ],
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "confidenceBasis": "Corroborating: reabsorption headline (prime-age employment ratio, LNS12300060, as_of 2026-07) is flat over 12 months and above its 2019 level, and its JOLTS-based components (hires-minus-quits rising, layoffs falling) — a genuinely different source from the CPS headline — agree the market is not shedding people; job_postings_spread's 6-month change is narrowing rather than widening. Refuting / uncorroborated: exposed_vs_control_jobs has sat past its attention line for the last four readings without closing, the underemployment gap secondary readout is at 1.81σ (close to its alarm line), and the exposed-vs-control wage gap is confounded by falling exposed headcount so it cannot be read at face value. Unmet doubt: the calm reading leans partly on correlated CPS-sourced components (headline + long-term-unemployed share) rather than fully independent confirmation, and the flat 12-month headline sits beside a falling 3-month fast_horizon (agrees_with_headline: false) that could be an early turn the 12-month figure can't show yet.",
+      "tagLine": "Stalled gap, quiet month",
+      "notificationLine": "Reading holds: augmentation. Only mover was postings gap narrowing slightly this month.",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "falsifier": {
+        "panel": "reabsorption",
+        "field": "headline.change_over_12_months",
+        "comparator": "at_or_below",
+        "value": -0.62,
+        "unit": "percentage points (12-month change in 25-54 employment-to-population ratio)",
+        "also": {
+          "panel": "exposed_vs_control_jobs",
+          "field": "differential_exposed_minus_control",
+          "comparator": "at_or_below",
+          "value": -2.48
+        },
+        "by": "2026-11-18",
+        "horizonDays": 90,
+        "scorable": true,
+        "unscorableReason": null
+      },
+      "falsifierPlain": "This reading is overturned if the prime-age employment ratio's 12-month change drops to -0.62 points or worse (its own 2-sigma deterioration line) while the exposed-minus-control jobs gap also reaches -2.48 or worse, showing exposed workers failing to land elsewhere rather than merely moving.",
+      "dissent": "The analyst read AUGMENTATION from the panels without being shown either mechanical reading, and the four-corner grid places this month at DISPLACEMENT (gap wide and holding, aggregate deteriorating). Recorded, not resolved: these are different routes through the same data, and neither one overrules the other. The grid in particular turns on a single economy-wide series sitting near zero, so a month's disagreement with it is ordinary rather than a mark against either reading.",
+      "analysis": "The reading stays on augmentation this month, but that word means displacement has not shown up in the data yet — it is not a finding that AI is visibly making exposed workers more valuable. That distinction matters because the positive case, that exposed workers are being paid more for genuinely more productive work, remains too tangled with other explanations to count as support on its own.\n\nAlmost nothing moved since last month. The one panel with fresh news is job postings: postings for knowledge-work occupations most exposed to AI, which have sat roughly 23% below their pre-2020 level for years, narrowed their gap with hands-on control occupations slightly, from 28.7 points behind to 27.9 points behind. That is a small, ambiguous wobble inside a spread that has been roughly flat since a 2022 contraction, not a turn. Every other panel — hiring, wages, productivity, adoption — is unchanged from a month ago.\n\nThe strongest thing keeping this call at augmentation is the prime-age employment picture: the share of 25-54 year-olds employed sits at 80.4%, unchanged over the past year and still above its pre-pandemic level, while a separate measure of hiring versus quits shows employers hiring faster than workers are quitting, with layoffs falling. If AI were actively pushing workers out of exposed industries and they were failing to land elsewhere, this is the kind of measure that would break down first, and it has not.\n\nThe strongest thing cutting against it is that AI-exposed industries — information, professional and business services, financial activities — have been shrinking for months, down 1.19% over the past year, while non-exposed industries — construction, leisure and hospitality, education and health — are growing, up 1.16%. That gap has sat past the point of concern for four straight monthly readings without closing. A gap that persists this long without narrowing is also consistent with a story where the reallocation already happened and simply is not reversing: a smaller exposed workforce that has settled at a new, lower level, rather than one still finding its way to new jobs. Separately, a broader measure of underemployment is rising and closing in on its own concerning level, and the faster three-month read on the prime-age employment ratio is falling even though the slower twelve-month figure this whole call rests on is still flat — a possible early crack the calmer number cannot show yet.\n\nWhat to watch: the prime-age employment ratio on the reabsorption panel, specifically whether its three-month trend keeps falling into the twelve-month figure, since that slower number is the one this entire call is built on.",
+      "fullAnalysis": "The call is augmentation, unchanged from last month, and it needs to be read carefully: this is a finding that displacement has not shown up in the data, not a finding that AI is visibly making exposed workers more productive or better paid. The two are different claims, and the evidence here only supports the first one.\n\nThree groups of workers appear in this analysis and they should not be blurred together. Exposed industries are information, professional and business services, and financial activities — the sectors most exposed to AI tools. Control industries are construction, leisure and hospitality, and education and health — sectors with much less AI exposure, used as a comparison group. A third set of measures is economy-wide and does not distinguish between the two: overall productivity, overall wage growth by job-switching status, the labor share of income, and the pace of AI adoption across all firms. Mixing these up is the single easiest way to over-read this kind of data, so every number below is labeled with which group it describes.\n\nWhat changed this month: almost nothing. Of the panels tracked, only one moved at all. Job postings for the occupations most exposed to AI — the kind of knowledge work AI tools target most directly — sit about 23% below their pre-2020 level, a gap dominated by a 2022 interest-rate-driven contraction rather than anything AI-specific. That gap narrowed slightly this month, from 28.7 points behind hands-on control occupations to 27.9 points behind. It is a small move inside a spread that has been roughly flat for years, and there is no way to tell from this figure alone which side — exposed postings recovering, or control postings cooling — produced the narrowing. It counts as weak, uncertain support for augmentation, stated as weak. Every other panel is unchanged from last month's reading.\n\nThe strongest evidence supporting the augmentation call is the prime-age employment picture. The share of 25-54 year-olds employed sits at 80.4%, unchanged over the past twelve months and still above its pre-pandemic level. This is the measure that decides whether the weakness visible in exposed industries is workers being pushed out and left stranded, or workers moving to different jobs. A separate, independently sourced measure — job openings data showing hiring outpacing quits, and a falling layoff rate — points the same healthy direction. If AI-driven displacement were underway and workers were failing to land elsewhere, this is where it would first appear as a broad break, and it has not appeared.\n\nThe strongest evidence against the call, and the one that most needs to be said plainly rather than softened, is that the gap between exposed and control industries has not closed. Exposed-industry employment fell 1.19% over the past year while control-industry employment grew 1.16% — a specific, industry-linked divergence, confirmed by checking that control industries are not weak for unrelated macro reasons (they are not; if the economy overall were sliding, both groups would be weak, and only one is). That divergence has now sat past the level that would normally draw attention for four consecutive monthly readings without narrowing. A gap that persists this long without closing is also exactly what you would see if the reallocation had already happened and simply settled at a new, lower level of exposed employment — workers who left these industries not finding their way back, rather than being in the process of finding new jobs. The data available cannot distinguish \"moving, but slowly\" from \"already displaced, and the level has just stopped falling further.\" Two more things nudge in the same worrying direction: a broader measure of underemployment — workers stuck in part-time jobs who want full-time work — has been rising and is closing in on its own concern level, and the faster three-month read on the prime-age employment ratio is falling even though the twelve-month figure the whole call rests on is still flat. That is a live disagreement between a fast-moving and a slow-moving version of the same underlying measure, and it is not resolved.\n\nOther panels add texture but do not move the call. Economy-wide productivity growth slowed to 2.2% from 2.9% the prior quarter — still historically decent, but decelerating right as AI adoption rises, which is inconclusive on its own since the technology could simply be too new to show up either way. Pay in AI-exposed industries is growing faster than in control industries, 4.22% against 3.21%, which sounds like a positive augmentation signal, but because exposed employment is shrinking at the same time, a much less flattering explanation fits the same numbers equally well: junior, lower-paid workers leaving the exposed workforce while higher-paid, more senior workers remain, mechanically pulling the average up with no productivity story required. An economy-wide check on whether people who switch jobs are commanding better pay right now — a measure immune to that same composition problem — shows nothing unusual, which removes one piece of evidence that might otherwise have supported a genuine augmentation story. AI adoption among firms is real and growing, from 17.3% to 21.8% of firms over nine months, with much heavier adoption at large firms, but adoption data cannot link any specific firm's AI use to that firm's hiring decisions, so it establishes only that the precondition for displacement exists, not that displacement is happening. A separate measure of the labor share of national income going to workers fell at one of the faster rates seen in decades of data, but slower than in the 2008 and 2010 recessions, and it is over five months old, so it is treated as background rather than current evidence. Frontier AI capability benchmarks continue to improve, but no measure here connects a benchmark score to an employment outcome, so they are read for context only and are not allowed to tip the labor call either way.\n\nThis reading would flip if two things happened together: the prime-age employment ratio's twelve-month change would need to drop substantially below flat — a real, sustained deterioration rather than ordinary month-to-month noise — while the exposed-versus-control jobs gap also widens further into genuinely alarming territory. Requiring both together matters: an ordinary broad economic slowdown would tend to weaken control industries too and narrow that second gap, not widen it, so the combination is what would separate real AI-linked displacement from an unrelated downturn. Neither condition is close to firing yet, but the exposed-jobs gap is closer to its concerning level than the employment ratio is, and both series update monthly, so there is a real chance to see this move one way or the other within the next few months.",
+      "compliance": {
+        "words": 433,
+        "numbers": 10,
+        "lengthBand": "ordinary"
+      },
+      "analysisStats": {
+        "present": true,
+        "words": 1106
+      },
+      "mechanicalState": "WATCH",
+      "breadth": 1,
+      "pairedState": {
+        "state": "DISPLACEMENT",
+        "attributionZ": 1.82,
+        "attributionLabel": "gap wide and holding",
+        "reabsorptionEmploymentFalling": 0,
+        "reabsorptionLabel": "aggregate deteriorating"
+      },
+      "pairedStateAgreesWithVerdict": "diverges",
+      "chainAgreesWithVerdict": "not comparable",
+      "inputsFingerprint": "8ab13a5c557f780db7cbf64534380f8943757b7426644264a732e481a19b3043",
+      "keyNumbers": {
+        "jobsDiffPp": -2.349374081928609,
+        "wagesDiffPp": 1.0038198532005427
+      },
+      "panelHeadlines": {
+        "labor_productivity": {
+          "value": 2.2,
+          "date": "2026-06"
+        },
+        "exposed_vs_control_jobs": {
+          "value": -2.35,
+          "date": "2026-07"
+        },
+        "reabsorption": {
+          "value": null,
+          "date": null
+        },
+        "exposed_vs_control_wages": {
+          "value": 1,
+          "date": "2026-07"
+        },
+        "individual_wage_growth": {
+          "value": null,
+          "date": "2026-07"
+        },
+        "job_postings_spread": {
+          "value": -27.9,
           "date": "2026-08"
         },
         "worker_share_of_income": {
