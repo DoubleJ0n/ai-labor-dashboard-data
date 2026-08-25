@@ -132,7 +132,10 @@ export const TREND_LOOKBACK_READINGS = 4; // readings compared for the drift
 // version, so gdpval-refresh reads it from the data and fails when it differs
 // from this registration — a pool roll is a public re-registration.
 export const GDPVAL_POOL_VERSION = "v2";
-export const GDPVAL_MIN_RECORDS = 50; // a smaller parse means the page changed shape
+// Held at 50 deliberately. On 2026-08-24 upstream stopped publishing full records for
+// all but the ~30 displayed models, and this threshold is the only thing that stopped a
+// 192-model leaderboard being overwritten by 29. Do not lower it to make the job green.
+export const GDPVAL_MIN_RECORDS = 50;
 export const GDPVAL_REQUIRED_LABS = ["Anthropic", "OpenAI"]; // the per-lab chart needs both
 
 // SANITY BOUNDS ON THE PARSE, which is a different job from bounding Elo itself.

@@ -7,9 +7,16 @@ name: gdpval-refresh
 # proposes a PR rather than committing: a human eyeballs the numbers against the
 # page before they reach the app. Elo is frozen per pool version, and a pool roll
 # (v2 -> v3) fails the run instead of silently mixing incomparable scales.
+# DISABLED 2026-08-24. Upstream stopped server-rendering full benchmark records for
+# all but the ~30 displayed models, so the full Elo set this job needs is no longer on
+# the page. The script correctly refuses to publish a 29-model leaderboard over the
+# stored 192-model one, which means a daily schedule can only mail a red run every
+# morning for a fault no run can fix. The stored 2026-08-15 snapshot is complete and
+# the app is unaffected. Restore the cron once the data has a home again — see the
+# header of scripts/gdpval-refresh.mjs.
 on:
-  schedule:
-    - cron: "50 14 * * *" # 14:50 UTC daily — after the other free feeds
+  # schedule:
+  #   - cron: "50 14 * * *" # 14:50 UTC daily — after the other free feeds
   workflow_dispatch:
 
 permissions:

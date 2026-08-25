@@ -32,6 +32,26 @@ import {
   GDPVAL_MAX_ELO, GDPVAL_MIN_TOP_ELO, GDPVAL_MIN_ELO_SPREAD,
 } from "./config.mjs";
 
+// STATUS 2026-08-24: THIS JOB CANNOT SUCCEED, AND THAT IS THE CORRECT OUTCOME.
+//
+// On 2026-08-16 upstream migrated the payload to camelCase and restructured it. The
+// field renames below are fixed and correct. What is NOT fixable here: the page used
+// to server-render full benchmark records for all 192 scored models, and now renders
+// them only for the ~30 rows visible on screen. 861 models still appear in the roster;
+// 30 carry a gdpval Elo. The other ~160 values are no longer in the HTML at all.
+//
+// So GDPVAL_MIN_RECORDS is doing exactly its job by refusing this run. Publishing the
+// 30 would have replaced a 192-model, 35-lab leaderboard with a 29-model, 18-lab one —
+// silently dropping the top-ranked model among them — and it would have looked like a
+// successful refresh. That threshold was lowered to 25 during this investigation and
+// then restored, because "the parse got smaller right after a shape change" is the one
+// case it exists to catch.
+//
+// The stored 2026-08-15 snapshot is complete and stays. The schedule is disabled so a
+// known-unfixable job does not mail a red run every morning; run it by hand to re-test.
+// To actually restore this panel, someone must find where the full Elo set now lives —
+// most likely the paid Data API field gdpval_aa_elo, or a client-side endpoint the
+// page calls after load.
 const PAGE_URL = "https://artificialanalysis.ai/evaluations/gdpval-aa";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -66,9 +86,27 @@ const flat = html
   .replace(/"\]\)<\/script><script>self\.__next_f\.push\(\[1,"/g, "");
 
 // --- Pool version, read out of the data ---------------------------------------
-const versions = [...new Set([...flat.matchAll(/"gdpval_v(\d+)":/g)].map((m) => `v${m[1]}`))];
+// On 2026-08-16 upstream migrated the payload to camelCase and dropped the version
+// out of the Elo field entirely: "gdpval_v2":1861 became "gdpval":1844.67. The version
+// is therefore no longer in the DATA, only in the page identity — the dataset title
+// ("GDPval-AA v2 Leaderboard") and the canonical slug ("gdpval-aa-v2").
+//
+// This is strictly weaker than what it replaces. The old field name made a pool roll
+// impossible to miss; a title is prose and prose gets reworded. Both anchors are
+// required to agree, so a silent roll has to defeat two independent strings at once.
+// If upstream ever drops the version from the page as well, this MUST fail rather
+// than assume: publishing v3 numbers under a v2 label is the one unrecoverable error
+// here, because Elo levels are meaningless across pools.
+const versions = [...new Set([
+  ...[...flat.matchAll(/gdpval-aa-v(\d+)/gi)].map((m) => `v${m[1]}`),
+  ...[...flat.matchAll(/GDPval-AA v(\d+)/g)].map((m) => `v${m[1]}`),
+])];
 if (versions.length === 0) {
-  fail('no "gdpval_vN" field found — upstream renamed the Elo field');
+  fail(
+    'no pool version found on the page — upstream dropped the version from both the ' +
+      'slug and the dataset title. Elo is frozen per pool, so publishing without a ' +
+      'confirmed version is not safe. A human must establish which pool this is.',
+  );
 }
 if (versions.length > 1) {
   fail(`page carries multiple pool versions [${versions.join(", ")}] — pools are not comparable; a human must decide which to register`);
@@ -97,25 +135,37 @@ const labBySlug = new Map();
 // below, which still fires if slug/name/creator really do move or vanish. So the
 // middle of the record is now "any number of simple scalar fields", which absorbs the
 // next added field too.
-for (const m of flat.matchAll(
-  /\{"slug":"([^"]+)","name":"([^"]+)","deprecated":(?:true|false),"isReasoning":(?:true|false),(?:"[A-Za-z_][A-Za-z0-9_]*":(?:"[^"]*"|-?[0-9.]+|true|false|null),)*"creator":\{"id":"[^"]+","name":"([^"]+)"/g,
-)) {
+// UPDATE 2026-08-24: the previous pattern allowed "any number of simple scalar
+// fields" between isReasoning and creator. Upstream then added NESTED ones —
+// "effort":{...} and "release":{...} — and every record stopped matching again, the
+// same failure the earlier fix was written to prevent, one level down. Enumerating
+// what may sit in the middle is the losing move: each new shape is another outage.
+// So anchor only on the three fields actually read, and scan a bounded window for
+// creator rather than describing what separates them.
+for (const m of flat.matchAll(/\{"slug":"([^"]+)","name":"([^"]+)"/g)) {
+  const window = flat.slice(m.index, m.index + 1200);
+  const creator = /"creator":\{"id":"[^"]+","name":"([^"]+)"/.exec(window);
+  if (!creator) continue;
+  // Do not let a window run past its own record into the next one.
+  const nextRecord = window.search(/\},\{"slug":"/);
+  if (nextRecord !== -1 && creator.index > nextRecord) continue;
   nameBySlug.set(m[1], m[2]);
-  labBySlug.set(m[1], m[3]);
+  labBySlug.set(m[1], creator[1]);
 }
 if (nameBySlug.size === 0) fail("model-picker array not found — upstream restructured the payload");
 
 // --- Elo + release date, from the full model records -------------------------
-// Records are flat objects with alphabetically ordered keys, so release_date,
-// short_name and slug all follow gdpval_vN within the same record.
-const eloField = new RegExp(`"gdpval_${poolVersion}":([0-9.]+)`, "g");
+// Records are flat objects with alphabetically ordered keys, so releaseDate,
+// shortName and slug all follow gdpval within the same record. All three were
+// snake_case until the 2026-08-16 camelCase migration.
+const eloField = /"gdpval":([0-9.]+)/g;
 const hits = [...flat.matchAll(eloField)];
 const records = [];
 for (const hit of hits) {
   const tail = flat.slice(hit.index, hit.index + 80_000);
   const slug = /"slug":"([^"]+)"/.exec(tail);
-  const released = /"release_date":"(\d{4}-\d{2}-\d{2})"/.exec(tail);
-  const shortName = /"short_name":"([^"]+)"/.exec(tail);
+  const released = /"releaseDate":"(\d{4}-\d{2}-\d{2})"/.exec(tail);
+  const shortName = /"shortName":"([^"]+)"/.exec(tail);
   if (!slug || !released) continue;
   records.push({
     slug: slug[1],
@@ -130,6 +180,7 @@ for (const hit of hits) {
 // --- INVARIANTS — fail loud, never publish a half-parsed leaderboard ---------
 if (records.length !== hits.length) {
   fail(`parsed ${records.length} of ${hits.length} Elo records — record layout changed`);
+} records had no slug (expected tail artifact)`);
 }
 if (records.length < GDPVAL_MIN_RECORDS) {
   fail(`only ${records.length} records parsed, expected at least ${GDPVAL_MIN_RECORDS}`);
