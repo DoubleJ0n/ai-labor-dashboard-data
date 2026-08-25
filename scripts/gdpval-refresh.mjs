@@ -180,7 +180,6 @@ for (const hit of hits) {
 // --- INVARIANTS — fail loud, never publish a half-parsed leaderboard ---------
 if (records.length !== hits.length) {
   fail(`parsed ${records.length} of ${hits.length} Elo records — record layout changed`);
-} records had no slug (expected tail artifact)`);
 }
 if (records.length < GDPVAL_MIN_RECORDS) {
   fail(`only ${records.length} records parsed, expected at least ${GDPVAL_MIN_RECORDS}`);
