@@ -32,26 +32,18 @@ import {
   GDPVAL_MAX_ELO, GDPVAL_MIN_TOP_ELO, GDPVAL_MIN_ELO_SPREAD,
 } from "./config.mjs";
 
-// STATUS 2026-08-24: THIS JOB CANNOT SUCCEED, AND THAT IS THE CORRECT OUTCOME.
+// RESTRUCTURED 2026-08-24. Upstream migrated the payload to camelCase and stopped
+// emitting full benchmark records for all but the ~30 models it features. That looked
+// terminal — the Elo for the other 180 was simply not in the JSON any more, and the
+// obvious readings were "pay for the Data API" or "lose the panel".
 //
-// On 2026-08-16 upstream migrated the payload to camelCase and restructured it. The
-// field renames below are fixed and correct. What is NOT fixable here: the page used
-// to server-render full benchmark records for all 192 scored models, and now renders
-// them only for the ~30 rows visible on screen. 861 models still appear in the roster;
-// 30 carry a gdpval Elo. The other ~160 values are no longer in the HTML at all.
+// Both were wrong. The leaderboard <table> is still server-rendered in full, 213 rows,
+// more than the 192 this job used to publish. The data never left the page; it moved
+// out of the JSON and into the markup. So this job now parses the table for Elo and
+// keeps the JSON only for the slug and exact release date it joins on.
 //
-// So GDPVAL_MIN_RECORDS is doing exactly its job by refusing this run. Publishing the
-// 30 would have replaced a 192-model, 35-lab leaderboard with a 29-model, 18-lab one —
-// silently dropping the top-ranked model among them — and it would have looked like a
-// successful refresh. That threshold was lowered to 25 during this investigation and
-// then restored, because "the parse got smaller right after a shape change" is the one
-// case it exists to catch.
-//
-// The stored 2026-08-15 snapshot is complete and stays. The schedule is disabled so a
-// known-unfixable job does not mail a red run every morning; run it by hand to re-test.
-// To actually restore this panel, someone must find where the full Elo set now lives —
-// most likely the paid Data API field gdpval_aa_elo, or a client-side endpoint the
-// page calls after load.
+// Do not "simplify" that split back to one source. The table has no slugs and dates
+// only to the month; the JSON has both but covers 30 models. Each covers the other.
 const PAGE_URL = "https://artificialanalysis.ai/evaluations/gdpval-aa";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -142,7 +134,13 @@ const labBySlug = new Map();
 // what may sit in the middle is the losing move: each new shape is another outage.
 // So anchor only on the three fields actually read, and scan a bounded window for
 // creator rather than describing what separates them.
-for (const m of flat.matchAll(/\{"slug":"([^"]+)","name":"([^"]+)"/g)) {
+// "deprecated" is what separates a real model record from a NESTED one. Each record
+// also contains "release":{"slug":...,"name":...}, which matches a bare slug/name
+// pattern and, being later in the record, silently overwrote the real entry with the
+// release's short name — "Claude Opus 5" clobbering "Claude Opus 5 (Adaptive
+// Reasoning, Max Effort)". That cost 57 of 213 joins and made models appear as both
+// new and dropped in the same report. Anchor on a field the nested object lacks.
+for (const m of flat.matchAll(/\{"slug":"([^"]+)","name":"([^"]+)","deprecated":/g)) {
   const window = flat.slice(m.index, m.index + 1200);
   const creator = /"creator":\{"id":"[^"]+","name":"([^"]+)"/.exec(window);
   if (!creator) continue;
@@ -154,25 +152,70 @@ for (const m of flat.matchAll(/\{"slug":"([^"]+)","name":"([^"]+)"/g)) {
 }
 if (nameBySlug.size === 0) fail("model-picker array not found — upstream restructured the payload");
 
-// --- Elo + release date, from the full model records -------------------------
-// Records are flat objects with alphabetically ordered keys, so releaseDate,
-// shortName and slug all follow gdpval within the same record. All three were
-// snake_case until the 2026-08-16 camelCase migration.
-const eloField = /"gdpval":([0-9.]+)/g;
-const hits = [...flat.matchAll(eloField)];
+// --- Elo, from the SERVER-RENDERED LEADERBOARD TABLE -------------------------
+// CHANGED 2026-08-24. This used to read the JSON flight payload, which carried a full
+// benchmark record per model. Upstream now emits those for only the ~30 models it
+// features; the other 180 are absent from the JSON entirely, which is what turned this
+// job red and what made the JSON path look like a dead end.
+//
+// It is not one. The leaderboard <table> is still server-rendered in full — 213 rows,
+// MORE than the 192 this job used to publish. So the data never left the page, it moved
+// out of the JSON and into the markup, and the fix is to read the markup.
+//
+// COST OF THE MOVE, stated plainly because it is a real fidelity loss:
+//   - Elo is rendered to whole numbers. The JSON carried two decimals. Stored values
+//     are integers from here on, and a resumed history will show a seam.
+//   - The table gives release month ("Jul 2026"), not a date. Exact dates are recovered
+//     by joining to the model picker on name, which still carries them; rows that do
+//     not join keep month precision as "YYYY-MM".
+// Neither affects how the app uses this: Elo differences of ~1 are noise against
+// confidence intervals of +/-20, and the panel plots ordering, not deltas.
+const nameToSlug = new Map([...nameBySlug].map(([slug, name]) => [name, slug]));
+const dateByName = new Map();
+for (const m of flat.matchAll(/\{"slug":"([^"]+)","name":"([^"]+)","deprecated":/g)) {
+  const w = flat.slice(m.index, m.index + 1200);
+  const d = /"releaseDate":"(\d{4}-\d{2}-\d{2})"/.exec(w);
+  if (d) dateByName.set(m[2], d[1]);
+}
+
+const decode = (t) =>
+  t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+   .replace(/&quot;/g, '"').replace(/&#x27;|&#39;/g, "'").replace(/&nbsp;/g, " ").trim();
+
+const MONTHS = { Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",
+                 Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12" };
+
+const rowHtml = html.split(/<tr[\s>]/).slice(1);
+const hits = [];
+for (const row of rowHtml) {
+  const cells = [...row.matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)]
+    .map((m) => decode(m[1].replace(/<[^>]+>/g, "")));
+  if (cells.length < 5) continue; // header row, or a layout row
+  const [rank, lab, model, eloRaw, , dateRaw] = cells;
+  if (!/^\d+$/.test(rank)) continue;
+  // U+2212 MINUS SIGN, not a hyphen: the tail of this board goes negative.
+  const elo = parseFloat(eloRaw.replace(/−/g, "-").replace(/,/g, ""));
+  if (!Number.isFinite(elo)) continue;
+  hits.push({ rank: +rank, lab, model, elo, dateRaw });
+}
+
 const records = [];
-for (const hit of hits) {
-  const tail = flat.slice(hit.index, hit.index + 80_000);
-  const slug = /"slug":"([^"]+)"/.exec(tail);
-  const released = /"releaseDate":"(\d{4}-\d{2}-\d{2})"/.exec(tail);
-  const shortName = /"shortName":"([^"]+)"/.exec(tail);
-  if (!slug || !released) continue;
+for (const h of hits) {
+  const mon = /^([A-Za-z]{3})\s+(\d{4})$/.exec(h.dateRaw || "");
+  const releaseDate =
+    dateByName.get(h.model) ?? (mon ? `${mon[2]}-${MONTHS[mon[1]] ?? "01"}` : null);
+  if (!releaseDate || !h.lab) continue;
+  // Rows the picker does not cover still need a stable unique key, or several
+  // nulls collide and trip the duplicate-slug guard. A slug derived from the
+  // display name is stable across runs, which is all the key is for.
+  const slug = nameToSlug.get(h.model)
+    ?? h.model.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   records.push({
-    slug: slug[1],
-    model: nameBySlug.get(slug[1]) ?? shortName?.[1] ?? slug[1],
-    lab: labBySlug.get(slug[1]) ?? null,
-    releaseDate: released[1],
-    elo: Math.round(parseFloat(hit[1]) * 100) / 100,
+    slug,
+    model: h.model,
+    lab: h.lab,
+    releaseDate,
+    elo: Math.round(h.elo * 100) / 100,
     poolVersion,
   });
 }

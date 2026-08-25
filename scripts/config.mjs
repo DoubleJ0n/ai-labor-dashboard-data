@@ -132,9 +132,11 @@ export const TREND_LOOKBACK_READINGS = 4; // readings compared for the drift
 // version, so gdpval-refresh reads it from the data and fails when it differs
 // from this registration — a pool roll is a public re-registration.
 export const GDPVAL_POOL_VERSION = "v2";
-// Held at 50 deliberately. On 2026-08-24 upstream stopped publishing full records for
-// all but the ~30 displayed models, and this threshold is the only thing that stopped a
-// 192-model leaderboard being overwritten by 29. Do not lower it to make the job green.
+// Held at 50. On 2026-08-24 upstream stopped publishing full JSON records for all but
+// ~30 models, and this threshold is the only thing that stopped a 192-model leaderboard
+// being overwritten by 29 while looking like a successful refresh. The parser now reads
+// the HTML table instead and returns 213. Do not lower this to make a run green — that
+// is the exact move it exists to block.
 export const GDPVAL_MIN_RECORDS = 50;
 export const GDPVAL_REQUIRED_LABS = ["Anthropic", "OpenAI"]; // the per-lab chart needs both
 
