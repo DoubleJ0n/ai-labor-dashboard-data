@@ -119,19 +119,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "kimi-k3",
-        "model": "Kimi K3 (max)",
-        "lab": "Kimi",
-        "releaseDate": "2026-07-16",
-        "elo": 1668,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "deepseek-v4-flash-vision",
         "model": "DeepSeek V4 Flash Vision (Reasoning, Max Effort)",
         "lab": "DeepSeek",
         "releaseDate": "2026-08-21",
         "elo": 1666,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kimi-k3",
+        "model": "Kimi K3 (max)",
+        "lab": "Kimi",
+        "releaseDate": "2026-07-16",
+        "elo": 1644,
         "poolVersion": "v2"
       },
       {
@@ -1759,7 +1759,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-08-29"
+    "lastRefreshed": "2026-08-30"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
