@@ -7,6 +7,22 @@
     "note": "Elo from blind pairwise comparisons of model outputs on GDPval knowledge-work tasks. Levels carry no information in isolation - only differences do - and the comparison pool contains no human, so the scale has no absolute anchor. Elo is frozen per pool version; records from different pool versions must never be compared. Entries are per effort setting: the same model at two reasoning efforts is two records with two Elos.",
     "records": [
       {
+        "slug": "claude-fable-5-1",
+        "model": "Claude Fable 5.1 (Adaptive Reasoning, Max Effort, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-09-01",
+        "elo": 1853,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-fable-5-1-xhigh",
+        "model": "Claude Fable 5.1 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-09-01",
+        "elo": 1835,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "claude-opus-5",
         "model": "Claude Opus 5 (Adaptive Reasoning, Max Effort)",
         "lab": "Anthropic",
@@ -44,6 +60,14 @@
         "lab": "SpaceXAI",
         "releaseDate": "2026-08-12",
         "elo": 1755,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-fable-5-1-high",
+        "model": "Claude Fable 5.1 (Adaptive Reasoning, High Effort, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-09-01",
+        "elo": 1743,
         "poolVersion": "v2"
       },
       {
@@ -119,6 +143,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "claude-fable-5-1-medium",
+        "model": "Claude Fable 5.1 (Adaptive Reasoning, Medium Effort, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-09-01",
+        "elo": 1670,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "kimi-k3",
         "model": "Kimi K3 (max)",
         "lab": "Kimi",
@@ -156,6 +188,14 @@
         "lab": "Anthropic",
         "releaseDate": "2026-07-24",
         "elo": 1613,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-fable-5-1-low",
+        "model": "Claude Fable 5.1 (Adaptive Reasoning, Low Effort, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-09-01",
+        "elo": 1587,
         "poolVersion": "v2"
       },
       {
@@ -223,6 +263,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "gemini-3-8-flash",
+        "model": "Gemini 3.8 Flash (high)",
+        "lab": "Google",
+        "releaseDate": "2026-09-02",
+        "elo": 1545,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "gpt-5-6-sol-medium",
         "model": "GPT-5.6 Sol (medium)",
         "lab": "OpenAI",
@@ -284,6 +332,14 @@
         "lab": "Z AI",
         "releaseDate": "2026-06-16",
         "elo": 1498,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-8-flash-medium",
+        "model": "Gemini 3.8 Flash (medium)",
+        "lab": "Google",
+        "releaseDate": "2026-09-02",
+        "elo": 1497,
         "poolVersion": "v2"
       },
       {
@@ -396,6 +452,14 @@
         "lab": "Anthropic",
         "releaseDate": "2026-06-30",
         "elo": 1397,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gemini-3-8-flash-low",
+        "model": "Gemini 3.8 Flash (low)",
+        "lab": "Google",
+        "releaseDate": "2026-09-02",
+        "elo": 1394,
         "poolVersion": "v2"
       },
       {
@@ -1775,7 +1839,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-01"
+    "lastRefreshed": "2026-09-02"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
