@@ -63,6 +63,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "muse-spark-1-3",
+        "model": "Muse Spark 1.3 (max)",
+        "lab": "Meta",
+        "releaseDate": "2026-09-02",
+        "elo": 1754,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "claude-fable-5-1-high",
         "model": "Claude Fable 5.1 (Adaptive Reasoning, High Effort, Default Fallback)",
         "lab": "Anthropic",
@@ -132,6 +140,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
         "elo": 1710,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "muse-spark-1-3-xhigh",
+        "model": "Muse Spark 1.3 (xhigh)",
+        "lab": "Meta",
+        "releaseDate": "2026-09-02",
+        "elo": 1709,
         "poolVersion": "v2"
       },
       {
@@ -431,6 +447,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "k2-horizon-375b-a23b",
+        "model": "K2 Horizon 375B A23B",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": 1430,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "gemini-3-6-flash",
         "model": "Gemini 3.6 Flash (high)",
         "lab": "Google",
@@ -544,7 +568,7 @@
       },
       {
         "slug": "quasar-438b",
-        "model": "Quasar 438B",
+        "model": "Quasar 438B (max, based on GLM-5.2)",
         "lab": "Multiverse Computing",
         "releaseDate": "2026-08-10",
         "elo": 1318,
@@ -1312,7 +1336,7 @@
       },
       {
         "slug": "hypernova-60b",
-        "model": "HyperNova 60B 2605",
+        "model": "HyperNova 60B 2605 (high, based on gpt-oss-120b)",
         "lab": "Multiverse Computing",
         "releaseDate": "2026-05-26",
         "elo": 659,
@@ -1839,7 +1863,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-02"
+    "lastRefreshed": "2026-09-03"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
