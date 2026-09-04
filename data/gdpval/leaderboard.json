@@ -183,6 +183,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "gpt-6-astra",
+        "model": "GPT-6 Astra (max)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-09-03",
+        "elo": 1629,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "gpt-5-6-sol-high",
         "model": "GPT-5.6 Sol (high)",
         "lab": "OpenAI",
@@ -204,6 +212,22 @@
         "lab": "Anthropic",
         "releaseDate": "2026-07-24",
         "elo": 1613,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-6-astra-xhigh",
+        "model": "GPT-6 Astra (xhigh)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-09-03",
+        "elo": 1606,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-6-astra-non-reasoning",
+        "model": "GPT-6 Astra (Non-reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-09-03",
+        "elo": 1592,
         "poolVersion": "v2"
       },
       {
@@ -239,6 +263,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "gpt-6-astra-high",
+        "model": "GPT-6 Astra (high)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-09-03",
+        "elo": 1574,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "gpt-5-6-luna",
         "model": "GPT-5.6 Luna (max)",
         "lab": "OpenAI",
@@ -260,6 +292,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
         "elo": 1563,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-6-astra-medium",
+        "model": "GPT-6 Astra (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-09-03",
+        "elo": 1552,
         "poolVersion": "v2"
       },
       {
@@ -399,6 +439,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "gpt-6-astra-low",
+        "model": "GPT-6 Astra (low)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-09-03",
+        "elo": 1474,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "gpt-5-6-luna-high",
         "model": "GPT-5.6 Luna (high)",
         "lab": "OpenAI",
@@ -451,7 +499,7 @@
         "model": "K2 Horizon 375B A23B",
         "lab": "MBZUAI Institute of Foundation Models",
         "releaseDate": "2026-09-03",
-        "elo": 1430,
+        "elo": 1424,
         "poolVersion": "v2"
       },
       {
@@ -1863,7 +1911,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-03"
+    "lastRefreshed": "2026-09-04"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
