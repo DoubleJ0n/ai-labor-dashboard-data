@@ -11,7 +11,7 @@
         "model": "Claude Fable 5.1 (Adaptive Reasoning, Max Effort, Default Fallback)",
         "lab": "Anthropic",
         "releaseDate": "2026-09-01",
-        "elo": 1763,
+        "elo": 1764,
         "poolVersion": "v2"
       },
       {
@@ -51,7 +51,7 @@
         "model": "GLM-5.3 (max)",
         "lab": "Z AI",
         "releaseDate": "2026-08-18",
-        "elo": 1677,
+        "elo": 1676,
         "poolVersion": "v2"
       },
       {
@@ -659,7 +659,7 @@
         "model": "GPT-5.6 Luna (medium)",
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
-        "elo": 1197,
+        "elo": 1196,
         "poolVersion": "v2"
       },
       {
@@ -819,7 +819,7 @@
         "model": "Kimi K2.7 Code",
         "lab": "Kimi",
         "releaseDate": "2026-06-12",
-        "elo": 1115,
+        "elo": 1114,
         "poolVersion": "v2"
       },
       {
@@ -839,19 +839,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "agnes-2-5-pro-alpha",
-        "model": "Agnes 2.5 Pro Alpha",
-        "lab": "Sapiens AI",
-        "releaseDate": "2026-07-24",
-        "elo": 1095,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "gpt-5-4-mini",
         "model": "GPT-5.4 mini (xhigh)",
         "lab": "OpenAI",
         "releaseDate": "2026-03-17",
         "elo": 1095,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "agnes-2-5-pro-alpha",
+        "model": "Agnes 2.5 Pro Alpha",
+        "lab": "Sapiens AI",
+        "releaseDate": "2026-07-24",
+        "elo": 1093,
         "poolVersion": "v2"
       },
       {
@@ -1179,7 +1179,7 @@
         "model": "MiniCPM5-2B",
         "lab": "OpenBMB",
         "releaseDate": "2026-09-07",
-        "elo": 829,
+        "elo": 828,
         "poolVersion": "v2"
       },
       {
@@ -1919,7 +1919,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-07"
+    "lastRefreshed": "2026-09-08"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
