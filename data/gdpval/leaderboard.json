@@ -91,7 +91,7 @@
         "model": "Qwen3.8-Flash-Next",
         "lab": "Alibaba",
         "releaseDate": "2026-08-26",
-        "elo": 1648,
+        "elo": 1647,
         "poolVersion": "v2"
       },
       {
@@ -359,18 +359,18 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "qwen3-8-27b-medium",
-        "model": "Qwen3.8 27B (medium)",
-        "lab": "Alibaba",
-        "releaseDate": "2026-08-14",
-        "elo": 1431,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "grok-4-5",
         "model": "Grok 4.5 (high)",
         "lab": "SpaceXAI",
         "releaseDate": "2026-07-08",
+        "elo": 1430,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-8-27b-medium",
+        "model": "Qwen3.8 27B (medium)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-08-14",
         "elo": 1430,
         "poolVersion": "v2"
       },
@@ -435,7 +435,7 @@
         "model": "Qwen3.8 27B (low)",
         "lab": "Alibaba",
         "releaseDate": "2026-08-14",
-        "elo": 1404,
+        "elo": 1403,
         "poolVersion": "v2"
       },
       {
@@ -523,7 +523,7 @@
         "model": "GPT-5.6 Terra (medium)",
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
-        "elo": 1319,
+        "elo": 1318,
         "poolVersion": "v2"
       },
       {
@@ -620,6 +620,14 @@
         "lab": "Multiverse Computing",
         "releaseDate": "2026-08-10",
         "elo": 1239,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "ling-3-0-flash-vl",
+        "model": "Ling-3.0-flash-VL",
+        "lab": "InclusionAI",
+        "releaseDate": "2026-09-10",
+        "elo": 1225,
         "poolVersion": "v2"
       },
       {
@@ -739,7 +747,7 @@
         "model": "GPT-5.6 Terra (low)",
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
-        "elo": 1179,
+        "elo": 1178,
         "poolVersion": "v2"
       },
       {
@@ -1011,7 +1019,7 @@
         "model": "Qwen3.6 35B A3B (Reasoning)",
         "lab": "Alibaba",
         "releaseDate": "2026-04-16",
-        "elo": 992,
+        "elo": 991,
         "poolVersion": "v2"
       },
       {
@@ -1343,19 +1351,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "granite-4-2-8b",
-        "model": "Granite 4.2 8B",
-        "lab": "IBM",
-        "releaseDate": "2026-08-25",
-        "elo": 646,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "mercury-2",
         "model": "Mercury 2",
         "lab": "Inception",
         "releaseDate": "2026-02-20",
         "elo": 646,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "granite-4-2-8b",
+        "model": "Granite 4.2 8B",
+        "lab": "IBM",
+        "releaseDate": "2026-08-25",
+        "elo": 645,
         "poolVersion": "v2"
       },
       {
@@ -1919,7 +1927,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-09"
+    "lastRefreshed": "2026-09-10"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
