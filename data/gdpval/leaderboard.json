@@ -47,19 +47,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "glm-5-3",
-        "model": "GLM-5.3 (max)",
-        "lab": "Z AI",
-        "releaseDate": "2026-08-18",
-        "elo": 1675,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "glm-5-3-flash",
         "model": "GLM-5.3-Flash",
         "lab": "Z AI",
         "releaseDate": "2026-08-26",
         "elo": 1669,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-5-3",
+        "model": "GLM-5.3 (max)",
+        "lab": "Z AI",
+        "releaseDate": "2026-08-18",
+        "elo": 1667,
         "poolVersion": "v2"
       },
       {
@@ -111,6 +111,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "deepseek-v4-1-flash",
+        "model": "DeepSeek V4.1 Flash (Reasoning, Max Effort)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-09-10",
+        "elo": 1632,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "claude-fable-5",
         "model": "Claude Fable 5 (Adaptive Reasoning, Max Effort, Opus 4.8 Fallback)",
         "lab": "Anthropic",
@@ -159,14 +167,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "kimi-k3",
-        "model": "Kimi K3 (max)",
-        "lab": "Kimi",
-        "releaseDate": "2026-07-16",
-        "elo": 1584,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "gpt-6-astra",
         "model": "GPT-6 Astra (max)",
         "lab": "OpenAI",
@@ -188,6 +188,22 @@
         "lab": "DeepSeek",
         "releaseDate": "2026-08-21",
         "elo": 1577,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "agnes-3-0-flash",
+        "model": "Agnes 3.0 Flash",
+        "lab": "Sapiens AI",
+        "releaseDate": "2026-09-11",
+        "elo": 1573,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kimi-k3",
+        "model": "Kimi K3 (max)",
+        "lab": "Kimi",
+        "releaseDate": "2026-07-16",
+        "elo": 1572,
         "poolVersion": "v2"
       },
       {
@@ -407,22 +423,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "claude-sonnet-5-xhigh",
-        "model": "Claude Sonnet 5 (Adaptive Reasoning, Xhigh Effort)",
-        "lab": "Anthropic",
-        "releaseDate": "2026-06-30",
-        "elo": 1410,
-        "poolVersion": "v2"
-      },
-      {
-        "slug": "k2-horizon-375b-a23b",
-        "model": "K2 Horizon 375B A23B",
-        "lab": "MBZUAI Institute of Foundation Models",
-        "releaseDate": "2026-09-03",
-        "elo": 1410,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "gemini-3-7-flash-medium",
         "model": "Gemini 3.7 Flash (medium)",
         "lab": "Google",
@@ -431,11 +431,27 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "k2-horizon-375b-a23b",
+        "model": "K2 Horizon 375B A23B",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": 1404,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "qwen3-8-27b-low",
         "model": "Qwen3.8 27B (low)",
         "lab": "Alibaba",
         "releaseDate": "2026-08-14",
         "elo": 1403,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "claude-sonnet-5-xhigh",
+        "model": "Claude Sonnet 5 (Adaptive Reasoning, Xhigh Effort)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-06-30",
+        "elo": 1401,
         "poolVersion": "v2"
       },
       {
@@ -531,7 +547,7 @@
         "model": "Claude Sonnet 5 (Adaptive Reasoning, High Effort)",
         "lab": "Anthropic",
         "releaseDate": "2026-06-30",
-        "elo": 1316,
+        "elo": 1308,
         "poolVersion": "v2"
       },
       {
@@ -663,14 +679,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-luna-medium",
-        "model": "GPT-5.6 Luna (medium)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1196,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "kimi-k3-low",
         "model": "Kimi K3 (low)",
         "lab": "Kimi",
@@ -700,6 +708,14 @@
         "lab": "Thinking Machines",
         "releaseDate": "2026-07-30",
         "elo": 1191,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-medium",
+        "model": "GPT-5.6 Luna (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1190,
         "poolVersion": "v2"
       },
       {
@@ -855,19 +871,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "agnes-2-5-pro-alpha",
-        "model": "Agnes 2.5 Pro Alpha",
-        "lab": "Sapiens AI",
-        "releaseDate": "2026-07-24",
-        "elo": 1093,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "nvidia-nemotron-3-ultra-550b-a55b",
         "model": "Nemotron 3 Ultra 550B A55B (Reasoning)",
         "lab": "NVIDIA",
         "releaseDate": "2026-06-04",
         "elo": 1091,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "agnes-2-5-pro-alpha",
+        "model": "Agnes 2.5 Pro Alpha",
+        "lab": "Sapiens AI",
+        "releaseDate": "2026-07-24",
+        "elo": 1088,
         "poolVersion": "v2"
       },
       {
@@ -887,14 +903,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-luna-low",
-        "model": "GPT-5.6 Luna (low)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1082,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "mimo-v2-5-0424",
         "model": "MiMo-V2.5",
         "lab": "Xiaomi",
@@ -908,6 +916,14 @@
         "lab": "Meta",
         "releaseDate": "2026-04-08",
         "elo": 1076,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-low",
+        "model": "GPT-5.6 Luna (low)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1075,
         "poolVersion": "v2"
       },
       {
@@ -1927,7 +1943,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-10"
+    "lastRefreshed": "2026-09-11"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
