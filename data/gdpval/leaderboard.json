@@ -47,14 +47,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "glm-5-3-flash",
-        "model": "GLM-5.3-Flash",
-        "lab": "Z AI",
-        "releaseDate": "2026-08-26",
-        "elo": 1669,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "glm-5-3",
         "model": "GLM-5.3 (max)",
         "lab": "Z AI",
@@ -76,6 +68,14 @@
         "lab": "Meta",
         "releaseDate": "2026-09-02",
         "elo": 1662,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-5-3-flash",
+        "model": "GLM-5.3-Flash",
+        "lab": "Z AI",
+        "releaseDate": "2026-08-26",
+        "elo": 1656,
         "poolVersion": "v2"
       },
       {
@@ -203,7 +203,7 @@
         "model": "Kimi K3 (max)",
         "lab": "Kimi",
         "releaseDate": "2026-07-16",
-        "elo": 1572,
+        "elo": 1569,
         "poolVersion": "v2"
       },
       {
@@ -212,14 +212,6 @@
         "lab": "OpenAI",
         "releaseDate": "2026-09-03",
         "elo": 1555,
-        "poolVersion": "v2"
-      },
-      {
-        "slug": "gpt-6-astra-non-reasoning",
-        "model": "GPT-6 Astra (Non-reasoning)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-09-03",
-        "elo": 1543,
         "poolVersion": "v2"
       },
       {
@@ -319,14 +311,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "deepseek-v4-flash",
-        "model": "DeepSeek V4 Flash 0731 (Reasoning, Max Effort)",
-        "lab": "DeepSeek",
-        "releaseDate": "2026-07-31",
-        "elo": 1468,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "gemini-3-8-flash",
         "model": "Gemini 3.8 Flash (high)",
         "lab": "Google",
@@ -348,6 +332,14 @@
         "lab": "SpaceXAI",
         "releaseDate": "2026-08-12",
         "elo": 1461,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "deepseek-v4-flash",
+        "model": "DeepSeek V4 Flash 0731 (Reasoning, Max Effort)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-07-31",
+        "elo": 1456,
         "poolVersion": "v2"
       },
       {
@@ -407,14 +399,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "glm-5-2",
-        "model": "GLM-5.2 (max)",
-        "lab": "Z AI",
-        "releaseDate": "2026-06-16",
-        "elo": 1418,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "gpt-5-6-terra-high",
         "model": "GPT-5.6 Terra (high)",
         "lab": "OpenAI",
@@ -428,6 +412,14 @@
         "lab": "Google",
         "releaseDate": "2026-08-13",
         "elo": 1407,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-5-2",
+        "model": "GLM-5.2 (max)",
+        "lab": "Z AI",
+        "releaseDate": "2026-06-16",
+        "elo": 1406,
         "poolVersion": "v2"
       },
       {
@@ -679,14 +671,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "kimi-k3-low",
-        "model": "Kimi K3 (low)",
-        "lab": "Kimi",
-        "releaseDate": "2026-07-16",
-        "elo": 1196,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "solar-pro4",
         "model": "Solar Pro 4",
         "lab": "Upstage",
@@ -740,6 +724,14 @@
         "lab": "Xiaomi",
         "releaseDate": "2026-04-22",
         "elo": 1186,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "kimi-k3-low",
+        "model": "Kimi K3 (low)",
+        "lab": "Kimi",
+        "releaseDate": "2026-07-16",
+        "elo": 1185,
         "poolVersion": "v2"
       },
       {
@@ -1943,7 +1935,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-11"
+    "lastRefreshed": "2026-09-12"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
