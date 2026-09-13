@@ -47,14 +47,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "glm-5-3",
-        "model": "GLM-5.3 (max)",
-        "lab": "Z AI",
-        "releaseDate": "2026-08-18",
-        "elo": 1667,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "grok-4-6-xhigh",
         "model": "Grok 4.6 (xhigh)",
         "lab": "SpaceXAI",
@@ -71,11 +63,19 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "glm-5-3",
+        "model": "GLM-5.3 (max)",
+        "lab": "Z AI",
+        "releaseDate": "2026-08-18",
+        "elo": 1661,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "glm-5-3-flash",
         "model": "GLM-5.3-Flash",
         "lab": "Z AI",
         "releaseDate": "2026-08-26",
-        "elo": 1656,
+        "elo": 1655,
         "poolVersion": "v2"
       },
       {
@@ -423,14 +423,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "k2-horizon-375b-a23b",
-        "model": "K2 Horizon 375B A23B",
-        "lab": "MBZUAI Institute of Foundation Models",
-        "releaseDate": "2026-09-03",
-        "elo": 1404,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "qwen3-8-27b-low",
         "model": "Qwen3.8 27B (low)",
         "lab": "Alibaba",
@@ -444,6 +436,14 @@
         "lab": "Anthropic",
         "releaseDate": "2026-06-30",
         "elo": 1401,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "k2-horizon-375b-a23b",
+        "model": "K2 Horizon 375B A23B",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": 1400,
         "poolVersion": "v2"
       },
       {
@@ -671,14 +671,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "solar-pro4",
-        "model": "Solar Pro 4",
-        "lab": "Upstage",
-        "releaseDate": "2026-08-06",
-        "elo": 1195,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "jt-4-1-flash-236b-a21b",
         "model": "JT-4.1 Flash 236B A21B",
         "lab": "China Mobile",
@@ -732,6 +724,14 @@
         "lab": "Kimi",
         "releaseDate": "2026-07-16",
         "elo": 1185,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "solar-pro4",
+        "model": "Solar Pro 4",
+        "lab": "Upstage",
+        "releaseDate": "2026-08-06",
+        "elo": 1184,
         "poolVersion": "v2"
       },
       {
@@ -1935,7 +1935,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-12"
+    "lastRefreshed": "2026-09-13"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
