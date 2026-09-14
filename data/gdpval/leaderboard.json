@@ -67,7 +67,7 @@
         "model": "GLM-5.3 (max)",
         "lab": "Z AI",
         "releaseDate": "2026-08-18",
-        "elo": 1661,
+        "elo": 1655,
         "poolVersion": "v2"
       },
       {
@@ -203,7 +203,7 @@
         "model": "Kimi K3 (max)",
         "lab": "Kimi",
         "releaseDate": "2026-07-16",
-        "elo": 1569,
+        "elo": 1565,
         "poolVersion": "v2"
       },
       {
@@ -623,6 +623,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "k2-mova-36b-mid5",
+        "model": "K2 Horizon MoVA 36B A4B",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": 1243,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "quasar-438b",
         "model": "Quasar 438B (max, based on GLM-5.2)",
         "lab": "Multiverse Computing",
@@ -863,6 +871,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "k2-7b-ph2",
+        "model": "K2 Horizon 7B",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": 1091,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "nvidia-nemotron-3-ultra-550b-a55b",
         "model": "Nemotron 3 Ultra 550B A55B (Reasoning)",
         "lab": "NVIDIA",
@@ -1044,6 +1060,14 @@
         "lab": "LongCat",
         "releaseDate": "2026-06-29",
         "elo": 965,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "k2-4b-ph1",
+        "model": "K2 Horizon 3.7B",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": 962,
         "poolVersion": "v2"
       },
       {
@@ -1933,9 +1957,17 @@
         "releaseDate": "2024-02-26",
         "elo": -171,
         "poolVersion": "v2"
+      },
+      {
+        "slug": "k2-1b-final",
+        "model": "K2 Horizon 0.9B",
+        "lab": "MBZUAI Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": -174,
+        "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-13"
+    "lastRefreshed": "2026-09-14"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
