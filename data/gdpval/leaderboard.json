@@ -47,6 +47,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "qwen3-8-max",
+        "model": "Qwen3.8 Max (0902)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-09-02",
+        "elo": 1689,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "grok-4-6-xhigh",
         "model": "Grok 4.6 (xhigh)",
         "lab": "SpaceXAI",
@@ -127,7 +135,7 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "qwen3-8-max",
+        "slug": "qwen3-8-max-0803",
         "model": "Qwen3.8 Max",
         "lab": "Alibaba",
         "releaseDate": "2026-08-03",
@@ -311,19 +319,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-luna",
-        "model": "GPT-5.6 Luna (max)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1464,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "qwen3-8-27b",
         "model": "Qwen3.8 27B (xhigh)",
         "lab": "Alibaba",
         "releaseDate": "2026-08-14",
         "elo": 1463,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna",
+        "model": "GPT-5.6 Luna (max)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1462,
         "poolVersion": "v2"
       },
       {
@@ -599,18 +607,18 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-sol-non-reasoning",
-        "model": "GPT-5.6 Sol (Non-reasoning)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1275,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "apodex-1-1",
         "model": "Apodex 1.1",
         "lab": "Apodex",
         "releaseDate": "2026-08-30",
+        "elo": 1273,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol-non-reasoning",
+        "model": "GPT-5.6 Sol (Non-reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
         "elo": 1273,
         "poolVersion": "v2"
       },
@@ -759,19 +767,27 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-luna-medium",
-        "model": "GPT-5.6 Luna (medium)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1173,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "solar-pro4",
         "model": "Solar Pro 4",
         "lab": "Upstage",
         "releaseDate": "2026-08-06",
         "elo": 1173,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-medium",
+        "model": "GPT-5.6 Luna (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1171,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "ling-3-0-flash-fin",
+        "model": "Ling-3.0-flash-Fin",
+        "lab": "InclusionAI",
+        "releaseDate": "2026-09-11",
+        "elo": 1171,
         "poolVersion": "v2"
       },
       {
@@ -787,7 +803,7 @@
         "model": "GPT-5.6 Terra (Non-reasoning)",
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
-        "elo": 1147,
+        "elo": 1146,
         "poolVersion": "v2"
       },
       {
@@ -804,14 +820,6 @@
         "lab": "SpaceXAI",
         "releaseDate": "2026-06-16",
         "elo": 1138,
-        "poolVersion": "v2"
-      },
-      {
-        "slug": "qwen3-8-27b-non-reasoning",
-        "model": "Qwen3.8 27B (Non-reasoning)",
-        "lab": "Alibaba",
-        "releaseDate": "2026-08-14",
-        "elo": 1137,
         "poolVersion": "v2"
       },
       {
@@ -843,6 +851,14 @@
         "model": "GPT-5.5 (low)",
         "lab": "OpenAI",
         "releaseDate": "2026-04-23",
+        "elo": 1113,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "qwen3-8-27b-non-reasoning",
+        "model": "Qwen3.8 27B (Non-reasoning)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-08-14",
         "elo": 1113,
         "poolVersion": "v2"
       },
@@ -1031,14 +1047,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-luna-non-reasoning",
-        "model": "GPT-5.6 Luna (Non-reasoning)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1007,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "qwen3-6-35b-a3b",
         "model": "Qwen3.6 35B A3B (Reasoning)",
         "lab": "Alibaba",
@@ -1052,6 +1060,14 @@
         "lab": "Anthropic",
         "releaseDate": "2025-09-29",
         "elo": 989,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-non-reasoning",
+        "model": "GPT-5.6 Luna (Non-reasoning)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 987,
         "poolVersion": "v2"
       },
       {
@@ -1323,7 +1339,7 @@
         "model": "Gemma 4 26B A4B (Reasoning)",
         "lab": "Google",
         "releaseDate": "2026-04-02",
-        "elo": 713,
+        "elo": 693,
         "poolVersion": "v2"
       },
       {
@@ -1495,19 +1511,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "mistral-medium-3-1",
-        "model": "Mistral Medium 3.1",
-        "lab": "Mistral",
-        "releaseDate": "2025-08-12",
-        "elo": 537,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "mistral-small-4",
         "model": "Mistral Small 4 (Reasoning)",
         "lab": "Mistral",
         "releaseDate": "2026-03-16",
         "elo": 537,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "mistral-medium-3-1",
+        "model": "Mistral Medium 3.1",
+        "lab": "Mistral",
+        "releaseDate": "2025-08-12",
+        "elo": 536,
         "poolVersion": "v2"
       },
       {
@@ -1567,14 +1583,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "north-mini-code",
-        "model": "North Mini Code",
-        "lab": "Cohere",
-        "releaseDate": "2026-06-09",
-        "elo": 490,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "celeris-1",
         "model": "Celeris-1",
         "lab": "Celeris",
@@ -1588,6 +1596,14 @@
         "lab": "DeepSeek",
         "releaseDate": "2025-01-20",
         "elo": 479,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "north-mini-code",
+        "model": "North Mini Code",
+        "lab": "Cohere",
+        "releaseDate": "2026-06-09",
+        "elo": 472,
         "poolVersion": "v2"
       },
       {
@@ -1967,7 +1983,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-15"
+    "lastRefreshed": "2026-09-16"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
