@@ -71,16 +71,8 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "glm-5-3",
-        "model": "GLM-5.3 (max)",
-        "lab": "Z AI",
-        "releaseDate": "2026-08-18",
-        "elo": 1655,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "glm-5-3-flash",
-        "model": "GLM-5.3-Flash",
+        "model": "GLM 5.3 Flash",
         "lab": "Z AI",
         "releaseDate": "2026-08-26",
         "elo": 1655,
@@ -116,6 +108,14 @@
         "lab": "SpaceXAI",
         "releaseDate": "2026-08-12",
         "elo": 1643,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "glm-5-3",
+        "model": "GLM-5.3 (max)",
+        "lab": "Z AI",
+        "releaseDate": "2026-08-18",
+        "elo": 1641,
         "poolVersion": "v2"
       },
       {
@@ -219,7 +219,7 @@
         "model": "Kimi K3 (max)",
         "lab": "Kimi",
         "releaseDate": "2026-07-16",
-        "elo": 1551,
+        "elo": 1548,
         "poolVersion": "v2"
       },
       {
@@ -327,14 +327,6 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-luna",
-        "model": "GPT-5.6 Luna (max)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1462,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "grok-4-6-low",
         "model": "Grok 4.6 (low)",
         "lab": "SpaceXAI",
@@ -343,11 +335,11 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-sol-medium",
-        "model": "GPT-5.6 Sol (medium)",
+        "slug": "gpt-5-6-luna",
+        "model": "GPT-5.6 Luna (max)",
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
-        "elo": 1456,
+        "elo": 1460,
         "poolVersion": "v2"
       },
       {
@@ -396,6 +388,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-07-09",
         "elo": 1428,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-sol-medium",
+        "model": "GPT-5.6 Sol (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1427,
         "poolVersion": "v2"
       },
       {
@@ -449,7 +449,7 @@
       {
         "slug": "k2-horizon-375b-a23b",
         "model": "K2 Horizon 375B A23B",
-        "lab": "MBZUAI Institute of Foundation Models",
+        "lab": "Institute of Foundation Models",
         "releaseDate": "2026-09-03",
         "elo": 1400,
         "poolVersion": "v2"
@@ -633,7 +633,7 @@
       {
         "slug": "k2-mova-36b-mid5",
         "model": "K2 Horizon MoVA 36B A4B",
-        "lab": "MBZUAI Institute of Foundation Models",
+        "lab": "Institute of Foundation Models",
         "releaseDate": "2026-09-03",
         "elo": 1243,
         "poolVersion": "v2"
@@ -664,7 +664,7 @@
       },
       {
         "slug": "deepseek-v4-pro-0424",
-        "model": "DeepSeek V4 Pro (Reasoning, Max Effort)",
+        "model": "DeepSeek V4 Pro 0424 (Reasoning, Max Effort)",
         "lab": "DeepSeek",
         "releaseDate": "2026-04-24",
         "elo": 1223,
@@ -672,7 +672,7 @@
       },
       {
         "slug": "deepseek-v4-pro-0424-high",
-        "model": "DeepSeek V4 Pro (Reasoning, High Effort)",
+        "model": "DeepSeek V4 Pro 0424 (Reasoning, High Effort)",
         "lab": "DeepSeek",
         "releaseDate": "2026-04-24",
         "elo": 1219,
@@ -775,19 +775,19 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "gpt-5-6-luna-medium",
-        "model": "GPT-5.6 Luna (medium)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-07-09",
-        "elo": 1171,
-        "poolVersion": "v2"
-      },
-      {
         "slug": "ling-3-0-flash-fin",
         "model": "Ling-3.0-flash-Fin",
         "lab": "InclusionAI",
         "releaseDate": "2026-09-11",
         "elo": 1171,
+        "poolVersion": "v2"
+      },
+      {
+        "slug": "gpt-5-6-luna-medium",
+        "model": "GPT-5.6 Luna (medium)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-07-09",
+        "elo": 1169,
         "poolVersion": "v2"
       },
       {
@@ -832,7 +832,7 @@
       },
       {
         "slug": "deepseek-v4-flash-0420",
-        "model": "DeepSeek V4 Flash (Reasoning, Max Effort)",
+        "model": "DeepSeek V4 Flash 0420 (Reasoning, Max Effort)",
         "lab": "DeepSeek",
         "releaseDate": "2026-04-24",
         "elo": 1116,
@@ -887,9 +887,9 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "k2-7b-ph2",
+        "slug": "k2-horizon-7b",
         "model": "K2 Horizon 7B",
-        "lab": "MBZUAI Institute of Foundation Models",
+        "lab": "Institute of Foundation Models",
         "releaseDate": "2026-09-03",
         "elo": 1091,
         "poolVersion": "v2"
@@ -920,7 +920,7 @@
       },
       {
         "slug": "deepseek-v4-flash-0420-high",
-        "model": "DeepSeek V4 Flash (Reasoning, High Effort)",
+        "model": "DeepSeek V4 Flash 0420 (Reasoning, High Effort)",
         "lab": "DeepSeek",
         "releaseDate": "2026-04-24",
         "elo": 1083,
@@ -1079,9 +1079,9 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "k2-4b-ph1",
+        "slug": "k2-horizon-3-7b",
         "model": "K2 Horizon 3.7B",
-        "lab": "MBZUAI Institute of Foundation Models",
+        "lab": "Institute of Foundation Models",
         "releaseDate": "2026-09-03",
         "elo": 962,
         "poolVersion": "v2"
@@ -1128,7 +1128,7 @@
       },
       {
         "slug": "k-exaone-2-0-0803",
-        "model": "K-EXAONE 2.0",
+        "model": "K-EXAONE 2.0 0803",
         "lab": "LG AI Research",
         "releaseDate": "2026-08-12",
         "elo": 918,
@@ -1713,7 +1713,7 @@
       {
         "slug": "k2-think-v2",
         "model": "K2 Think V2",
-        "lab": "MBZUAI Institute of Foundation Models",
+        "lab": "Institute of Foundation Models",
         "releaseDate": "2025-12-15",
         "elo": 328,
         "poolVersion": "v2"
@@ -1975,15 +1975,15 @@
         "poolVersion": "v2"
       },
       {
-        "slug": "k2-1b-final",
+        "slug": "k2-horizon-0-9b",
         "model": "K2 Horizon 0.9B",
-        "lab": "MBZUAI Institute of Foundation Models",
+        "lab": "Institute of Foundation Models",
         "releaseDate": "2026-09-03",
         "elo": -174,
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-16"
+    "lastRefreshed": "2026-09-17"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
