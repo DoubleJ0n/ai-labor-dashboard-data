@@ -207,6 +207,14 @@
         "poolVersion": "v2"
       },
       {
+        "slug": "step-5",
+        "model": "Step 5 Preview",
+        "lab": "StepFun",
+        "releaseDate": "2026-09-18",
+        "elo": 1571,
+        "poolVersion": "v2"
+      },
+      {
         "slug": "gpt-6-astra-xhigh",
         "model": "GPT-6 Astra (xhigh)",
         "lab": "OpenAI",
@@ -1983,7 +1991,7 @@
         "poolVersion": "v2"
       }
     ],
-    "lastRefreshed": "2026-09-18"
+    "lastRefreshed": "2026-09-19"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
