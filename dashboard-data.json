@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "fred": {
-    "lastRefreshed": "2026-09-18T17:31:44Z",
+    "lastRefreshed": "2026-09-19T17:01:51Z",
     "series": {
       "GDPC1": [
         {
@@ -37137,6 +37137,10 @@
         {
           "date": "2026-09-16",
           "value": 2.68
+        },
+        {
+          "date": "2026-09-17",
+          "value": 2.61
         }
       ],
       "T10Y2Y": [
@@ -47135,6 +47139,10 @@
         {
           "date": "2026-09-17",
           "value": 0.27
+        },
+        {
+          "date": "2026-09-18",
+          "value": 0.25
         }
       ],
       "T10Y3M": [
@@ -57133,6 +57141,10 @@
         {
           "date": "2026-09-17",
           "value": 0.82
+        },
+        {
+          "date": "2026-09-18",
+          "value": 0.87
         }
       ],
       "T10YIE": [
@@ -67131,10 +67143,19 @@
         {
           "date": "2026-09-17",
           "value": 2.33
+        },
+        {
+          "date": "2026-09-18",
+          "value": 2.33
         }
       ]
     },
-    "seriesGaps": {},
+    "seriesGaps": {
+      "USEHS": {
+        "carriedForwardFrom": "2026-09-18T17:31:44Z",
+        "reason": "fetch failed (optional): FRED USEHS HTTP 502"
+      }
+    },
     "baselineCoverage": {
       "USINFO": {
         "requiredBaselineStart": "2010-01",
