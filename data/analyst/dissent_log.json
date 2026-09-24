@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "description": "Append-only Analyst timeline. Reset 2026-07-27 when the baseline, the reabsorption axis and the falsifier format all changed; earlier entries were scored against a rolling baseline and are not comparable. Archived under archive/.",
-  "lastRefreshed": "2026-09-23T19:23:23Z",
+  "lastRefreshed": "2026-09-24T19:41:06Z",
   "entries": [
     {
       "date": "2026-06",
@@ -2415,6 +2415,122 @@
         "ai_adoption": {
           "value": 23.2,
           "date": "2026-08"
+        },
+        "ai_use_automation_vs_augmentation": {
+          "value": 43.1,
+          "date": "2025-09-15"
+        },
+        "macro_regime": {
+          "value": 0.3,
+          "date": null
+        },
+        "ai_capability_metr": {
+          "value": 186,
+          "date": "Claude Mythos Preview"
+        },
+        "ai_capability_gdpval_ratings": {
+          "value": 1745,
+          "date": "2026-09"
+        },
+        "ai_capability_vs_human_experts": {
+          "value": 70.9,
+          "date": "2025-12"
+        }
+      }
+    },
+    {
+      "date": "2026-08",
+      "runAt": "2026-09-24T19:41:06Z",
+      "loadBearingPanels": [
+        "exposed_vs_control_jobs",
+        "reabsorption",
+        "macro_regime"
+      ],
+      "verdict": "DISPLACEMENT",
+      "confidence": "LOW",
+      "confidenceBasis": "Corroborating — exposed_vs_control_jobs (differential -2.87, 2.52σ below the pre-2020 fixed baseline, past its own -2.48 alarm line, worsening over 4 readings) and reabsorption headline (prime-age employment ratio -0.3pp/12mo, 1.38σ below the fixed baseline, past the panel's own stated 1σ deterioration line, with long-term-unemployed share also rising). Refuting/failing to corroborate — job_postings_spread, the earliest-moving indicator, is flat over 6 months (+0.4) rather than deteriorating further; reabsorption's own secondaries show layoffs BELOW norm (-0.34σ) and hires-minus-quits essentially at norm (-0.07σ), i.e. no shedding pattern, only a possibly frozen one; exposed_vs_control_wages is confounded by falling exposed headcount and the composition-immune individual_wage_growth panel shows a stable, unremarkable switcher premium, so pay data offers no corroboration either way. Unmet doubt: the leading indicator (postings) disagrees with the direction the lagging indicators (jobs/reabsorption) are pointing, which is exactly the disagreement pattern the confidence rules flag as most disqualifying for a strong rating.",
+      "tagLine": "Frozen hiring, no fresh evidence",
+      "notificationLine": "AI adoption ticks up to 23.8% of firms; displacement reading holds, still low confidence.",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "falsifier": {
+        "panel": "reabsorption",
+        "field": "headline.change_over_12_months",
+        "comparator": "at_or_above",
+        "value": -0.1,
+        "unit": "percentage points (12-month change in 25-54 employment-population ratio)",
+        "also": {
+          "panel": "reabsorption",
+          "field": "secondary.hires_minus_quits.change_over_12_months",
+          "comparator": "at_or_above",
+          "value": 0.1
+        },
+        "by": "2026-12-23",
+        "horizonDays": 90,
+        "scorable": true,
+        "unscorableReason": null
+      },
+      "falsifierPlain": "This reading is wrong if the prime-age employment ratio's 12-month change climbs back to -0.1 or better (out of its own deterioration zone) while JOLTS hires-minus-quits, a different survey on the demand side, rises to +0.1 or better over the same horizon, together showing the labor market re-absorbing the outflow from AI-exposed industries rather than losing it.",
+      "dissent": null,
+      "analysis": "The reading stays displacement, and confidence in it stays low. Nothing in the underlying labor data moved since last month; the only figure that changed at all is the share of firms reporting any AI use, up slightly to 23.8% of firms, which says nothing directly about jobs.\n\nThe case for displacement: employment in AI-exposed industries has fallen 1.47% over the past year while similar non-exposed industries grew 1.4% — a gap that has been widening for four straight readings, not a one-month wobble.\n\nThe case against reading too much into that: the earliest-moving indicator here, job postings in AI-exposed occupations, has not worsened further in six months — it's essentially flat — even as the slower jobs and reabsorption data keep softening. If displacement were accelerating right now, the fastest-reacting series should show it first, and it doesn't. Separately, layoffs in the broader reabsorption data remain below normal and hiring-versus-quits is flat, not weak, meaning employers aren't actively cutting staff — new entrants are just struggling to get absorbed. That looks like a frozen hiring market, not a shedding one. A further complication: part of the exposed-industry weakness sits in temp staffing and rate-sensitive finance and real estate, sectors that soften early in any slowdown for reasons that have nothing to do with AI, and the data here can't rule that out.\n\nWhat to watch: job postings for AI-exposed occupations, the fastest-moving series in this picture — if displacement is really taking hold, that's where it should show up next.",
+      "fullAnalysis": "The reading is displacement, held over from last month, and confidence in it stays low. Nothing about the underlying labor-market data changed this time. The only figure that moved anywhere in this file is the share of firms reporting they use AI in any part of their business, which ticked up from 23.2% to 23.8%. That tells us AI use keeps spreading through firms — it does not tell us anything about jobs, because self-reported adoption has no link to any specific hiring or firing decision. Every other panel used in this reading carries the same numbers as a month ago.\n\nHere is what those numbers say. Employment in AI-exposed industries has fallen 1.47% over the past year, while comparable industries with little AI exposure grew 1.4% over the same period. That gap has been widening for four straight readings, not appearing as a one-month blip, and it has now moved past the level flagged in advance as worth taking seriously. This is the strongest piece of evidence behind the displacement reading: something specific is happening to AI-exposed work, distinct from the rest of the economy.\n\nTwo things complicate that story enough to keep confidence low rather than moving it higher.\n\nFirst, the earliest-moving indicator in this file disagrees. Job postings for AI-exposed occupations have not deteriorated further in six months — the six-month change sits essentially flat, close to zero — even while the slower-moving employment and reabsorption data keep softening. If AI-driven displacement were actively accelerating right now, the fastest-reacting series on this dashboard should be the first to show it. It isn't. That's a real disagreement between the fastest signal and the slower ones, not a footnote.\n\nSecond, the shape of the weakness looks like a freeze, not a purge. In the reabsorption data — which tracks how well people who lose or leave jobs are being reabsorbed into new ones — the share of long-term unemployed is rising and the prime-age employment rate has drifted down past its own deterioration marker over the past year. But layoffs are running below their normal level, and the flow of hires versus quits is essentially flat, not weak. Employers are not actively shedding workers they already employ. What's happening instead is that new entrants and people who lose jobs are having a harder time getting reabsorbed. That is consistent with either a cautious, uncertain hiring environment generally, or with AI substituting for entry-level and junior roles specifically — the data here cannot tell those two apart.\n\nA genuine complication for the displacement reading, considered and not resolved: part of the weakness in AI-exposed industries sits in temp staffing and financial/real-estate categories, both classic early movers in any economic slowdown, AI-related or not. Against that, the industries used as the non-exposed comparison group are growing at a healthy 1.4% rate, and the broader economy is still adding jobs (payrolls up 162,000 in the most recent month, unemployment at 4.1%) — both arguing against a broad, ordinary downturn explanation. But the specific data needed to fully rule out a staffing-sector or rate-sensitive explanation isn't available here, so this stays an open question rather than a settled one.\n\nOn the augmentation side of the ledger, there's no clean positive signal to weigh against displacement. Pay in AI-exposed industries is growing faster than in the comparison industries, which would look like augmentation — except that exposed employment is simultaneously shrinking, and when the industry with faster pay growth is also losing workers, a shrinking pool of employees driving up the average could just as easily be composition (junior workers leaving first) as anyone getting genuinely more valuable. A separate check on economy-wide wages for people who actually stayed in the same job versus those who switched jobs shows no unusual gap between the two — unremarkable, and not able to confirm or rule out anything specific to exposed industries either way. Meanwhile, productivity growth for the whole economy came in at 2.2% for the most recent quarter, down from 2.9% and a touch below the pace that would suggest AI is delivering a broad efficiency dividend right now. None of this supports an augmentation story strongly enough to outweigh the displacement signal above.\n\nSeveral other indicators in the data — measures of AI model capability on benchmark tasks, and model-versus-model leaderboards — were set aside entirely. They measure what AI systems can do in a test, not what employers are actually doing with workers, and none of them connects to an actual hiring or firing decision, so they carry no weight in this reading either way.\n\nNet picture: a real, specific gap between AI-exposed and non-AI-exposed industries that has been widening for months, sitting alongside a labor market that looks frozen for new entrants rather than one where employers are cutting staff — while the fastest-moving indicator on the board, job postings, has stopped getting worse. That combination is why this stays displacement, and why it stays low confidence rather than moving higher.",
+      "compliance": {
+        "words": 251,
+        "numbers": 3,
+        "lengthBand": "ordinary"
+      },
+      "analysisStats": {
+        "present": true,
+        "words": 830
+      },
+      "mechanicalState": "WATCH",
+      "breadth": 1,
+      "pairedState": {
+        "state": "DISPLACEMENT",
+        "attributionZ": 2.52,
+        "attributionLabel": "gap wide and holding",
+        "reabsorptionEmploymentFalling": 0.3,
+        "reabsorptionLabel": "aggregate deteriorating"
+      },
+      "pairedStateAgreesWithVerdict": "agrees",
+      "chainAgreesWithVerdict": "not comparable",
+      "inputsFingerprint": "efdc02ada0dc3b91db227aec1dfc9424a37d37d22af74f7fab4c2376050fcbe0",
+      "keyNumbers": {
+        "jobsDiffPp": -2.8723837475661282,
+        "wagesDiffPp": 0.8052633280711152
+      },
+      "panelHeadlines": {
+        "labor_productivity": {
+          "value": 2.2,
+          "date": "2026-06"
+        },
+        "exposed_vs_control_jobs": {
+          "value": -2.87,
+          "date": "2026-08"
+        },
+        "reabsorption": {
+          "value": null,
+          "date": null
+        },
+        "exposed_vs_control_wages": {
+          "value": 0.81,
+          "date": "2026-08"
+        },
+        "individual_wage_growth": {
+          "value": null,
+          "date": "2026-08"
+        },
+        "job_postings_spread": {
+          "value": -28.8,
+          "date": "2026-09"
+        },
+        "worker_share_of_income": {
+          "value": -1.3,
+          "date": "2026-06"
+        },
+        "ai_adoption": {
+          "value": 23.8,
+          "date": "2026-09"
         },
         "ai_use_automation_vs_augmentation": {
           "value": 43.1,
