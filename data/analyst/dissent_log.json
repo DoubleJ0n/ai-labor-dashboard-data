@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "description": "Append-only Analyst timeline. Reset 2026-07-27 when the baseline, the reabsorption axis and the falsifier format all changed; earlier entries were scored against a rolling baseline and are not comparable. Archived under archive/.",
-  "lastRefreshed": "2026-09-29T20:25:51Z",
+  "lastRefreshed": "2026-09-30T20:28:11Z",
   "entries": [
     {
       "date": "2026-06",
@@ -2654,6 +2654,122 @@
         },
         "macro_regime": {
           "value": 0.3,
+          "date": null
+        },
+        "ai_capability_metr": {
+          "value": 186,
+          "date": "Claude Mythos Preview"
+        },
+        "ai_capability_gdpval_ratings": {
+          "value": 1745,
+          "date": "2026-09"
+        },
+        "ai_capability_vs_human_experts": {
+          "value": 70.9,
+          "date": "2025-12"
+        }
+      }
+    },
+    {
+      "date": "2026-08",
+      "runAt": "2026-09-30T20:28:11Z",
+      "loadBearingPanels": [
+        "exposed_vs_control_jobs",
+        "reabsorption",
+        "job_postings_spread"
+      ],
+      "verdict": "DISPLACEMENT",
+      "confidence": "LOW",
+      "confidenceBasis": "Corroborating: exposed_vs_control_jobs (differential -2.87, past its -2.48 alarm line against the preferred fixed baseline, drifting worse over 4 readings) and reabsorption.headline (prime-age ratio 12m change -0.3, 1.38σ past its own 1σ \"deterioration\" line, with the context-only 3-month horizon accelerating to 2.4σ). Failing to corroborate: reabsorption's JOLTS-sourced secondary readouts (hires-minus-quits improving, layoffs well below norm — the \"shedding\" signature is absent) and job_postings_spread, the earliest-moving series, which has been flat for 6 months rather than newly widening. The independent-source-agreement doubt is unmet: the panels that agree (CES exposed-jobs, CPS-based reabsorption headline) are outweighed in count by the ones that don't (JOLTS, Indeed), and I am not raising this above LOW because of that split.",
+      "tagLine": "Headline weak, secondaries calm",
+      "notificationLine": "Displacement verdict unchanged this month — core job and reabsorption data held steady, still low confidence.",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "falsifier": {
+        "panel": "reabsorption",
+        "field": "headline.change_over_12_months",
+        "comparator": "at_or_above",
+        "value": 0.4,
+        "unit": "percentage points (12-month change in share of 25-54 population employed)",
+        "also": {
+          "panel": "exposed_vs_control_jobs",
+          "field": "control_value",
+          "comparator": "at_or_above",
+          "value": 1
+        },
+        "by": "2026-12-29",
+        "horizonDays": 90,
+        "scorable": true,
+        "unscorableReason": null
+      },
+      "falsifierPlain": "This reading is wrong if the prime-age employment-to-population ratio's 12-month change (reabsorption.headline) climbs back to at least +0.4 points within 90 days while control-industry job growth (exposed_vs_control_jobs.control_value) stays at or above 1.0%, showing exits are landing rather than disappearing.",
+      "dissent": null,
+      "analysis": "The verdict is displacement, unchanged from last month, held at low confidence — and this month, the core data behind it didn't move at all.\n\nWhat changed: nothing material. Two economy-wide, descriptive figures nudged slightly (the decades-long decline in labor's income share eased a touch; the yield curve steepened slightly), but neither is a panel the verdict rests on.\n\nThe strongest evidence for displacement: employment in AI-exposed industries fell 1.47% over the past year while employment in less-exposed control industries (construction, education, health, leisure) rose 1.4%, a gap that has widened for four straight months. That alone could just mean workers moving to other sectors. What tips it toward displacement is that the broader prime-age employment rate — the measure that would catch people whether they land in another industry or drop out of work entirely — also turned down over the past year, crossing this dashboard's line for workers not being reabsorbed.\n\nThe strongest evidence against: inside that same data, actual hiring behavior looks calm rather than distressed — hiring relative to quits is improving and layoffs aren't elevated — and the freshest, most forward-looking indicator, the gap between postings for knowledge work versus hands-on work, has sat flat for six months instead of widening. Economy-wide wage growth for job-switchers also remains positive. None of this proves nothing is happening, but it means the case for displacement rests on one measure crossing a line while several adjacent measures stay calm, which is why confidence is low rather than firm.\n\nWhat to watch: the prime-age employment ratio in the reabsorption panel, the next reading of which will show whether that downturn deepens or reverses.",
+      "fullAnalysis": "The verdict is displacement: AI-exposed industries are still shedding jobs faster than the rest of the economy, and the broader signal that should catch workers landing elsewhere is not showing them land. This verdict is unchanged from last month, held at low confidence, and nothing in the panels that actually drive it moved. The only numbers that shifted this period were two economy-wide, descriptive series — the long-running decline in labor's share of national income ticked slightly less negative, and the yield curve got slightly less flat — and neither is a panel this verdict rests on.\n\nHere is the strongest case for displacement. Employment in AI-exposed industries fell 1.47% over the past year while employment in a matched set of less-exposed control industries (construction, education, health, leisure) rose 1.4% — a gap that has been widening, not narrowing, over the last four monthly readings. On its own, that pattern could simply mean workers are moving from exposed industries into these other industries, which would be normal reallocation, not damage. The reason it's read as more than that: the prime-age employment-to-population ratio — the one measure broad enough to catch workers whether they land in construction or drop out of the labor force entirely — turned down over the past year as well, a shift that crossed this dashboard's own line for \"workers may not be landing anywhere.\" That is what tips the call from reallocation to displacement.\n\nHere is the strongest case against, and it should not be undersold. Inside that same reabsorption data, the actual hiring behavior looks calm: the gap between hires and quits is improving, and layoffs are not elevated — neither looks like a market that is actively shedding people right now. The freshest, most forward-looking indicator on the dashboard, the gap between postings for knowledge work and postings for hands-on work, has been flat for six months rather than widening, which argues against an accelerating displacement story. And economy-wide wage growth for people who change jobs — a measure immune to composition effects — is still comfortably positive, which is not what you'd expect if switchers were landing in worse jobs. None of these are evidence that nothing is happening; they are evidence that whatever is happening has not yet shown up as acceleration.\n\nTwo things were checked and ruled out as competing explanations rather than folded into the reading. A broad economic downturn would be expected to hit control industries too, especially construction, which is the most interest-rate-sensitive industry in the mix; control industries are instead growing at a healthy 1.4%, and the yield curve is not inverted, so a general macro slowdown does not explain the exposed-industry weakness. The 2023 media-industry strikes, sometimes cited as a distortion in this data, are now two years old relative to this reading and too stale to explain a current-month number. A remaining live possibility — that some of the \"exposed industry\" job losses are staffing and temp-help churn rather than a direct AI effect — could not be resolved with the data on hand and is flagged rather than settled.\n\nOne further point works against calling this augmentation instead: economy-wide productivity growth has been slowing, not accelerating, so there is no aggregate payoff visible yet to support a story where AI is mainly making workers more productive rather than replacing them.",
+      "compliance": {
+        "words": 274,
+        "numbers": 2,
+        "lengthBand": "ordinary"
+      },
+      "analysisStats": {
+        "present": true,
+        "words": 556
+      },
+      "mechanicalState": "WATCH",
+      "breadth": 1,
+      "pairedState": {
+        "state": "DISPLACEMENT",
+        "attributionZ": 2.52,
+        "attributionLabel": "gap wide and holding",
+        "reabsorptionEmploymentFalling": 0.3,
+        "reabsorptionLabel": "aggregate deteriorating"
+      },
+      "pairedStateAgreesWithVerdict": "agrees",
+      "chainAgreesWithVerdict": "not comparable",
+      "inputsFingerprint": "f4ec749b70c589ed80c16cb8c5a0c2be6c048e0726785f52eea3030ff519aa1d",
+      "keyNumbers": {
+        "jobsDiffPp": -2.8723837475661282,
+        "wagesDiffPp": 0.8052633280711152
+      },
+      "panelHeadlines": {
+        "labor_productivity": {
+          "value": 2.2,
+          "date": "2026-06"
+        },
+        "exposed_vs_control_jobs": {
+          "value": -2.87,
+          "date": "2026-08"
+        },
+        "reabsorption": {
+          "value": null,
+          "date": null
+        },
+        "exposed_vs_control_wages": {
+          "value": 0.81,
+          "date": "2026-08"
+        },
+        "individual_wage_growth": {
+          "value": null,
+          "date": "2026-08"
+        },
+        "job_postings_spread": {
+          "value": -29.4,
+          "date": "2026-09"
+        },
+        "worker_share_of_income": {
+          "value": -1,
+          "date": "2026-06"
+        },
+        "ai_adoption": {
+          "value": 23.8,
+          "date": "2026-09"
+        },
+        "ai_use_automation_vs_augmentation": {
+          "value": 43.1,
+          "date": "2025-09-15"
+        },
+        "macro_regime": {
+          "value": 0.4,
           "date": null
         },
         "ai_capability_metr": {
