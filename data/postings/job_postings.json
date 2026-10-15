@@ -17,7 +17,7 @@
     "Food Preparation & Service"
   ],
   "note": "Exposed knowledge-work postings minus control hands-on postings; index = 100 at 2020-02-01. Construction/driving map to the nearest available Indeed occupational cuts (Installation & Maintenance, Loading & Stocking). The whole postings index fell from its 2022 peak across the board, so the SPREAD (exposed minus control), not the level, is the signal.",
-  "lastRefreshed": "2026-10-06",
+  "lastRefreshed": "2026-10-15",
   "points": [
     {
       "date": "2020-02-01",
@@ -34,8 +34,8 @@
     {
       "date": "2020-04-01",
       "exposed": 57.6,
-      "control": 61.7,
-      "spread": -4.1
+      "control": 61.6,
+      "spread": -4
     },
     {
       "date": "2020-05-01",
@@ -52,14 +52,14 @@
     {
       "date": "2020-07-01",
       "exposed": 65.8,
-      "control": 88.8,
-      "spread": -23
+      "control": 88.7,
+      "spread": -22.9
     },
     {
       "date": "2020-08-01",
       "exposed": 68.5,
-      "control": 93.7,
-      "spread": -25.2
+      "control": 93.6,
+      "spread": -25.1
     },
     {
       "date": "2020-09-01",
@@ -76,32 +76,32 @@
     {
       "date": "2020-11-01",
       "exposed": 86.1,
-      "control": 106.2,
-      "spread": -20.1
+      "control": 106.1,
+      "spread": -20
     },
     {
       "date": "2020-12-01",
       "exposed": 88.9,
-      "control": 105.1,
-      "spread": -16.2
+      "control": 105,
+      "spread": -16.1
     },
     {
       "date": "2021-01-01",
       "exposed": 95.3,
-      "control": 110.9,
-      "spread": -15.6
+      "control": 110.8,
+      "spread": -15.5
     },
     {
       "date": "2021-02-01",
       "exposed": 103.9,
-      "control": 115.7,
-      "spread": -11.8
+      "control": 115.6,
+      "spread": -11.7
     },
     {
       "date": "2021-03-01",
       "exposed": 115.4,
-      "control": 128.3,
-      "spread": -12.9
+      "control": 128.2,
+      "spread": -12.8
     },
     {
       "date": "2021-04-01",
@@ -112,26 +112,26 @@
     {
       "date": "2021-05-01",
       "exposed": 133.1,
-      "control": 144.9,
-      "spread": -11.8
+      "control": 144.8,
+      "spread": -11.7
     },
     {
       "date": "2021-06-01",
       "exposed": 140.1,
-      "control": 148.1,
-      "spread": -8
+      "control": 148,
+      "spread": -7.9
     },
     {
       "date": "2021-07-01",
-      "exposed": 146.7,
+      "exposed": 146.6,
       "control": 146,
-      "spread": 0.7
+      "spread": 0.6
     },
     {
       "date": "2021-08-01",
       "exposed": 158.8,
-      "control": 150.3,
-      "spread": 8.5
+      "control": 150.2,
+      "spread": 8.6
     },
     {
       "date": "2021-09-01",
@@ -141,15 +141,15 @@
     },
     {
       "date": "2021-10-01",
-      "exposed": 173.6,
-      "control": 157.9,
+      "exposed": 173.5,
+      "control": 157.8,
       "spread": 15.7
     },
     {
       "date": "2021-11-01",
       "exposed": 185.6,
-      "control": 162.2,
-      "spread": 23.4
+      "control": 162.1,
+      "spread": 23.5
     },
     {
       "date": "2021-12-01",
@@ -190,8 +190,8 @@
     {
       "date": "2022-06-01",
       "exposed": 184,
-      "control": 160.7,
-      "spread": 23.3
+      "control": 160.6,
+      "spread": 23.4
     },
     {
       "date": "2022-07-01",
@@ -202,8 +202,8 @@
     {
       "date": "2022-08-01",
       "exposed": 164.2,
-      "control": 157.6,
-      "spread": 6.6
+      "control": 157.5,
+      "spread": 6.7
     },
     {
       "date": "2022-09-01",
@@ -213,9 +213,9 @@
     },
     {
       "date": "2022-10-01",
-      "exposed": 149,
+      "exposed": 149.1,
       "control": 155.5,
-      "spread": -6.5
+      "spread": -6.4
     },
     {
       "date": "2022-11-01",
@@ -225,15 +225,15 @@
     },
     {
       "date": "2022-12-01",
-      "exposed": 133.8,
-      "control": 153,
+      "exposed": 133.7,
+      "control": 152.9,
       "spread": -19.2
     },
     {
       "date": "2023-01-01",
       "exposed": 127.4,
-      "control": 148.9,
-      "spread": -21.5
+      "control": 148.8,
+      "spread": -21.4
     },
     {
       "date": "2023-02-01",
@@ -244,8 +244,8 @@
     {
       "date": "2023-03-01",
       "exposed": 112.8,
-      "control": 143.8,
-      "spread": -31
+      "control": 143.7,
+      "spread": -30.9
     },
     {
       "date": "2023-04-01",
@@ -255,8 +255,8 @@
     },
     {
       "date": "2023-05-01",
-      "exposed": 105.9,
-      "control": 141.6,
+      "exposed": 105.8,
+      "control": 141.5,
       "spread": -35.7
     },
     {
@@ -274,8 +274,8 @@
     {
       "date": "2023-08-01",
       "exposed": 94.8,
-      "control": 136.3,
-      "spread": -41.5
+      "control": 136.2,
+      "spread": -41.4
     },
     {
       "date": "2023-09-01",
@@ -286,8 +286,8 @@
     {
       "date": "2023-10-01",
       "exposed": 90.5,
-      "control": 133.3,
-      "spread": -42.8
+      "control": 133.2,
+      "spread": -42.7
     },
     {
       "date": "2023-11-01",
@@ -315,27 +315,27 @@
     },
     {
       "date": "2024-03-01",
-      "exposed": 86,
+      "exposed": 85.9,
       "control": 122.8,
-      "spread": -36.8
+      "spread": -36.9
     },
     {
       "date": "2024-04-01",
-      "exposed": 85,
+      "exposed": 84.9,
       "control": 120.1,
-      "spread": -35.1
+      "spread": -35.2
     },
     {
       "date": "2024-05-01",
-      "exposed": 84.7,
+      "exposed": 84.6,
       "control": 118,
-      "spread": -33.3
+      "spread": -33.4
     },
     {
       "date": "2024-06-01",
-      "exposed": 84,
+      "exposed": 83.9,
       "control": 117.7,
-      "spread": -33.7
+      "spread": -33.8
     },
     {
       "date": "2024-07-01",
@@ -346,13 +346,13 @@
     {
       "date": "2024-08-01",
       "exposed": 82.2,
-      "control": 114.8,
-      "spread": -32.6
+      "control": 114.7,
+      "spread": -32.5
     },
     {
       "date": "2024-09-01",
-      "exposed": 82.9,
-      "control": 115.8,
+      "exposed": 82.8,
+      "control": 115.7,
       "spread": -32.9
     },
     {
@@ -364,13 +364,13 @@
     {
       "date": "2024-11-01",
       "exposed": 81,
-      "control": 112.4,
-      "spread": -31.4
+      "control": 112.3,
+      "spread": -31.3
     },
     {
       "date": "2024-12-01",
-      "exposed": 81.9,
-      "control": 113.3,
+      "exposed": 81.8,
+      "control": 113.2,
       "spread": -31.4
     },
     {
@@ -388,8 +388,8 @@
     {
       "date": "2025-03-01",
       "exposed": 75.5,
-      "control": 109.5,
-      "spread": -34
+      "control": 109.4,
+      "spread": -33.9
     },
     {
       "date": "2025-04-01",
@@ -400,8 +400,8 @@
     {
       "date": "2025-05-01",
       "exposed": 74.5,
-      "control": 107.5,
-      "spread": -33
+      "control": 107.4,
+      "spread": -32.9
     },
     {
       "date": "2025-06-01",
@@ -417,9 +417,9 @@
     },
     {
       "date": "2025-08-01",
-      "exposed": 74.6,
+      "exposed": 74.5,
       "control": 108.3,
-      "spread": -33.7
+      "spread": -33.8
     },
     {
       "date": "2025-09-01",
@@ -483,8 +483,8 @@
     },
     {
       "date": "2026-07-01",
-      "exposed": 76.9,
-      "control": 105.4,
+      "exposed": 76.8,
+      "control": 105.3,
       "spread": -28.5
     },
     {
@@ -501,9 +501,9 @@
     },
     {
       "date": "2026-10-01",
-      "exposed": 78.2,
-      "control": 108.2,
-      "spread": -30
+      "exposed": 78.3,
+      "control": 108.7,
+      "spread": -30.4
     }
   ]
 }
