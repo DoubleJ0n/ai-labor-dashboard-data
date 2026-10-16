@@ -89,21 +89,62 @@ const flat = html
 // If upstream ever drops the version from the page as well, this MUST fail rather
 // than assume: publishing v3 numbers under a v2 label is the one unrecoverable error
 // here, because Elo levels are meaningless across pools.
-const versions = [...new Set([
-  ...[...flat.matchAll(/gdpval-aa-v(\d+)/gi)].map((m) => `v${m[1]}`),
-  ...[...flat.matchAll(/GDPval-AA v(\d+)/g)].map((m) => `v${m[1]}`),
-])];
-if (versions.length === 0) {
+// UPDATE 2026-10-16: upstream rolled v2 -> v2.1 and this parser could not represent a
+// dotted version, so the two anchors disagreed BY CONSTRUCTION. `v(\d+)` stops at the
+// first non-digit: the dataset title "GDPval-AA v2.1" read as "v2", while the slug,
+// whose DOM id drops the separator ("gdpval-aa-v21-leaderboard"), read as "v21". Two
+// spellings of ONE version looked like a page serving two pools, and the job failed
+// every day for 23 days reporting "pools are not comparable" — which was never true of
+// the page, only of the regex. A guard that cannot parse a minor bump does not protect
+// the invariant, it just stops the feed and misattributes why.
+//
+// Each anchor is now parsed in its own spelling and compared on a normalised form. The
+// title is authoritative for the canonical string because it is the only anchor that
+// keeps the separator; the slug is checked against it with the dots removed. The
+// agreement requirement is unchanged — a silent roll still has to defeat both strings —
+// but it is now a comparison of like with like.
+const titleVersions = [...new Set(
+  [...flat.matchAll(/GDPval-AA v(\d+(?:\.\d+)*)/g)].map((m) => m[1]),
+)];
+const slugVersions = [...new Set(
+  [...flat.matchAll(/gdpval-aa-v(\d+)/gi)].map((m) => m[1]),
+)];
+if (titleVersions.length === 0 && slugVersions.length === 0) {
   fail(
     'no pool version found on the page — upstream dropped the version from both the ' +
       'slug and the dataset title. Elo is frozen per pool, so publishing without a ' +
       'confirmed version is not safe. A human must establish which pool this is.',
   );
 }
-if (versions.length > 1) {
-  fail(`page carries multiple pool versions [${versions.join(", ")}] — pools are not comparable; a human must decide which to register`);
+// A conflict WITHIN one anchor is a real conflict: one page claiming two pools.
+if (titleVersions.length > 1) {
+  fail(`dataset title carries multiple pool versions [${titleVersions.map((v) => `v${v}`).join(", ")}] — pools are not comparable; a human must decide which to register`);
 }
-const poolVersion = versions[0];
+if (slugVersions.length > 1) {
+  fail(`page slugs carry multiple pool versions [${slugVersions.map((v) => `v${v}`).join(", ")}] — pools are not comparable; a human must decide which to register`);
+}
+// Dots removed, because that is the only difference the two spellings are allowed to
+// have. Anything else is upstream disagreeing with itself and must not be guessed at.
+if (titleVersions.length && slugVersions.length &&
+    titleVersions[0].replace(/\./g, "") !== slugVersions[0]) {
+  fail(
+    `pool version anchors disagree: dataset title says v${titleVersions[0]}, slug says ` +
+      `v${slugVersions[0]}. One of them has rolled without the other; a human must ` +
+      `establish which pool this page is actually publishing.`,
+  );
+}
+// Prefer the title: it is the only spelling that survives a minor bump intact. With the
+// slug alone a multi-digit run cannot be re-separated — "21" is both v21 and v2.1 — and
+// guessing there is exactly the silent miscategorisation this block exists to prevent.
+if (!titleVersions.length && slugVersions[0].length > 1) {
+  fail(
+    `only the slug carries a pool version ("v${slugVersions[0]}") and the dataset title is ` +
+      `gone, so the separator cannot be recovered — v${slugVersions[0]} and ` +
+      `v${slugVersions[0].split("").join(".")} are indistinguishable here. A human must ` +
+      `establish which pool this is.`,
+  );
+}
+const poolVersion = `v${titleVersions[0] ?? slugVersions[0]}`;
 if (poolVersion !== GDPVAL_POOL_VERSION) {
   fail(
     `pool rolled: page publishes ${poolVersion}, config registers ${GDPVAL_POOL_VERSION}. ` +
@@ -112,43 +153,68 @@ if (poolVersion !== GDPVAL_POOL_VERSION) {
   );
 }
 
-// --- slug -> display name + lab, from the model-picker array ------------------
+// --- slug -> display name + lab + date, from the model-picker array -----------
+// STOP REGEXING JSON. PARSE IT.
+//
+// This block has now broken three times in the same way, and each previous fix was a
+// better guess about what sits between the fields it reads:
+//   2026-08-16  "releaseDate" appeared between isReasoning and creator  -> no matches
+//   2026-08-24  nested "effort"/"release" objects appeared               -> no matches
+//   2026-10-16  "id" moved to the front and "shortName"/"suffix"/"release"
+//               appeared between "name" and "deprecated"                -> no matches
+// The 2026-08-24 note already named the losing move — "enumerating what may sit in the
+// middle" — and then enumerated one more thing, the single field "deprecated" sitting
+// immediately after "name". Upstream inserted three fields there and the anchor died
+// again. Worse, that pattern still matches 510 compact records elsewhere in the payload
+// that have no creator, so the window scan rejected every one and the count landed on
+// exactly zero: the guard fired "upstream restructured the payload" when the gdpval-aa
+// array was sitting there intact, with every field this parser wants.
+//
+// The array is JSON. It is valid JSON, it is delimited, and the page says which array
+// it is ("slug":"gdpval-aa","initialModels":[...]). So find that array, match brackets
+// to its end, and JSON.parse it. Field ORDER then stops mattering, added fields stop
+// mattering, and nesting stops mattering — the three things that have broken this.
+// What remains load-bearing is only the array's own name, and if upstream renames that
+// the size check below still halts the run instead of publishing a half-join.
+const pickerModels = (() => {
+  const at = flat.search(/"slug":"gdpval-aa","initialModels":\s*\[/);
+  if (at === -1) return [];
+  const start = flat.indexOf("[", at);
+  // String-aware bracket matching: a model name containing "]" must not end the array.
+  let depth = 0, inStr = false, esc = false;
+  for (let i = start; i < flat.length; i++) {
+    const c = flat[i];
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === "\\") esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === "[") depth++;
+    else if (c === "]" && --depth === 0) {
+      // A truncated or re-escaped payload must not read as "upstream restructured",
+      // so say which of the two it is.
+      try {
+        return JSON.parse(flat.slice(start, i + 1));
+      } catch (e) {
+        fail(`found the gdpval-aa initialModels array but it did not parse as JSON (${e.message}) — the flight-chunk unescaping above is no longer producing valid JSON`);
+      }
+    }
+  }
+  fail("the gdpval-aa initialModels array is not bracket-balanced — the payload is truncated or chunk-stitching broke");
+})();
+
 const nameBySlug = new Map();
 const labBySlug = new Map();
-// ANCHOR ON THE KEYS THAT MATTER, NOT ON FIELD ADJACENCY. This regex used to require
-// "isReasoning" to sit immediately before "creator". On 2026-08-16 upstream inserted a
-// "releaseDate" field between them and every record stopped matching at once — the job
-// went red daily reporting a restructured payload, when in fact the three fields this
-// parser actually reads (slug, name, creator.name) were all still there, unchanged and
-// in the same order.
-//
-// A schema that grows a field is the ordinary case, not a break, and it should not cost
-// a red run: the halt for a genuine restructure is the `nameBySlug.size === 0` check
-// below, which still fires if slug/name/creator really do move or vanish. So the
-// middle of the record is now "any number of simple scalar fields", which absorbs the
-// next added field too.
-// UPDATE 2026-08-24: the previous pattern allowed "any number of simple scalar
-// fields" between isReasoning and creator. Upstream then added NESTED ones —
-// "effort":{...} and "release":{...} — and every record stopped matching again, the
-// same failure the earlier fix was written to prevent, one level down. Enumerating
-// what may sit in the middle is the losing move: each new shape is another outage.
-// So anchor only on the three fields actually read, and scan a bounded window for
-// creator rather than describing what separates them.
-// "deprecated" is what separates a real model record from a NESTED one. Each record
-// also contains "release":{"slug":...,"name":...}, which matches a bare slug/name
-// pattern and, being later in the record, silently overwrote the real entry with the
-// release's short name — "Claude Opus 5" clobbering "Claude Opus 5 (Adaptive
-// Reasoning, Max Effort)". That cost 57 of 213 joins and made models appear as both
-// new and dropped in the same report. Anchor on a field the nested object lacks.
-for (const m of flat.matchAll(/\{"slug":"([^"]+)","name":"([^"]+)","deprecated":/g)) {
-  const window = flat.slice(m.index, m.index + 1200);
-  const creator = /"creator":\{"id":"[^"]+","name":"([^"]+)"/.exec(window);
-  if (!creator) continue;
-  // Do not let a window run past its own record into the next one.
-  const nextRecord = window.search(/\},\{"slug":"/);
-  if (nextRecord !== -1 && creator.index > nextRecord) continue;
-  nameBySlug.set(m[1], m[2]);
-  labBySlug.set(m[1], creator[1]);
+const dateByName = new Map();
+for (const m of pickerModels) {
+  // Read only the four fields this job actually uses, and skip a record that is
+  // missing one rather than inventing a value for it.
+  if (!m?.slug || !m?.name || !m?.creator?.name) continue;
+  nameBySlug.set(m.slug, m.name);
+  labBySlug.set(m.slug, m.creator.name);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(m.releaseDate ?? "")) dateByName.set(m.name, m.releaseDate);
 }
 if (nameBySlug.size === 0) fail("model-picker array not found — upstream restructured the payload");
 
@@ -171,12 +237,6 @@ if (nameBySlug.size === 0) fail("model-picker array not found — upstream restr
 // Neither affects how the app uses this: Elo differences of ~1 are noise against
 // confidence intervals of +/-20, and the panel plots ordering, not deltas.
 const nameToSlug = new Map([...nameBySlug].map(([slug, name]) => [name, slug]));
-const dateByName = new Map();
-for (const m of flat.matchAll(/\{"slug":"([^"]+)","name":"([^"]+)","deprecated":/g)) {
-  const w = flat.slice(m.index, m.index + 1200);
-  const d = /"releaseDate":"(\d{4}-\d{2}-\d{2})"/.exec(w);
-  if (d) dateByName.set(m[2], d[1]);
-}
 
 const decode = (t) =>
   t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
@@ -200,6 +260,10 @@ for (const row of rowHtml) {
 }
 
 const records = [];
+// Keys this job has handed out, plus every key upstream owns. A derived slug must
+// avoid both, and avoiding the full picker set keeps the result independent of row order.
+const pickerSlugs = new Set(nameBySlug.keys());
+const usedSlugs = new Set();
 for (const h of hits) {
   const mon = /^([A-Za-z]{3})\s+(\d{4})$/.exec(h.dateRaw || "");
   const releaseDate =
@@ -208,8 +272,29 @@ for (const h of hits) {
   // Rows the picker does not cover still need a stable unique key, or several
   // nulls collide and trip the duplicate-slug guard. A slug derived from the
   // display name is stable across runs, which is all the key is for.
-  const slug = nameToSlug.get(h.model)
-    ?? h.model.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  //
+  // UPDATE 2026-10-16: a derived slug can collide with a REAL one. The board carries
+  // "Qwen3.8 Max (0902)", which joins the picker as "qwen3-8-max", and a separate older
+  // "Qwen3.8 Max" row, which joins nothing and derives that same string — two different
+  // models, two different Elos (1666 and 1604), one key. That tripped the duplicate-slug
+  // guard, whose message ("the same model was parsed twice") described something that
+  // was not happening and sent the reader looking for a parser bug.
+  //
+  // A derived slug is this job's own invention, not upstream's identifier, so it is the
+  // one that must yield: it is checked against every picker slug — not just the ones
+  // already emitted — so the outcome does not depend on which row is read first. The
+  // release date disambiguates, and is as stable as the rest of the row.
+  let slug = nameToSlug.get(h.model);
+  if (!slug) {
+    const base = h.model.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    slug = pickerSlugs.has(base) || usedSlugs.has(base) ? `${base}-${releaseDate}` : base;
+  }
+  if (usedSlugs.has(slug)) {
+    // Two rows that are genuinely indistinguishable — the double parse the invariant
+    // below is for, caught here where the row is still in hand to name it.
+    fail(`two leaderboard rows are indistinguishable: "${h.model}" (${releaseDate}) resolves to the key "${slug}", which another row already holds`);
+  }
+  usedSlugs.add(slug);
   records.push({
     slug,
     model: h.model,

@@ -64,21 +64,29 @@ dashboard app. Use web search to check ONE thing, then reply with ONLY a
 fenced JSON block.
 
 Benchmark slots. The app shows one normalized 0-100 chart with three slots:
-reasoning, coding, biology. Current slots: ${currentSlots}.
-For each slot, verify the benchmark still meets these rules, or pick a better
-one that does: (1) standardized, widely reported, peer-reviewed or equivalent;
-(2) NOT yet saturated — meaningful headroom remains (if saturated, flag it and
-prefer a successor); (3) for biology, use RESEARCH-capability benchmarks
-(protocol debugging, sequence analysis, literature synthesis, e.g.
-LAB-Bench-style) — NEVER biosecurity/threat/weaponization benchmarks.
-For each slot give 3-8 dated score points (0-100) for frontier models over
-time, each from a source you actually found, with the source URL.
+reasoning, coding, biology. The benchmark filling each slot is ALREADY CHOSEN and
+is not yours to change: ${currentSlots}.
+
+Your job is to find new dated scores ON THOSE EXACT BENCHMARKS. For each slot,
+copy the registered benchmark name into "benchmark" verbatim, and give 3-8 dated
+score points (0-100) for frontier models over time, each from a source you
+actually found, with the source URL. A score measured on any other benchmark —
+including a successor, a variant, or a "Pro"/"v2" edition of the same name — does
+not belong in that slot and must be left out.
+
+If you judge a registered benchmark saturated or superseded, say so in
+"saturated" and name what you would replace it with in "successor_note". That is
+REPORTED, NOT ACTED ON: a human decides whether the slot changes instrument,
+because swapping it rewrites what the published history has been measuring.
+Flagging it costs nothing and loses nothing; substituting it silently would.
 
 Reply with exactly one fenced block in this schema (no other prose after it):
 \`\`\`json
 {"changed": true,
- "slots": [{"slot": "reasoning", "benchmark": "...", "source_url": "...",
-   "saturated": false, "note": "one plain-language sentence describing the benchmark",
+ "slots": [{"slot": "reasoning", "benchmark": "<the registered name, verbatim>",
+   "source_url": "...", "saturated": false,
+   "successor_note": "" or "what you would swap to, and why",
+   "note": "one plain-language sentence describing the benchmark",
    "points": [{"label": "model name (benchmark)", "date": "YYYY-MM-DD", "score": 0}]}],
  "summary": "one line describing what changed"}
 \`\`\`
@@ -158,6 +166,7 @@ for (const s of parsed.slots ?? []) {
     sourceUrl: src,
     fetchDate: today,
     saturated: Boolean(s.saturated),
+    successorNote: s.successor_note || "",
     note: s.note || "",
   });
   for (const p of s.points ?? []) {
@@ -199,6 +208,20 @@ const benchmarkSwaps = slotEntities
 // So the job halts instead, the same way a GDPval pool roll halts, and for the same
 // reason: a change of instrument is a re-registration, and re-registration is
 // deliberate. It costs a red run and a config edit, and it happens about never.
+//
+// UPDATE 2026-10-16: "about never" was wrong — it was every single week, ten weeks
+// running, with the identical diagnosis (coding: SWE-bench Verified -> SWE-bench Pro;
+// biology: LAB-Bench -> LABBench2). Not drift, and not a bug either: the prompt USED to
+// instruct the model to "pick a better one" and to "prefer a successor" when a benchmark
+// looked saturated, while this block forbade exactly that. The job was told to do the one
+// thing that halts it, so it halted, deterministically, and the weekly feed delivered
+// nothing for ten weeks while looking like a recurring upstream emergency.
+//
+// The prompt now pins the instrument and routes a saturation judgement into
+// "successor_note", which is reported and published without stopping anything. A swap
+// reaching this point again therefore means the model ignored an explicit instruction,
+// which IS the anomaly worth a red run. The guard is unchanged; what changed is that it
+// is no longer the expected outcome.
 if (benchmarkSwaps.length) {
   fail(
     `benchmark identity changed (${benchmarkSwaps.join("; ")}). This redefines what the ` +
@@ -242,6 +265,17 @@ const body = [
   `- Points added: ${added.length}`,
   ...added.map((p) => `  - ${p.seriesKey} | ${p.pointDate} | ${p.label} | ${p.value} | ${p.sourceUrl}`),
   `- Prior points marked superseded: ${supersededCount}`,
+  ...(() => {
+    // A saturation judgement is the thing most worth a human's eye and the thing
+    // least worth a failed run, so it rides in the report rather than the exit code.
+    const flagged = slotEntities.filter((s) => s.saturated || s.successorNote);
+    return flagged.length
+      ? ["", "## Saturation flagged (reported, not acted on)",
+         ...flagged.map((s) => `- ${s.slot} = ${s.benchmarkName}${s.saturated ? " — flagged SATURATED" : ""}${s.successorNote ? `; suggested successor: ${s.successorNote}` : ""}`),
+         "", "Changing a slot's instrument is a deliberate edit to dashboard-data.json.",
+         "Nothing here has been applied."]
+      : [];
+  })(),
   ...(benchmarkSwaps.length ? ["", "## BENCHMARK IDENTITY CHANGES (extra scrutiny)", ...benchmarkSwaps.map((s) => `- ${s}`)] : []),
   ...(dropped.length ? ["", "## Dropped by validation", ...dropped.map((d) => `- ${d}`)] : []),
 ].join("\n");

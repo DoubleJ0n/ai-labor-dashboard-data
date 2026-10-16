@@ -131,7 +131,19 @@ export const TREND_LOOKBACK_READINGS = 4; // readings compared for the drift
 // Opus 4.8 at 1890, v2 by Opus 5 at 1861). The upstream field name carries the
 // version, so gdpval-refresh reads it from the data and fails when it differs
 // from this registration — a pool roll is a public re-registration.
-export const GDPVAL_POOL_VERSION = "v2";
+// ROLLED 2026-10-16: v2 -> v2.1. Registered after measuring the roll rather than
+// assuming it, because "minor version" is a claim about comparability and the number
+// does not settle it: of the 151 models carried over from the stored v2 board, ZERO
+// kept their Elo. Median move 80 points, mean -101, max 238, against confidence
+// intervals of about +/-20. The whole scale was re-anchored, so v2.1 is a new pool on
+// this file's terms and the v2 records are not appended to - the snapshot is replaced
+// wholesale and the closed board stays in git history.
+//
+// Note what did NOT cause the 23 days of red runs that preceded this: the roll. The
+// version parser could not read a dotted version at all, so it reported the single
+// version "v2.1" as the two pools "v21" and "v2" and failed on its own output. See
+// gdpval-refresh.mjs. A gate that cannot name what it is gating is not a gate.
+export const GDPVAL_POOL_VERSION = "v2.1";
 // Held at 50. On 2026-08-24 upstream stopped publishing full JSON records for all but
 // ~30 models, and this threshold is the only thing that stopped a 192-model leaderboard
 // being overwritten by 29 while looking like a successful refresh. The parser now reads
