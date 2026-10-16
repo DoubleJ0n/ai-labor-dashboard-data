@@ -67664,85 +67664,103 @@
         "fetchDate": "2026-07-13"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2025-04-01",
         "label": "GPT-5.2 (SWE-Verified)",
         "value": 80,
         "sourceUrl": "https://benchlm.ai/benchmarks",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2026-02-19",
         "label": "Gemini 3.1 Pro (SWE-Verified)",
         "value": 81,
         "sourceUrl": "https://benchlm.ai/benchmarks",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2025-06-01",
         "label": "Claude 4.5 Sonnet (SWE-Verified)",
         "value": 77,
         "sourceUrl": "https://benchlm.ai/benchmarks",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2026-02-05",
         "label": "Claude Opus 4.6 (SWE-Verified)",
         "value": 81,
         "sourceUrl": "https://benchlm.ai/benchmarks",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2026-05-28",
         "label": "Claude Opus 4.8 (SWE-Verified)",
         "value": 87,
         "sourceUrl": "https://benchlm.ai/benchmarks",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "biology",
         "pointDate": "2024-08-15",
         "label": "Claude Opus 4.5 (LAB-Bench)",
         "value": 58,
         "sourceUrl": "https://github.com/Future-House/LAB-Bench",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "LAB-Bench",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "biology",
         "pointDate": "2026-02-01",
         "label": "GPT-5.2 Pro (LAB-Bench)",
         "value": 72,
         "sourceUrl": "https://github.com/Future-House/LAB-Bench",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "LAB-Bench",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "biology",
         "pointDate": "2026-03-01",
         "label": "Kimi K2.5 (LAB-Bench)",
         "value": 68,
         "sourceUrl": "https://github.com/Future-House/LAB-Bench",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "LAB-Bench",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "biology",
         "pointDate": "2026-05-28",
         "label": "Claude Opus 4.8 (LAB-Bench)",
         "value": 75,
         "sourceUrl": "https://github.com/Future-House/LAB-Bench",
-        "fetchDate": "2026-07-13"
+        "fetchDate": "2026-07-13",
+        "retiredInstrument": "LAB-Bench",
+        "retiredOn": "2026-10-16"
       },
       {
         "metricId": "normalized",
@@ -67790,67 +67808,81 @@
         "fetchDate": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2024-10-22",
         "label": "Claude 3.5 Sonnet (SWE-bench Verified)",
         "value": 49,
         "sourceUrl": "https://arxiv.org/pdf/2608.13675",
-        "fetchDate": "2026-10-16"
+        "fetchDate": "2026-10-16",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2025-05-15",
         "label": "Claude Opus 4 (SWE-bench Verified)",
         "value": 73,
         "sourceUrl": "https://arxiv.org/pdf/2608.13675",
-        "fetchDate": "2026-10-16"
+        "fetchDate": "2026-10-16",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2025-08-15",
         "label": "GPT-5 (SWE-bench Verified)",
         "value": 75,
         "sourceUrl": "https://arxiv.org/pdf/2608.13675",
-        "fetchDate": "2026-10-16"
+        "fetchDate": "2026-10-16",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2025-11-15",
         "label": "Claude Opus 4.5 (SWE-bench Verified)",
         "value": 77,
         "sourceUrl": "https://arxiv.org/pdf/2608.13675",
-        "fetchDate": "2026-10-16"
+        "fetchDate": "2026-10-16",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2026-04-23",
         "label": "GPT-5.5 (SWE-bench Verified)",
         "value": 85,
         "sourceUrl": "https://arxiv.org/pdf/2608.13675",
-        "fetchDate": "2026-10-16"
+        "fetchDate": "2026-10-16",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2026-07-15",
         "label": "Claude Fable 5 (SWE-bench Verified)",
         "value": 95,
         "sourceUrl": "https://arxiv.org/pdf/2608.13675",
-        "fetchDate": "2026-10-16"
+        "fetchDate": "2026-10-16",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
+        "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2026-07-15",
         "label": "GPT-5.6 Sol (SWE-bench Verified)",
         "value": 96,
         "sourceUrl": "https://arxiv.org/pdf/2608.13675",
-        "fetchDate": "2026-10-16"
+        "fetchDate": "2026-10-16",
+        "retiredInstrument": "SWE-bench Verified",
+        "retiredOn": "2026-10-16"
       }
     ],
     "slots": [
@@ -67865,24 +67897,29 @@
       },
       {
         "slot": "coding",
-        "benchmarkName": "SWE-bench Verified",
-        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "benchmarkName": "SWE-bench Pro",
+        "sourceUrl": "https://scale.com/leaderboard/swe_bench_pro_public",
         "fetchDate": "2026-10-16",
         "saturated": false,
         "successorNote": "",
-        "note": "500 human-verified real-world GitHub issues requiring functional code patches validated by unit tests."
+        "note": "Real GitHub issue resolution on PRIVATE codebases that are legally inaccessible to model trainers, so contamination is structurally prevented rather than merely checked for. Scored on Scale's PUBLIC STANDARDIZED set, not vendor self-reports: the two disagree by about 20 points (leaders near 60 standardized against 80-90 self-reported), and mixing them would repeat a pool-roll error one level down."
       },
       {
         "slot": "biology",
-        "benchmarkName": "LAB-Bench",
-        "sourceUrl": "https://www.futurehouse.org/research-announcements/lab-bench-measuring-capabilities-of-language-models-for-biology-research",
+        "benchmarkName": "LABBench2",
+        "sourceUrl": "https://huggingface.co/datasets/futurehouse/labbench2",
         "fetchDate": "2026-10-16",
-        "saturated": true,
-        "successorNote": "Superseded by LAB-Bench 2 (2026) which adds more realistic contexts and free-response evaluation; original benchmark shows near-saturation or superhuman performance across subcategories as of late 2024.",
-        "note": "2,457 questions across 8 categories testing practical biology research tasks including protocol understanding, literature retrieval, and molecular biology."
+        "saturated": false,
+        "successorNote": "",
+        "note": "FutureHouse/Edison successor to LAB-Bench: ~1,900 biology RESEARCH tasks - literature understanding, data access, protocol troubleshooting, molecular-biology assistance, experiment planning - shifted from multiple-choice to open response, and 26-46% harder than its predecessor. Research capability only; contains no biosecurity, threat or weaponization tasks, which this slot must never register."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-10-16",
+        "foundNew": false,
+        "summary": "RE-REGISTERED instruments: coding SWE-bench Verified -> SWE-bench Pro, biology LAB-Bench -> LABBench2. Both predecessors were saturated. The 16 prior points scored on them are retired to metricId 'normalized_retired', not deleted: they are real readings, but on a different instrument, and no consumer may read them as the current series."
+      },
       {
         "runDate": "2026-10-16",
         "foundNew": true,
