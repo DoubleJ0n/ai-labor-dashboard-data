@@ -67499,7 +67499,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": "2026-10-16T19:45:23Z",
+    "lastRefreshed": "2026-10-16T23:41:47Z",
     "points": [
       {
         "metricId": "metr",
@@ -67610,60 +67610,6 @@
         "fetchDate": "2026-07-10 (seeded — pending enrichment verification)"
       },
       {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2025-01-24",
-        "label": "GPT-4o (HLE)",
-        "value": 3,
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2025-05-15",
-        "label": "Claude Opus 4.5 Thinking (HLE)",
-        "value": 25,
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2026-02-12",
-        "label": "Gemini 3 Pro (HLE)",
-        "value": 37,
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2026-02-05",
-        "label": "Claude Opus 4.6 Thinking Max (HLE)",
-        "value": 34,
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2026-03-05",
-        "label": "GPT-5.4 Pro (HLE)",
-        "value": 44,
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2026-07-05",
-        "label": "Claude Fable 5 (HLE)",
-        "value": 53,
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13"
-      },
-      {
         "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2025-04-01",
@@ -67763,51 +67709,6 @@
         "retiredOn": "2026-10-16"
       },
       {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2025-01-15",
-        "label": "GPT-4o (HLE)",
-        "value": 3,
-        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
-        "fetchDate": "2026-10-16"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2025-04-15",
-        "label": "OpenAI o1 (HLE)",
-        "value": 8,
-        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
-        "fetchDate": "2026-10-16"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2025-08-15",
-        "label": "GPT-5 (HLE)",
-        "value": 25,
-        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
-        "fetchDate": "2026-10-16"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2026-01-15",
-        "label": "Gemini 3 Pro (HLE)",
-        "value": 38,
-        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
-        "fetchDate": "2026-10-16"
-      },
-      {
-        "metricId": "normalized",
-        "seriesKey": "reasoning",
-        "pointDate": "2026-09-14",
-        "label": "Claude Opus 5.5 (HLE)",
-        "value": 61,
-        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
-        "fetchDate": "2026-10-16"
-      },
-      {
         "metricId": "normalized_retired",
         "seriesKey": "coding",
         "pointDate": "2024-10-22",
@@ -67883,38 +67784,241 @@
         "fetchDate": "2026-10-16",
         "retiredInstrument": "SWE-bench Verified",
         "retiredOn": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-24",
+        "label": "GPT-4o (HLE)",
+        "value": 3,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-05-15",
+        "label": "Claude Opus 4.5 Thinking (HLE)",
+        "value": 25,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-02-12",
+        "label": "Gemini 3 Pro (HLE)",
+        "value": 37,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-02-05",
+        "label": "Claude Opus 4.6 Thinking Max (HLE)",
+        "value": 34,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-03-05",
+        "label": "GPT-5.4 Pro (HLE)",
+        "value": 44,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-07-05",
+        "label": "Claude Fable 5 (HLE)",
+        "value": 53,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-15",
+        "label": "GPT-4o (HLE)",
+        "value": 3,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-04-15",
+        "label": "OpenAI o1 (HLE)",
+        "value": 8,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-08-15",
+        "label": "GPT-5 (HLE)",
+        "value": 25,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-01-15",
+        "label": "Gemini 3 Pro (HLE)",
+        "value": 38,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-09-14",
+        "label": "Claude Opus 5.5 (HLE)",
+        "value": 61,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-31",
+        "label": "GPT-4o (HLE)",
+        "value": 3,
+        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-31",
+        "label": "Claude 3.5 Sonnet (HLE)",
+        "value": 4,
+        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-31",
+        "label": "o1 (HLE)",
+        "value": 8,
+        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-06-30",
+        "label": "GPT-5 (HLE)",
+        "value": 25,
+        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-02-01",
+        "label": "Gemini 3 Pro (HLE)",
+        "value": 38,
+        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-10-16",
+        "label": "Claude Opus 5.5 (HLE)",
+        "value": 61,
+        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-09-18",
+        "label": "Claude Opus 4.1 (SWE-bench Pro)",
+        "value": 23,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-09-18",
+        "label": "GPT-5 (SWE-bench Pro)",
+        "value": 23,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-04-01",
+        "label": "Claude Opus 4.6 Thinking (SWE-bench Pro)",
+        "value": 52,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-04-01",
+        "label": "GPT-5.4 xHigh (SWE-bench Pro)",
+        "value": 59,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-10-16",
+        "label": "Muse Spark 1.1 (SWE-bench Pro)",
+        "value": 62,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-10-16"
       }
     ],
     "slots": [
       {
         "slot": "reasoning",
         "benchmarkName": "Humanity's Last Exam (HLE)",
-        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
         "fetchDate": "2026-10-16",
         "saturated": false,
         "successorNote": "",
-        "note": "2,500 expert-authored questions across mathematics, sciences, humanities, and classical languages."
+        "note": "Multi-domain benchmark of 2,500 expert-vetted questions across mathematics, sciences, humanities, and knowledge-heavy subjects."
       },
       {
         "slot": "coding",
         "benchmarkName": "SWE-bench Pro",
-        "sourceUrl": "https://scale.com/leaderboard/swe_bench_pro_public",
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
         "fetchDate": "2026-10-16",
         "saturated": false,
         "successorNote": "",
-        "note": "Real GitHub issue resolution on PRIVATE codebases that are legally inaccessible to model trainers, so contamination is structurally prevented rather than merely checked for. Scored on Scale's PUBLIC STANDARDIZED set, not vendor self-reports: the two disagree by about 20 points (leaders near 60 standardized against 80-90 self-reported), and mixing them would repeat a pool-roll error one level down."
+        "note": "Long-horizon software engineering benchmark with diverse, contamination-resistant tasks and greater difficulty than SWE-Bench Verified."
       },
       {
         "slot": "biology",
         "benchmarkName": "LABBench2",
-        "sourceUrl": "https://huggingface.co/datasets/futurehouse/labbench2",
+        "sourceUrl": "https://arxiv.org/pdf/2604.09554",
         "fetchDate": "2026-10-16",
         "saturated": false,
         "successorNote": "",
-        "note": "FutureHouse/Edison successor to LAB-Bench: ~1,900 biology RESEARCH tasks - literature understanding, data access, protocol troubleshooting, molecular-biology assistance, experiment planning - shifted from multiple-choice to open response, and 26-46% harder than its predecessor. Research capability only; contains no biosecurity, threat or weaponization tasks, which this slot must never register."
+        "note": "Biology research benchmark with 26-46% difficulty increase over LAB-Bench, evaluating frontier model abilities in foundational research activities."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-10-16",
+        "foundNew": true,
+        "summary": "+11 points (0 superseded)"
+      },
       {
         "runDate": "2026-10-16",
         "foundNew": false,
