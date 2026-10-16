@@ -68010,7 +68010,7 @@
         "fetchDate": "2026-10-16",
         "saturated": false,
         "successorNote": "",
-        "note": "Biology research benchmark with 26-46% difficulty increase over LAB-Bench, evaluating frontier model abilities in foundational research activities."
+        "note": "FutureHouse/Edison successor to LAB-Bench: ~1,900 biology RESEARCH tasks - literature understanding, data access, protocol troubleshooting, molecular-biology assistance, experiment planning - shifted from multiple-choice to open response, and 26-46% harder than its predecessor. Research capability only; contains no biosecurity, threat or weaponization tasks, which this slot must never register. REGISTERED WITH A CAVEAT (2026-10-16), READ THIS BEFORE TRUSTING A SCORE HERE: there is no official LABBench2 leaderboard. The only public per-model figures are third-party compilations of PROVIDER SELF-REPORTS (benchlm.ai, benchmarklist.com), they disagree with each other on the top spot, and the subset tables are drawn largely from one lab's system cards. The aggregate leaders already sit at 80-89%, which is close to the headroom that retired LAB-Bench, so this is a weaker fix for the biology slot than SWE-bench Pro is for coding. A reading that appears here is not standardized and must not be read as comparable to the reasoning or coding slots."
       }
     ],
     "log": [
