@@ -67499,7 +67499,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": "2026-07-13T13:52:07Z",
+    "lastRefreshed": "2026-10-16T19:45:23Z",
     "points": [
       {
         "metricId": "metr",
@@ -67743,35 +67743,151 @@
         "value": 75,
         "sourceUrl": "https://github.com/Future-House/LAB-Bench",
         "fetchDate": "2026-07-13"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-15",
+        "label": "GPT-4o (HLE)",
+        "value": 3,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-04-15",
+        "label": "OpenAI o1 (HLE)",
+        "value": 8,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-08-15",
+        "label": "GPT-5 (HLE)",
+        "value": 25,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-01-15",
+        "label": "Gemini 3 Pro (HLE)",
+        "value": 38,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-09-14",
+        "label": "Claude Opus 5.5 (HLE)",
+        "value": 61,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2024-10-22",
+        "label": "Claude 3.5 Sonnet (SWE-bench Verified)",
+        "value": 49,
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-05-15",
+        "label": "Claude Opus 4 (SWE-bench Verified)",
+        "value": 73,
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-08-15",
+        "label": "GPT-5 (SWE-bench Verified)",
+        "value": 75,
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-11-15",
+        "label": "Claude Opus 4.5 (SWE-bench Verified)",
+        "value": 77,
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-04-23",
+        "label": "GPT-5.5 (SWE-bench Verified)",
+        "value": 85,
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-07-15",
+        "label": "Claude Fable 5 (SWE-bench Verified)",
+        "value": 95,
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-07-15",
+        "label": "GPT-5.6 Sol (SWE-bench Verified)",
+        "value": 96,
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16"
       }
     ],
     "slots": [
       {
         "slot": "reasoning",
         "benchmarkName": "Humanity's Last Exam (HLE)",
-        "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-07-13",
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-16",
         "saturated": false,
-        "note": "Expert-vetted multi-domain questions across 100+ subjects; frontier models score 20-54% with substantial headroom."
+        "successorNote": "",
+        "note": "2,500 expert-authored questions across mathematics, sciences, humanities, and classical languages."
       },
       {
         "slot": "coding",
         "benchmarkName": "SWE-bench Verified",
-        "sourceUrl": "https://benchlm.ai/benchmarks",
-        "fetchDate": "2026-07-13",
+        "sourceUrl": "https://arxiv.org/pdf/2608.13675",
+        "fetchDate": "2026-10-16",
         "saturated": false,
-        "note": "Real GitHub issue resolution with meaningful spread (77-81%) across frontier models; flagged for data contamination but remains standard."
+        "successorNote": "",
+        "note": "500 human-verified real-world GitHub issues requiring functional code patches validated by unit tests."
       },
       {
         "slot": "biology",
         "benchmarkName": "LAB-Bench",
-        "sourceUrl": "https://github.com/Future-House/LAB-Bench",
-        "fetchDate": "2026-07-13",
-        "saturated": false,
-        "note": "Practical research capabilities: literature reasoning, figure interpretation, sequence manipulation, protocol troubleshooting—not memorization."
+        "sourceUrl": "https://www.futurehouse.org/research-announcements/lab-bench-measuring-capabilities-of-language-models-for-biology-research",
+        "fetchDate": "2026-10-16",
+        "saturated": true,
+        "successorNote": "Superseded by LAB-Bench 2 (2026) which adds more realistic contexts and free-response evaluation; original benchmark shows near-saturation or superhuman performance across subcategories as of late 2024.",
+        "note": "2,457 questions across 8 categories testing practical biology research tasks including protocol understanding, literature retrieval, and molecular biology."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-10-16",
+        "foundNew": true,
+        "summary": "+12 points (0 superseded)"
+      },
       {
         "runDate": "2026-07-13",
         "foundNew": true,
