@@ -68004,11 +68004,11 @@
       {
         "slot": "reasoning",
         "benchmarkName": "Humanity's Last Exam (HLE)",
-        "sourceUrl": "https://en.wikipedia.org/wiki/Humanity%27s_Last_Exam",
+        "sourceUrl": "https://agi.safe.ai/",
         "fetchDate": "2026-10-16",
         "saturated": false,
         "successorNote": "",
-        "note": "Multi-domain benchmark of 2,500 expert-vetted questions across mathematics, sciences, humanities, and knowledge-heavy subjects."
+        "note": "Expert-vetted questions across 100+ subjects, deliberately built to resist the saturation that overtook MMLU. Frontier models are near 55-61% against an expert baseline of roughly 90% within specialty, so real headroom and real spread remain. SOURCE PINNED to the official site: a refresh run once replaced this with a Wikipedia article, which is not a score source."
       },
       {
         "slot": "coding",
@@ -68017,19 +68017,15 @@
         "fetchDate": "2026-10-16",
         "saturated": false,
         "successorNote": "",
-        "note": "Long-horizon software engineering benchmark with diverse, contamination-resistant tasks and greater difficulty than SWE-Bench Verified."
-      },
-      {
-        "slot": "biology",
-        "benchmarkName": "LABBench2",
-        "sourceUrl": "https://arxiv.org/pdf/2604.09554",
-        "fetchDate": "2026-10-16",
-        "saturated": false,
-        "successorNote": "",
-        "note": "FutureHouse/Edison successor to LAB-Bench: ~1,900 biology RESEARCH tasks - literature understanding, data access, protocol troubleshooting, molecular-biology assistance, experiment planning - shifted from multiple-choice to open response, and 26-46% harder than its predecessor. Research capability only; contains no biosecurity, threat or weaponization tasks, which this slot must never register. REGISTERED WITH A CAVEAT (2026-10-16), READ THIS BEFORE TRUSTING A SCORE HERE: there is no official LABBench2 leaderboard. The only public per-model figures are third-party compilations of PROVIDER SELF-REPORTS (benchlm.ai, benchmarklist.com), they disagree with each other on the top spot, and the subset tables are drawn largely from one lab's system cards. The aggregate leaders already sit at 80-89%, which is close to the headroom that retired LAB-Bench, so this is a weaker fix for the biology slot than SWE-bench Pro is for coding. A reading that appears here is not standardized and must not be read as comparable to the reasoning or coding slots."
+        "note": "Real GitHub issue resolution on PRIVATE codebases that are legally inaccessible to model trainers, so contamination is structurally prevented rather than merely checked for. SOURCE PINNED to Scale's PUBLIC STANDARDIZED leaderboard and not to vendor self-reports: the two disagree by about twenty points (leaders near 60 standardized against 80-90 self-reported), and mixing them would rebuild a pool-roll error one field down. Replaced SWE-bench Verified, which saturated: OpenAI stopped reporting it in early 2026."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-10-17",
+        "foundNew": false,
+        "summary": "RETIRED the biology slot. LABBench2 was registered on 2026-10-16 to replace the saturated LAB-Bench, but it does not clear this project's own bar: there is no official leaderboard, the only public per-model figures are third-party compilations of provider self-reports that disagree with each other, and the aggregate leaders already sit at 80-89% - close to the headroom that retired the predecessor. An empty slot the analyst is told exists is a slot it may reason about, so the slot is gone rather than left dangling. Its 4 readings stay in the file as metricId 'normalized_retired'. ANY FUTURE BIOLOGY RE-REGISTRATION MUST USE A RESEARCH-CAPABILITY BENCHMARK - protocol debugging, sequence analysis, literature synthesis - AND NEVER A BIOSECURITY, THREAT OR WEAPONIZATION BENCHMARK. That prohibition used to live in the discovery prompt and must not be lost now that the prompt no longer chooses instruments."
+      },
       {
         "runDate": "2026-10-16",
         "foundNew": true,

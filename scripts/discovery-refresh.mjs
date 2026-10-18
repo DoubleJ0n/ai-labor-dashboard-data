@@ -63,9 +63,12 @@ You maintain the normalized-capability data for a small AI-labor-market
 dashboard app. Use web search to check ONE thing, then reply with ONLY a
 fenced JSON block.
 
-Benchmark slots. The app shows one normalized 0-100 chart with three slots:
-reasoning, coding, biology. The benchmark filling each slot is ALREADY CHOSEN and
-is not yours to change: ${currentSlots}.
+Benchmark slots. The slots below are the COMPLETE list, and both the slots and
+the benchmark filling each one are already chosen and are not yours to change:
+${currentSlots}.
+Do not add a slot, do not report on a subject that is not listed, and do not
+reinstate one you may remember from an earlier version of this task. A slot
+absent from that list was retired deliberately.
 
 Your job is to find new dated scores ON THOSE EXACT BENCHMARKS. For each slot,
 copy the registered benchmark name into "benchmark" verbatim, and give 3-8 dated
@@ -155,10 +158,22 @@ const validPoint = (p, slot) => {
   return null;
 };
 
+// A SLOT THAT IS NOT REGISTERED IS NOT A SLOT.
+//
+// The merge below used to push any slot the model returned into capability.slots if it
+// was not already there, which made a retirement unenforceable: the biology slot was
+// retired on 2026-10-17 and a single run that still remembered it would have recreated
+// it, note and all, with nobody having registered anything. Creating a slot is a human
+// act for the same reason changing one's instrument is. Unregistered slots are reported
+// in the PR body and otherwise ignored, points included.
+const registeredSlots = new Set(capability.slots.map((x) => x.slot));
+const unregisteredSlots = [];
+
 const slotEntities = [];
 const pts = [];
 for (const s of parsed.slots ?? []) {
   if (!s.slot || !s.benchmark) continue;
+  if (!registeredSlots.has(s.slot)) { unregisteredSlots.push(s.slot); continue; }
   const src = s.source_url || "";
   slotEntities.push({
     slot: s.slot,
@@ -236,10 +251,26 @@ if (added.length === 0) {
   nochange(`no new data after validation${dropped.length ? ` (${dropped.length} points dropped: ${dropped.join("; ")})` : ""}`);
 }
 
-const bySlot = Object.fromEntries(slotEntities.map((s) => [s.slot, s]));
-capability.slots = capability.slots.map((s) => bySlot[s.slot] ?? s);
+// THE REGISTRATION IS OWNED BY dashboard-data.json, NOT BY THE MODEL.
+//
+// This merge used to be `bySlot[s.slot] ?? s`, replacing the WHOLE slot object with the
+// model's version. benchmarkName was protected by the swap guard above; sourceUrl and
+// note were not, and on 2026-10-16 one run quietly rewrote both. A hand-pinned note
+// recording WHY SWE-bench Pro must be read off the public standardized leaderboard was
+// replaced by a one-line description, and the reasoning slot's official source
+// (agi.safe.ai) became a Wikipedia article. For SWE-bench Pro the standardized and
+// self-reported figures differ by about twenty points, so a drifting sourceUrl is the
+// same class of error as a silent instrument swap, one field down — and it drifted
+// without tripping anything, because nothing was watching that field.
+//
+// So the model contributes only what it actually observed: the points, and its
+// saturation judgement. What the slot IS stays where a human put it.
 for (const s of slotEntities) {
-  if (!capability.slots.some((x) => x.slot === s.slot)) capability.slots.push(s);
+  const registered = capability.slots.find((x) => x.slot === s.slot);
+  if (!registered) continue; // filtered above; belt and braces
+  registered.saturated = s.saturated;
+  registered.successorNote = s.successorNote;
+  registered.fetchDate = s.fetchDate;
 }
 // existingNorm entries carry their supersession marks (mutated in place);
 // the full normalized history is kept and the validated points appended.
@@ -265,6 +296,12 @@ const body = [
   `- Points added: ${added.length}`,
   ...added.map((p) => `  - ${p.seriesKey} | ${p.pointDate} | ${p.label} | ${p.value} | ${p.sourceUrl}`),
   `- Prior points marked superseded: ${supersededCount}`,
+  ...(unregisteredSlots.length
+    ? ["", "## Unregistered slots ignored",
+       ...unregisteredSlots.map((x) => `- ${x} — not in the registration, so nothing was written for it`),
+       "", "Registering a slot is a deliberate edit to dashboard-data.json. If one of these",
+       "should exist, add it there; it will not appear because the model proposed it."]
+    : []),
   ...(() => {
     // A saturation judgement is the thing most worth a human's eye and the thing
     // least worth a failed run, so it rides in the report rather than the exit code.
