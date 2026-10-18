@@ -67515,7 +67515,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": "2026-10-16T23:41:47Z",
+    "lastRefreshed": "2026-10-18T05:56:49Z",
     "points": [
       {
         "metricId": "metr",
@@ -67998,6 +67998,123 @@
         "value": 62,
         "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
         "fetchDate": "2026-10-16"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-24",
+        "label": "o1 (HLE)",
+        "value": 8,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-05-15",
+        "label": "GPT-5 (HLE)",
+        "value": 25,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-04-03",
+        "label": "Gemini 3 Pro (HLE)",
+        "value": 38,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-08-16",
+        "label": "Gemini 3.1 Pro Preview (thinking high) (HLE)",
+        "value": 46,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-10-16",
+        "label": "Claude Fable 5.1 (HLE)",
+        "value": 59,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-10-15",
+        "label": "GPT-6 Astra (HLE)",
+        "value": 55,
+        "sourceUrl": "https://agi.safe.ai/",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-03-15",
+        "label": "GPT-5.3 Codex (SWE-bench Pro)",
+        "value": 57,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-04-01",
+        "label": "Claude Opus 4.5 (SWE-bench Pro)",
+        "value": 46,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-06-01",
+        "label": "GPT-5.4 (xHigh) (SWE-bench Pro)",
+        "value": 59,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-07-01",
+        "label": "Claude Opus 4.6 (thinking) (SWE-bench Pro)",
+        "value": 52,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-09-14",
+        "label": "Muse Spark 1.1 (SWE-bench Pro)",
+        "value": 62,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-09-22",
+        "label": "Claude Opus 5.5 (SWE-bench Pro)",
+        "value": 90,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-10-18"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-10-11",
+        "label": "Claude Fable 5.1 (SWE-bench Pro)",
+        "value": 81,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro_public",
+        "fetchDate": "2026-10-18"
       }
     ],
     "slots": [
@@ -68005,7 +68122,7 @@
         "slot": "reasoning",
         "benchmarkName": "Humanity's Last Exam (HLE)",
         "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-10-16",
+        "fetchDate": "2026-10-18",
         "saturated": false,
         "successorNote": "",
         "note": "Expert-vetted questions across 100+ subjects, deliberately built to resist the saturation that overtook MMLU. Frontier models are near 55-61% against an expert baseline of roughly 90% within specialty, so real headroom and real spread remain. SOURCE PINNED to the official site: a refresh run once replaced this with a Wikipedia article, which is not a score source."
@@ -68014,13 +68131,18 @@
         "slot": "coding",
         "benchmarkName": "SWE-bench Pro",
         "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
-        "fetchDate": "2026-10-16",
+        "fetchDate": "2026-10-18",
         "saturated": false,
         "successorNote": "",
         "note": "Real GitHub issue resolution on PRIVATE codebases that are legally inaccessible to model trainers, so contamination is structurally prevented rather than merely checked for. SOURCE PINNED to Scale's PUBLIC STANDARDIZED leaderboard and not to vendor self-reports: the two disagree by about twenty points (leaders near 60 standardized against 80-90 self-reported), and mixing them would rebuild a pool-roll error one field down. Replaced SWE-bench Verified, which saturated: OpenAI stopped reporting it in early 2026."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-10-18",
+        "foundNew": true,
+        "summary": "+13 points (0 superseded)"
+      },
       {
         "runDate": "2026-10-17",
         "foundNew": false,
