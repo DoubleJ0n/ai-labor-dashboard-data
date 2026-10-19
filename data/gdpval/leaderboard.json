@@ -55,6 +55,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "deepseek-v4-1-flash-1017",
+        "model": "DeepSeek V4.1 Flash 1017 (Max)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-10-17",
+        "elo": 1746,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "claude-fable-5-1-xhigh",
         "model": "Claude Fable 5.1 (Xhigh, Default Fallback)",
         "lab": "Anthropic",
@@ -263,10 +271,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "deepseek-v4-1-flash",
+        "slug": "deepseek-v4-1-flash-max",
         "model": "DeepSeek V4.1 Flash (Max)",
         "lab": "DeepSeek",
-        "releaseDate": "2026-09-10",
+        "releaseDate": "2026-09",
         "elo": 1600,
         "poolVersion": "v2.1"
       },
@@ -460,6 +468,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-07",
         "elo": 1459,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "minimax-m3-1-flash",
+        "model": "MiniMax-M3.1-Flash",
+        "lab": "MiniMax",
+        "releaseDate": "2026-10-19",
+        "elo": 1458,
         "poolVersion": "v2.1"
       },
       {
@@ -898,7 +914,7 @@
         "slug": "minimax-m3",
         "model": "MiniMax-M3",
         "lab": "MiniMax",
-        "releaseDate": "2026-06-01",
+        "releaseDate": "2026-06",
         "elo": 1242,
         "poolVersion": "v2.1"
       },
@@ -2375,7 +2391,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-10-17"
+    "lastRefreshed": "2026-10-19"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
