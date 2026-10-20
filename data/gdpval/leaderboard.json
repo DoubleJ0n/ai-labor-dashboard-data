@@ -139,7 +139,7 @@
         "model": "Qwen3.8 Max (0902)",
         "lab": "Alibaba",
         "releaseDate": "2026-09-02",
-        "elo": 1666,
+        "elo": 1665,
         "poolVersion": "v2.1"
       },
       {
@@ -195,7 +195,7 @@
         "model": "Gemini 4 Argon (High)",
         "lab": "Google",
         "releaseDate": "2026-09-30",
-        "elo": 1624,
+        "elo": 1623,
         "poolVersion": "v2.1"
       },
       {
@@ -503,19 +503,19 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "deepseek-v4-pro-0813-max",
-        "model": "DeepSeek V4 Pro 0813 (Max)",
-        "lab": "DeepSeek",
-        "releaseDate": "2026-08",
-        "elo": 1450,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "gpt-6-1-sol-medium",
         "model": "GPT-6.1 Sol (Medium)",
         "lab": "OpenAI",
         "releaseDate": "2026-09",
         "elo": 1450,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "deepseek-v4-pro-0813-max",
+        "model": "DeepSeek V4 Pro 0813 (Max)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-08",
+        "elo": 1449,
         "poolVersion": "v2.1"
       },
       {
@@ -575,19 +575,19 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "qwen3-8-27b",
-        "model": "Qwen3.8 27B (Xhigh)",
-        "lab": "Alibaba",
-        "releaseDate": "2026-08-14",
-        "elo": 1420,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "claude-haiku-5-5-high",
         "model": "Claude Haiku 5.5 (High)",
         "lab": "Anthropic",
         "releaseDate": "2026-10",
         "elo": 1418,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "qwen3-8-27b",
+        "model": "Qwen3.8 27B (Xhigh)",
+        "lab": "Alibaba",
+        "releaseDate": "2026-08-14",
+        "elo": 1417,
         "poolVersion": "v2.1"
       },
       {
@@ -687,14 +687,6 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "k2-horizon-375b-a23b",
-        "model": "K2 Horizon 375B A23B",
-        "lab": "Institute of Foundation Models",
-        "releaseDate": "2026-09-03",
-        "elo": 1361,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "gemini-3-7-flash-medium",
         "model": "Gemini 3.7 Flash (Medium)",
         "lab": "Google",
@@ -708,6 +700,14 @@
         "lab": "Anthropic",
         "releaseDate": "2026-06",
         "elo": 1358,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "k2-horizon-375b-a23b",
+        "model": "K2 Horizon 375B A23B",
+        "lab": "Institute of Foundation Models",
+        "releaseDate": "2026-09-03",
+        "elo": 1357,
         "poolVersion": "v2.1"
       },
       {
@@ -1079,18 +1079,18 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "inkling-small",
-        "model": "Inkling Small",
-        "lab": "Thinking Machines",
-        "releaseDate": "2026-07",
-        "elo": 1124,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "claude-haiku-5-5-low",
         "model": "Claude Haiku 5.5 (Low)",
         "lab": "Anthropic",
         "releaseDate": "2026-10",
+        "elo": 1123,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "inkling-small",
+        "model": "Inkling Small",
+        "lab": "Thinking Machines",
+        "releaseDate": "2026-07",
         "elo": 1123,
         "poolVersion": "v2.1"
       },
@@ -1303,19 +1303,19 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "nemotron-3-ultra-550b-a55b-reasoning",
-        "model": "Nemotron 3 Ultra 550B A55B (Reasoning)",
-        "lab": "NVIDIA",
-        "releaseDate": "2026-06",
-        "elo": 1013,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "gpt-5-4-mini-xhigh",
         "model": "GPT-5.4 mini (Xhigh)",
         "lab": "OpenAI",
         "releaseDate": "2026-03",
         "elo": 1012,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "nemotron-3-ultra-550b-a55b-reasoning",
+        "model": "Nemotron 3 Ultra 550B A55B (Reasoning)",
+        "lab": "NVIDIA",
+        "releaseDate": "2026-06",
+        "elo": 1011,
         "poolVersion": "v2.1"
       },
       {
@@ -2391,7 +2391,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-10-19"
+    "lastRefreshed": "2026-10-20"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
