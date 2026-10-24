@@ -39,10 +39,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "claude-opus-5-5-xhigh",
+        "slug": "claude-opus-5-5-xhigh-default-fallback",
         "model": "Claude Opus 5.5 (Xhigh, Default Fallback)",
         "lab": "Anthropic",
-        "releaseDate": "2026-09-22",
+        "releaseDate": "2026-09",
         "elo": 1829,
         "poolVersion": "v2.1"
       },
@@ -71,26 +71,26 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "claude-fable-5-1-xhigh",
+        "slug": "claude-fable-5-1-xhigh-default-fallback",
         "model": "Claude Fable 5.1 (Xhigh, Default Fallback)",
         "lab": "Anthropic",
-        "releaseDate": "2026-09-01",
+        "releaseDate": "2026-09",
         "elo": 1733,
         "poolVersion": "v2.1"
       },
       {
-        "slug": "claude-sonnet-5-5-xhigh",
+        "slug": "claude-sonnet-5-5-xhigh-default-fallback",
         "model": "Claude Sonnet 5.5 (Xhigh, Default Fallback)",
         "lab": "Anthropic",
-        "releaseDate": "2026-09-28",
+        "releaseDate": "2026-09",
         "elo": 1727,
         "poolVersion": "v2.1"
       },
       {
-        "slug": "claude-opus-5",
+        "slug": "claude-opus-5-max",
         "model": "Claude Opus 5 (Max)",
         "lab": "Anthropic",
-        "releaseDate": "2026-07-24",
+        "releaseDate": "2026-07",
         "elo": 1722,
         "poolVersion": "v2.1"
       },
@@ -106,7 +106,7 @@
         "slug": "grok-4-7-high",
         "model": "Grok 4.7 (High)",
         "lab": "SpaceXAI",
-        "releaseDate": "2026-09-21",
+        "releaseDate": "2026-09",
         "elo": 1707,
         "poolVersion": "v2.1"
       },
@@ -2415,7 +2415,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-10-23"
+    "lastRefreshed": "2026-10-24"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
