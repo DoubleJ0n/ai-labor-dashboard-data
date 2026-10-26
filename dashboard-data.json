@@ -67483,7 +67483,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": "2026-10-19T19:59:50Z",
+    "lastRefreshed": "2026-10-26T19:59:29Z",
     "points": [
       {
         "metricId": "metr",
@@ -68155,6 +68155,114 @@
         "value": 61,
         "sourceUrl": "https://www.morphllm.com/swe-bench-pro",
         "fetchDate": "2026-10-19"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2024-11-01",
+        "label": "GPT-4o (Nov 2024)",
+        "value": 3,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2024-10-01",
+        "label": "Claude 3.5 Sonnet (Oct 2024)",
+        "value": 4,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-04-01",
+        "label": "OpenAI o1 (Apr 2025)",
+        "value": 8,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-08-01",
+        "label": "GPT-5 (Aug 2025)",
+        "value": 25,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-02-03",
+        "label": "Gemini 3 Pro Preview (Feb 2026)",
+        "value": 38,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-10-06",
+        "label": "Gemini 3.1 Pro Preview (Oct 2026)",
+        "value": 46,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2026-10-17",
+        "label": "Claude Fable 5.1 (Oct 2026)",
+        "value": 65,
+        "sourceUrl": "https://benchlm.ai/benchmarks/hle",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-03-01",
+        "label": "Claude Opus 4.5 (Mar 2026)",
+        "value": 46,
+        "sourceUrl": "https://www.morphllm.com/swe-bench-pro",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-03-01",
+        "label": "GPT-5.3 Codex (Mar 2026)",
+        "value": 57,
+        "sourceUrl": "https://www.morphllm.com/swe-bench-pro",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-09-01",
+        "label": "Muse Spark (Sep 2026)",
+        "value": 55,
+        "sourceUrl": "https://www.morphllm.com/swe-bench-pro",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-09-01",
+        "label": "GPT-5.4 (xHigh) (Sep 2026)",
+        "value": 59,
+        "sourceUrl": "https://www.morphllm.com/swe-bench-pro",
+        "fetchDate": "2026-10-26"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-09-22",
+        "label": "Muse Spark 1.1 (Sep 2026)",
+        "value": 62,
+        "sourceUrl": "https://www.morphllm.com/swe-bench-pro",
+        "fetchDate": "2026-10-26"
       }
     ],
     "slots": [
@@ -68162,7 +68270,7 @@
         "slot": "reasoning",
         "benchmarkName": "Humanity's Last Exam (HLE)",
         "sourceUrl": "https://agi.safe.ai/",
-        "fetchDate": "2026-10-19",
+        "fetchDate": "2026-10-26",
         "saturated": false,
         "successorNote": "",
         "note": "Expert-vetted questions across 100+ subjects, deliberately built to resist the saturation that overtook MMLU. Frontier models are near 55-61% against an expert baseline of roughly 90% within specialty, so real headroom and real spread remain. SOURCE PINNED to the official site: a refresh run once replaced this with a Wikipedia article, which is not a score source."
@@ -68171,13 +68279,18 @@
         "slot": "coding",
         "benchmarkName": "SWE-bench Pro",
         "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
-        "fetchDate": "2026-10-19",
+        "fetchDate": "2026-10-26",
         "saturated": false,
         "successorNote": "",
         "note": "Real GitHub issue resolution on PRIVATE codebases that are legally inaccessible to model trainers, so contamination is structurally prevented rather than merely checked for. SOURCE PINNED to Scale's PUBLIC STANDARDIZED leaderboard and not to vendor self-reports: the two disagree by about twenty points (leaders near 60 standardized against 80-90 self-reported), and mixing them would rebuild a pool-roll error one field down. Replaced SWE-bench Verified, which saturated: OpenAI stopped reporting it in early 2026."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-10-26",
+        "foundNew": true,
+        "summary": "+12 points (0 superseded)"
+      },
       {
         "runDate": "2026-10-19",
         "foundNew": true,
