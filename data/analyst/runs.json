@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "description": "Append-only Analyst run history. Every run, nothing overwritten. Reset 2026-07-27; see archive/ for prior runs.",
-  "lastRefreshed": "2026-10-21T19:50:24Z",
+  "lastRefreshed": "2026-10-29T20:48:04Z",
   "runs": [
     {
       "runAt": "2026-07-30T04:19:57Z",
@@ -25312,6 +25312,844 @@
         "totalInputTokens": 63820,
         "totalOutputTokens": 29683,
         "costUsd": 0.636705,
+        "rate": {
+          "input": 3,
+          "output": 15,
+          "intro": false
+        }
+      }
+    },
+    {
+      "runAt": "2026-10-29T20:48:04Z",
+      "dataMonth": "2026-09",
+      "model": "claude-sonnet-5",
+      "effort": "high",
+      "verdict": "AUGMENTATION",
+      "falsifier": {
+        "panel": "reabsorption",
+        "field": "headline.change_over_12_months",
+        "comparator": "at_or_below",
+        "value": -0.1,
+        "unit": "percentage points (12-month change, share of 25-54 population employed)",
+        "also": {
+          "panel": "exposed_vs_control_jobs",
+          "field": "control_value",
+          "comparator": "at_or_above",
+          "value": 0
+        },
+        "by": "2027-01-27",
+        "horizonDays": 90,
+        "scorable": true,
+        "unscorableReason": null
+      },
+      "falsifierPlain": "This reading is overturned if the prime-age employment-population ratio's 12-month change drops to -0.1 points or below while control-industry (construction, leisure/hospitality, education/health) job growth stays at or above zero, meaning people leaving AI-exposed work are no longer landing elsewhere even though the rest of the economy is not in a general downturn.",
+      "falsifierHorizonDays": 90,
+      "publishedNoteCompliance": {
+        "words": 325,
+        "numbers": 8,
+        "lengthBand": "ordinary"
+      },
+      "fullAnalysisStats": {
+        "present": true,
+        "words": 872
+      },
+      "namedConfounder": null,
+      "mechanicalState": "WATCH",
+      "breadth": 1,
+      "gainsVisible": false,
+      "pairedState": {
+        "state": "DISPLACEMENT",
+        "plain": "Jobs are going away",
+        "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+        "attribution": {
+          "z": 2.41,
+          "moving": true,
+          "wideThisMonth": true,
+          "heldForMonths": 3,
+          "label": "gap wide and holding"
+        },
+        "reabsorption": {
+          "employmentFalling": 0,
+          "moving": true,
+          "label": "aggregate deteriorating"
+        },
+        "attributionLineZ": 0,
+        "attributionSustainMonths": 3,
+        "reabsorptionLine": 0,
+        "definitions": {
+          "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+          "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+        },
+        "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement.",
+        "path": [
+          {
+            "month": "2024-09",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 3.6,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.1,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2024-10",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 3.29,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.1,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2024-11",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 3.24,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.3,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2024-12",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 3.03,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-01",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 2.98,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.1,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-02",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 2.52,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.2,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-03",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 2.29,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.3,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-04",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 2.08,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.1,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-05",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 2.03,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.3,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-06",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 1.91,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-07",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 1.7,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.5,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-08",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 1.44,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.2,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-09",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 1.24,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.2,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-11",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 0.96,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.1,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2025-12",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 1.14,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.2,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-01",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 1.84,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.1,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-02",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 1.91,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.2,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-03",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 1.9,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.3,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-04",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 1.94,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-05",
+            "state": "REALLOCATION",
+            "plain": "Jobs are moving, not disappearing",
+            "reading": "AI-exposed work is diverging from the rest of the economy, and the aggregate labour market is absorbing the outflow.",
+            "attribution": {
+              "z": 2.14,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": -0.3,
+              "moving": false,
+              "label": "aggregate holding"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-06",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 2.13,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.5,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-07",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 1.95,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-08",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 2.39,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0.3,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          },
+          {
+            "month": "2026-09",
+            "state": "DISPLACEMENT",
+            "plain": "Jobs are going away",
+            "reading": "AI-exposed work is diverging AND the aggregate is deteriorating, so the outflow is not landing.",
+            "attribution": {
+              "z": 2.41,
+              "moving": true,
+              "wideThisMonth": true,
+              "heldForMonths": 3,
+              "label": "gap wide and holding"
+            },
+            "reabsorption": {
+              "employmentFalling": 0,
+              "moving": true,
+              "label": "aggregate deteriorating"
+            },
+            "attributionLineZ": 0,
+            "attributionSustainMonths": 3,
+            "reabsorptionLine": 0,
+            "definitions": {
+              "widening": "the exposed-minus-control job-growth gap is at least 0 standard deviation further below its 2010-01..2019-12 average, that window fixed and never rolling, AND has been for 3 consecutive readings. The run requirement is the newer half and it is what stops the vertical axis deciding this grid on its own: one month past the line used to establish this axis, the gap has been past the line since 2023, and the result was that the only thing ever changing the quadrant was an economy-wide employment change that an ordinary recession moves",
+              "deteriorating": "the prime-age (25-54) employment-population ratio is LOWER than it was twelve months ago. A change against raw zero, with no baseline, no reference year and no threshold, because those were all the wrong kind of answer here: a level against 2019 anchored the boundary to a cyclical peak and would have read displacement across most of the 2010s, and z-scoring the change against 2010-2019 scored a mature expansion against a decade of recovery. Zero involves no distribution, so nothing can contaminate it."
+            },
+            "lineRationale": "Both axes cross at zero, and zero is a fact about each measure rather than a chosen threshold: the gap sitting at its own 2010s norm, and employment flat year-over-year. Validated before adoption — this never calls the 2014-2019 boom displacement."
+          }
+        ]
+      },
+      "pairedStateAgreesWithVerdict": "diverges",
+      "chainAgreesWithVerdict": "not comparable",
+      "computedDissent": "The analyst read AUGMENTATION from the panels without being shown either mechanical reading, and the four-corner grid places this month at DISPLACEMENT (gap wide and holding, aggregate deteriorating). Recorded, not resolved: these are different routes through the same data, and neither one overrules the other. The grid in particular turns on a single economy-wide series sitting near zero, so a month's disagreement with it is ordinary rather than a mark against either reading.",
+      "falsifierResolution": {
+        "outcome": "NOT_YET_DUE",
+        "reason": "registered this run"
+      },
+      "falsifierRecordAtRun": {
+        "FIRED": 8,
+        "NOT_FIRED": 0,
+        "NOT_YET_DUE": 22,
+        "UNCHECKABLE": 0
+      },
+      "inputHash": "ab83425b353d0a05f82c53d0dcecc24fb92a3f644bcad64a7f2f7dc0b6c4088d",
+      "flippedFromPriorRun": false,
+      "priorRunVerdict": "AUGMENTATION",
+      "panelHeadlines": {
+        "labor_productivity": {
+          "value": 2.2,
+          "date": "2026-06"
+        },
+        "exposed_vs_control_jobs": {
+          "value": -2.79,
+          "date": "2026-09"
+        },
+        "reabsorption": {
+          "value": null,
+          "date": null
+        },
+        "exposed_vs_control_wages": {
+          "value": 0.72,
+          "date": "2026-09"
+        },
+        "individual_wage_growth": {
+          "value": null,
+          "date": "2026-09"
+        },
+        "job_postings_spread": {
+          "value": -29.7,
+          "date": "2026-10"
+        },
+        "worker_share_of_income": {
+          "value": -1,
+          "date": "2026-06"
+        },
+        "ai_adoption": {
+          "value": 23.8,
+          "date": "2026-09"
+        },
+        "ai_use_automation_vs_augmentation": {
+          "value": 43.1,
+          "date": "2025-09-15"
+        },
+        "macro_regime": {
+          "value": 0.4,
+          "date": null
+        },
+        "ai_capability_metr": {
+          "value": 186,
+          "date": "Claude Mythos Preview"
+        },
+        "ai_capability_gdpval_ratings": {
+          "value": 1866,
+          "date": "2026-10"
+        },
+        "ai_capability_vs_human_experts": {
+          "value": 70.9,
+          "date": "2025-12"
+        }
+      },
+      "newsSources": [
+        {
+          "id": "bls_employment_situation",
+          "role": "ground_truth",
+          "status": "fetched",
+          "note": "from pool FRED numbers"
+        },
+        {
+          "id": "ap_jobs_report",
+          "role": "texture",
+          "status": "failed",
+          "note": "HTTP 403"
+        },
+        {
+          "id": "fed_liberty_street",
+          "role": "confounder_depth",
+          "status": "fetched",
+          "note": "1 item(s)"
+        },
+        {
+          "id": "fed_atlanta_macroblog",
+          "role": "confounder_depth",
+          "status": "no_relevant_items",
+          "note": "optional; absence is normal"
+        }
+      ],
+      "passes": {
+        "pass1": {
+          "verdict": "AUGMENTATION",
+          "confidence": "LOW",
+          "confidenceBasis": "Corroborates: reabsorption headline (prime-age EPOP, 12m change = 0.0, 0.75pts above 2019 level) and two JOLTS-based secondary readouts (hires-minus-quits rising, layoffs falling) show no deterioration in absorption. Refutes/weakens: exposed_vs_control_jobs sits past its own alarm line (differential -2.79, 2.41 SD vs fixed baseline) and has held there ~4 months; long-term unemployed share is rising +3.5pts/12m (still below its attention line but the wrong direction). Unmet doubt: three of the four reabsorption readouts that \"hold steady\" (headline, long-term-unemployed share, U6-U3) all come from the same CPS household survey, so their apparent agreement is one measurement reported three times, not three independent checks — I am not treating it as three confirmations. The reading also rests on a flat/quiet headline rather than a clear move, which is thin by construction.",
+          "falsifier": {
+            "panel": "reabsorption",
+            "field": "headline.change_over_12_months",
+            "comparator": "at_or_below",
+            "value": -0.1,
+            "unit": "percentage points (12-month change, share of 25-54 population employed)",
+            "also": {
+              "panel": "exposed_vs_control_jobs",
+              "field": "control_value",
+              "comparator": "at_or_above",
+              "value": 0
+            },
+            "by": "2027-01-27",
+            "horizonDays": 90,
+            "scorable": true,
+            "unscorableReason": null
+          },
+          "falsifierPlain": "This reading is overturned if the prime-age employment-population ratio's 12-month change drops to -0.1 points or below while control-industry (construction, leisure/hospitality, education/health) job growth stays at or above zero, meaning people leaving AI-exposed work are no longer landing elsewhere even though the rest of the economy is not in a general downturn.",
+          "reasoningLog": "POPULATIONS, stated up front: exposed_vs_control_jobs and exposed_vs_control_wages and job_postings_spread are EXPOSED-vs-CONTROL industry/occupation cuts. labor_productivity, worker_share_of_income, individual_wage_growth, ai_adoption, macro_regime, and the BLS payroll/unemployment figures in the news package are ECONOMY-WIDE. reabsorption's headline and long-term-unemployment readout are a CPS cut restricted to ages 25-54 (not quite economy-wide, not exposed-industry either). I've kept these separate throughout and not netted an economy-wide number against an exposed-industry one.\n\n1. exposed_vs_control_jobs (as_of 2026-09, 1mo old). Exposed -1.6% YoY, control +1.19% YoY, differential -2.79. Against the preferred fixed pre-2020 baseline, deviation is 2.41, past the alarm line of 2 (divergence note explicitly says prefer the fixed window here since full-history is contaminated and reads less alarming). Streak: 2 months past alarm, roughly flat over 4 readings — a parked gap, not an accelerating one, which the panel's own threshold text says still counts. This is the strongest attribution-level finding on the dashboard: work specific to AI-exposed industry codes is diverging from control. Inversion: the panel's own caveat is damning to over-reading this — \"Information\" includes publishing/broadcasting/telecom/entertainment, and the 2023 strikes sit inside the period the gap first widened; professional/business services includes staffing, a classic leading indicator for ANY slowdown, unrelated to AI; financial activities includes rate-sensitive real estate/insurance. So a widening-then-parked gap here is also exactly what you'd expect from post-2022 rate sensitivity in white-collar hiring working through a staffing-led downturn, with no AI content at all. I can't resolve that from this panel alone — that's why it's paired with reabsorption per its own weighting rule.\n\n2. reabsorption (as_of 2026-09, 1mo old — same vintage as #1, directly comparable). Headline (25-54 EPOP) 12m change = 0.0, deviation 0.8 (below both attention(1) and alarm(2) lines against the preferred fixed baseline), and the level sits 0.75 points ABOVE its 2019 reference — this is a historically strong labor market level for this group, not a weak one. Per the panel's own binding rule, the headline decides and the four secondaries are context. Secondaries: long-term-unemployed share rising +3.5pts/12m (deviation 0.87, still below attention line, but the only secondary moving the wrong way); hires-minus-quits rising (+0.2, deviation -1.72, i.e. a HEALTHIER-than-normal gap between hiring and quitting); layoffs falling (-0.2, deviation -1.06/-1.22, below norm, i.e. no cyclical shedding); underemployment gap (U6-U3) falling (-0.3, roughly neutral/healthy). Reading the layoffs-vs-hires pair together per the panel's own pairing rule: weak-or-fine hiring alongside LOW (not elevated) layoffs is the \"frozen, burden-on-entrants\" pattern at worst, not a \"cyclical, shedding incumbents\" pattern — and here hiring isn't even weak (hires-minus-quits deviation is strongly on the healthy side). Applying the exposed_vs_control_jobs measurement_artifact's own weighting rule directly: \"if the gap is widening while prime-age employment, long-term unemployment and hiring hold steady, workers are moving rather than being removed.\" Two of the three (employment, hiring) hold steady or improve; the third (long-term unemployment) is drifting the wrong way but hasn't crossed even its own attention line. On balance this reads as reallocation, not destruction — but it is NOT a clean sweep, and I'm not pretending the long-term-unemployment drift isn't there. Inversion: the counter-reading is that long-term unemployment is the leading edge of a slower-moving aggregate statistic — EPOP for a population of ~130 million moves slowly even when a real sectoral shock is occurring, and 3.5 points of LTU share in a year is the part of this panel most likely to be \"right first\" if the headline is about to turn. I weight this as a live caveat, not as something that flips my read today, because it sits below its own attention line and the headline — the panel's designated decider — has not moved.\n\n3. job_postings_spread (as_of 2026-10, freshest panel, 0mo old). Exposed postings -21.7% vs own 2020 baseline, control +8% vs own baseline, spread flat (-0.1 over 6 months). Reading the change, not the level, per the panel's own weighting rule: nothing happened in the last six months — no further opening (which would be fresh displacement-shaped news) and no closing (which would be augmentation/recovery). This is a standing condition the panel's own artifact note attributes mostly to 2022 rate-driven white-collar hiring cuts, predating current AI diffusion. Inversion: a reader could argue persistent -21.7% vs baseline for four years, even flat, is itself evidence of structural (not cyclical) demand destruction in knowledge work that never came back — consistent with displacement having already happened and just not being fresh news. I can't rule that out from a level alone (the panel explicitly forbids reading the level as a current condition), and I'm using it only for its directional contribution: knowledge-work postings are not currently recovering (no augmentation signal) and not currently worsening further either (no acceleration-toward-displacement signal in the last 6 months).\n\n4. exposed_vs_control_wages (as_of 2026-09). Exposed +4.12% vs control +3.4%, differential +0.72, inside its own calm-period range (26 straight in-range readings). Per its own weighting_rule, because exposed employment is FALLING (-1.6% YoY, same figure as panel #1), composition and genuine-pay-growth stories predict the identical observation, so this panel cannot be used as clean support for either verdict. I'm setting it aside as unresolved rather than citing the +0.72 differential as evidence of workers being \"made more valuable,\" which is exactly the trap the prompt warns about on AUGMENTATION claims.\n\n5. individual_wage_growth (as_of 2026-09, economy-wide, composition-immune). Switcher premium 0.9, above its own fixed-baseline mean of 0.61 (deviation -0.72, i.e., healthier than normal by the panel's orientation convention). This doesn't confirm anything exposed-industry-specific (explicitly economy-wide per its own population_caveat), but it does mean the nationwide check on panel #4 doesn't show switchers being paid WORSE than usual, which is what you'd expect if exposed-industry pay gains were pure composition-plus-devaluation. I'm using this narrowly: it fails to contradict a benign reading of #4, it doesn't prove #4.\n\n6. labor_productivity (as_of 2026-06, 4 months old — a full quarter stale relative to the September panels, flagged). 2.2% YoY, down from 2.9%, one quarter below the 2.7 \"boom\" floor, but still comfortably above its 1.27 fixed-baseline mean (z≈0.83). Economy-wide GAINS_TEST only; I'm not using this as attribution evidence for or against exposed industries. It neither confirms gains are showing up strongly nor shows them collapsing — genuinely quiet, noted and set aside.\n\n7. worker_share_of_income (as_of 2026-06, 4 months stale). -1pt over 4 quarters, continuing a 40+ year secular decline, in the fastest 8% of historical declines but the panel's own threshold text says ordinary recessions (2009, 2010) produced faster drops with nothing to do with AI. Economy-wide, no threshold by design. Noted as a structural backdrop, not evidence either way.\n\n8. ai_adoption: rising 17.3%→23.8% over 11 months, concentrated in larger firms (size gradient 1.53x). This only establishes that an AI explanation is available (deployment exists and is growing, more so among large employers where more workers sit) — per its own panel_role_note this removes an objection, it doesn't supply a reason. Not used as directional support.\n\n9. ai_use_automation_vs_augmentation, ai_capability_metr, ai_capability_gdpval_ratings, ai_capability_vs_human_experts: all either explicitly does_not_contribute or DESCRIPTIVE-and-stale (13 and 10 months old respectively for the two capability-with-context panels). Read for context — GDPval shows meaningful capability gains to Dec 2025, METR shows frontier horizons far below the 2400-min \"40-hour\" reference bar — but none of this is an event in anyone's employment, and I'm not letting a capability trend stand in for a labor outcome.\n\n10. macro_regime (as_of 2026-10, fresh). Yield curve not inverted (+0.4), real yield 2.6%, inflation expectations 2.4% — bond markets are not pricing an ordinary recession. Per the panel's own role, this can name but not clear a cyclical confounder, and it's forward-looking so it can't exculpate weakness already in the data. I used it only to generate the cyclical hypothesis, then ran the contemporaneous test properly on the control industries themselves: control employment is +1.19% YoY in panel #1 — growing, not weak — which is the actual test the prompt requires, and it argues against \"this is just a general slump\" dragging exposed industries down. That supports attribution specificity (something real is happening to exposed work) without telling me whether it's reallocation or destruction — which is exactly why I went to reabsorption next rather than stopping here.\n\nNEWS: BLS ground truth (economy-wide, CES, through 2026-09): payrolls +29k (weak but positive), unemployment 4.2%. This is a different population and survey from the reabsorption headline's CPS prime-age cut (flagged explicitly per the reabsorption panel's own caveat not to net CES and CPS figures against each other), but directionally it's consistent with \"no broad collapse,\" which doesn't contradict my read. NY Fed Liberty Street piece on small-business AI adoption and employment expectations: this is self-reported employer intention data, and the prompt's own incentive framing cuts both ways here — a small business might report AI-driven headcount plans to look forward-leaning, or might avoid attributing planned cuts to AI to dodge scrutiny. No figures were provided in the payload from this piece to test against any series, so I'm setting it aside as a hypothesis-generator rather than evidence: it would be worth checking against ai_adoption's by-firm-size gradient and against exposed_vs_control_jobs in a future run if figures become available, but right now it supplies no numbers I can weigh.\n\nREJECTED: CONFOUNDED. I considered naming the 2022-origin rate-sensitivity story (staffing/financial activities inside \"exposed,\" construction/leisure inside \"control\" being rate- and immigration-sensitive from the other side) as a competing cause. It's real and I used it to weaken my confidence in panel #1's attribution, but I couldn't find a currently-live, dashboard-supported trigger for it: macro_regime shows real yields and curve shape that are not unusually recession-coded right now, and control industries are growing, not weak, which is the opposite of what a live rate-driven general slowdown would produce in the control leg. Without a named series showing the competing cause actively worsening right now, CONFOUNDED isn't earned here — this stays a directional call.\n\nWHY AUGMENTATION OVER DISPLACEMENT, EXPLICITLY: this is \"displacement not started,\" not \"augmentation working.\" I have no positive evidence that exposed workers are being made more valuable — the one series that would show that (exposed_vs_control_wages) is compromised by falling exposed employment per its own composition rule, and I've declined to lean on it. What I have is a real, attribution-specific slowdown in AI-exposed industries (panel #1) that, when checked against the panel designed to separate reallocation from destruction (panel #2), shows a labor market that is absorbing the outflow on its decisive metric (flat headline, healthy hiring/layoffs) with one metric (long-term unemployment share) drifting the wrong way but not yet alarming. Forced to choose a side, the evidence points to reallocation over destruction, which I'm recording as AUGMENTATION per the binary while stating plainly that this is an absence-of-deterioration finding, not a value-creation finding.",
+          "raw": "VERDICT: AUGMENTATION\nCONFIDENCE: LOW\nCONFIDENCE_BASIS: Corroborates: reabsorption headline (prime-age EPOP, 12m change = 0.0, 0.75pts above 2019 level) and two JOLTS-based secondary readouts (hires-minus-quits rising, layoffs falling) show no deterioration in absorption. Refutes/weakens: exposed_vs_control_jobs sits past its own alarm line (differential -2.79, 2.41 SD vs fixed baseline) and has held there ~4 months; long-term unemployed share is rising +3.5pts/12m (still below its attention line but the wrong direction). Unmet doubt: three of the four reabsorption readouts that \"hold steady\" (headline, long-term-unemployed share, U6-U3) all come from the same CPS household survey, so their apparent agreement is one measurement reported three times, not three independent checks — I am not treating it as three confirmations. The reading also rests on a flat/quiet headline rather than a clear move, which is thin by construction.\nLOAD_BEARING_PANELS: reabsorption, exposed_vs_control_jobs, job_postings_spread\nCONFOUNDER: NONE\nOVERTURN_PANEL: reabsorption\nOVERTURN_FIELD: headline.change_over_12_months\nOVERTURN_COMPARATOR: at_or_below\nOVERTURN_VALUE: -0.1\nOVERTURN_UNIT: percentage points (12-month change, share of 25-54 population employed)\nOVERTURN_ALSO_PANEL: exposed_vs_control_jobs\nOVERTURN_ALSO_FIELD: control_value\nOVERTURN_ALSO_COMPARATOR: at_or_above\nOVERTURN_ALSO_VALUE: 0\nOVERTURN_ALSO_VALUE: 0\nOVERTURN_BY: 2027-01-27\nOVERTURN_PLAIN: This reading is overturned if the prime-age employment-population ratio's 12-month change drops to -0.1 points or below while control-industry (construction, leisure/hospitality, education/health) job growth stays at or above zero, meaning people leaving AI-exposed work are no longer landing elsewhere even though the rest of the economy is not in a general downturn.\nREASONING_LOG:\n\nPOPULATIONS, stated up front: exposed_vs_control_jobs and exposed_vs_control_wages and job_postings_spread are EXPOSED-vs-CONTROL industry/occupation cuts. labor_productivity, worker_share_of_income, individual_wage_growth, ai_adoption, macro_regime, and the BLS payroll/unemployment figures in the news package are ECONOMY-WIDE. reabsorption's headline and long-term-unemployment readout are a CPS cut restricted to ages 25-54 (not quite economy-wide, not exposed-industry either). I've kept these separate throughout and not netted an economy-wide number against an exposed-industry one.\n\n1. exposed_vs_control_jobs (as_of 2026-09, 1mo old). Exposed -1.6% YoY, control +1.19% YoY, differential -2.79. Against the preferred fixed pre-2020 baseline, deviation is 2.41, past the alarm line of 2 (divergence note explicitly says prefer the fixed window here since full-history is contaminated and reads less alarming). Streak: 2 months past alarm, roughly flat over 4 readings — a parked gap, not an accelerating one, which the panel's own threshold text says still counts. This is the strongest attribution-level finding on the dashboard: work specific to AI-exposed industry codes is diverging from control. Inversion: the panel's own caveat is damning to over-reading this — \"Information\" includes publishing/broadcasting/telecom/entertainment, and the 2023 strikes sit inside the period the gap first widened; professional/business services includes staffing, a classic leading indicator for ANY slowdown, unrelated to AI; financial activities includes rate-sensitive real estate/insurance. So a widening-then-parked gap here is also exactly what you'd expect from post-2022 rate sensitivity in white-collar hiring working through a staffing-led downturn, with no AI content at all. I can't resolve that from this panel alone — that's why it's paired with reabsorption per its own weighting rule.\n\n2. reabsorption (as_of 2026-09, 1mo old — same vintage as #1, directly comparable). Headline (25-54 EPOP) 12m change = 0.0, deviation 0.8 (below both attention(1) and alarm(2) lines against the preferred fixed baseline), and the level sits 0.75 points ABOVE its 2019 reference — this is a historically strong labor market level for this group, not a weak one. Per the panel's own binding rule, the headline decides and the four secondaries are context. Secondaries: long-term-unemployed share rising +3.5pts/12m (deviation 0.87, still below attention line, but the only secondary moving the wrong way); hires-minus-quits rising (+0.2, deviation -1.72, i.e. a HEALTHIER-than-normal gap between hiring and quitting); layoffs falling (-0.2, deviation -1.06/-1.22, below norm, i.e. no cyclical shedding); underemployment gap (U6-U3) falling (-0.3, roughly neutral/healthy). Reading the layoffs-vs-hires pair together per the panel's own pairing rule: weak-or-fine hiring alongside LOW (not elevated) layoffs is the \"frozen, burden-on-entrants\" pattern at worst, not a \"cyclical, shedding incumbents\" pattern — and here hiring isn't even weak (hires-minus-quits deviation is strongly on the healthy side). Applying the exposed_vs_control_jobs measurement_artifact's own weighting rule directly: \"if the gap is widening while prime-age employment, long-term unemployment and hiring hold steady, workers are moving rather than being removed.\" Two of the three (employment, hiring) hold steady or improve; the third (long-term unemployment) is drifting the wrong way but hasn't crossed even its own attention line. On balance this reads as reallocation, not destruction — but it is NOT a clean sweep, and I'm not pretending the long-term-unemployment drift isn't there. Inversion: the counter-reading is that long-term unemployment is the leading edge of a slower-moving aggregate statistic — EPOP for a population of ~130 million moves slowly even when a real sectoral shock is occurring, and 3.5 points of LTU share in a year is the part of this panel most likely to be \"right first\" if the headline is about to turn. I weight this as a live caveat, not as something that flips my read today, because it sits below its own attention line and the headline — the panel's designated decider — has not moved.\n\n3. job_postings_spread (as_of 2026-10, freshest panel, 0mo old). Exposed postings -21.7% vs own 2020 baseline, control +8% vs own baseline, spread flat (-0.1 over 6 months). Reading the change, not the level, per the panel's own weighting rule: nothing happened in the last six months — no further opening (which would be fresh displacement-shaped news) and no closing (which would be augmentation/recovery). This is a standing condition the panel's own artifact note attributes mostly to 2022 rate-driven white-collar hiring cuts, predating current AI diffusion. Inversion: a reader could argue persistent -21.7% vs baseline for four years, even flat, is itself evidence of structural (not cyclical) demand destruction in knowledge work that never came back — consistent with displacement having already happened and just not being fresh news. I can't rule that out from a level alone (the panel explicitly forbids reading the level as a current condition), and I'm using it only for its directional contribution: knowledge-work postings are not currently recovering (no augmentation signal) and not currently worsening further either (no acceleration-toward-displacement signal in the last 6 months).\n\n4. exposed_vs_control_wages (as_of 2026-09). Exposed +4.12% vs control +3.4%, differential +0.72, inside its own calm-period range (26 straight in-range readings). Per its own weighting_rule, because exposed employment is FALLING (-1.6% YoY, same figure as panel #1), composition and genuine-pay-growth stories predict the identical observation, so this panel cannot be used as clean support for either verdict. I'm setting it aside as unresolved rather than citing the +0.72 differential as evidence of workers being \"made more valuable,\" which is exactly the trap the prompt warns about on AUGMENTATION claims.\n\n5. individual_wage_growth (as_of 2026-09, economy-wide, composition-immune). Switcher premium 0.9, above its own fixed-baseline mean of 0.61 (deviation -0.72, i.e., healthier than normal by the panel's orientation convention). This doesn't confirm anything exposed-industry-specific (explicitly economy-wide per its own population_caveat), but it does mean the nationwide check on panel #4 doesn't show switchers being paid WORSE than usual, which is what you'd expect if exposed-industry pay gains were pure composition-plus-devaluation. I'm using this narrowly: it fails to contradict a benign reading of #4, it doesn't prove #4.\n\n6. labor_productivity (as_of 2026-06, 4 months old — a full quarter stale relative to the September panels, flagged). 2.2% YoY, down from 2.9%, one quarter below the 2.7 \"boom\" floor, but still comfortably above its 1.27 fixed-baseline mean (z≈0.83). Economy-wide GAINS_TEST only; I'm not using this as attribution evidence for or against exposed industries. It neither confirms gains are showing up strongly nor shows them collapsing — genuinely quiet, noted and set aside.\n\n7. worker_share_of_income (as_of 2026-06, 4 months stale). -1pt over 4 quarters, continuing a 40+ year secular decline, in the fastest 8% of historical declines but the panel's own threshold text says ordinary recessions (2009, 2010) produced faster drops with nothing to do with AI. Economy-wide, no threshold by design. Noted as a structural backdrop, not evidence either way.\n\n8. ai_adoption: rising 17.3%→23.8% over 11 months, concentrated in larger firms (size gradient 1.53x). This only establishes that an AI explanation is available (deployment exists and is growing, more so among large employers where more workers sit) — per its own panel_role_note this removes an objection, it doesn't supply a reason. Not used as directional support.\n\n9. ai_use_automation_vs_augmentation, ai_capability_metr, ai_capability_gdpval_ratings, ai_capability_vs_human_experts: all either explicitly does_not_contribute or DESCRIPTIVE-and-stale (13 and 10 months old respectively for the two capability-with-context panels). Read for context — GDPval shows meaningful capability gains to Dec 2025, METR shows frontier horizons far below the 2400-min \"40-hour\" reference bar — but none of this is an event in anyone's employment, and I'm not letting a capability trend stand in for a labor outcome.\n\n10. macro_regime (as_of 2026-10, fresh). Yield curve not inverted (+0.4), real yield 2.6%, inflation expectations 2.4% — bond markets are not pricing an ordinary recession. Per the panel's own role, this can name but not clear a cyclical confounder, and it's forward-looking so it can't exculpate weakness already in the data. I used it only to generate the cyclical hypothesis, then ran the contemporaneous test properly on the control industries themselves: control employment is +1.19% YoY in panel #1 — growing, not weak — which is the actual test the prompt requires, and it argues against \"this is just a general slump\" dragging exposed industries down. That supports attribution specificity (something real is happening to exposed work) without telling me whether it's reallocation or destruction — which is exactly why I went to reabsorption next rather than stopping here.\n\nNEWS: BLS ground truth (economy-wide, CES, through 2026-09): payrolls +29k (weak but positive), unemployment 4.2%. This is a different population and survey from the reabsorption headline's CPS prime-age cut (flagged explicitly per the reabsorption panel's own caveat not to net CES and CPS figures against each other), but directionally it's consistent with \"no broad collapse,\" which doesn't contradict my read. NY Fed Liberty Street piece on small-business AI adoption and employment expectations: this is self-reported employer intention data, and the prompt's own incentive framing cuts both ways here — a small business might report AI-driven headcount plans to look forward-leaning, or might avoid attributing planned cuts to AI to dodge scrutiny. No figures were provided in the payload from this piece to test against any series, so I'm setting it aside as a hypothesis-generator rather than evidence: it would be worth checking against ai_adoption's by-firm-size gradient and against exposed_vs_control_jobs in a future run if figures become available, but right now it supplies no numbers I can weigh.\n\nREJECTED: CONFOUNDED. I considered naming the 2022-origin rate-sensitivity story (staffing/financial activities inside \"exposed,\" construction/leisure inside \"control\" being rate- and immigration-sensitive from the other side) as a competing cause. It's real and I used it to weaken my confidence in panel #1's attribution, but I couldn't find a currently-live, dashboard-supported trigger for it: macro_regime shows real yields and curve shape that are not unusually recession-coded right now, and control industries are growing, not weak, which is the opposite of what a live rate-driven general slowdown would produce in the control leg. Without a named series showing the competing cause actively worsening right now, CONFOUNDED isn't earned here — this stays a directional call.\n\nWHY AUGMENTATION OVER DISPLACEMENT, EXPLICITLY: this is \"displacement not started,\" not \"augmentation working.\" I have no positive evidence that exposed workers are being made more valuable — the one series that would show that (exposed_vs_control_wages) is compromised by falling exposed employment per its own composition rule, and I've declined to lean on it. What I have is a real, attribution-specific slowdown in AI-exposed industries (panel #1) that, when checked against the panel designed to separate reallocation from destruction (panel #2), shows a labor market that is absorbing the outflow on its decisive metric (flat headline, healthy hiring/layoffs) with one metric (long-term unemployment share) drifting the wrong way but not yet alarming. Forced to choose a side, the evidence points to reallocation over destruction, which I'm recording as AUGMENTATION per the binary while stating plainly that this is an absence-of-deterioration finding, not a value-creation finding."
+        },
+        "pass2": {
+          "tagLine": "Parked gap, verdict holds",
+          "notificationLine": "AI-exposed job postings gap narrows slightly to -29.7%; augmentation reading holds this month.",
+          "publishedNote": "The reading stays on the augmentation side: people leaving AI-exposed industries appear to be finding work elsewhere rather than falling out of the labor force. This rests on the absence of deterioration, not on any evidence that AI is making these workers more productive or better paid — no chart here shows that happening.\n\nWhat's new: almost nothing. Only one panel moved. The gap between job postings in AI-heavy industries and in control industries (construction, leisure, education and health) narrowed slightly, from 30.1 points below its 2020 level to 29.7 points below — a small easing, not a turnaround. Postings for AI-exposed work remain deeply depressed against that baseline. Every other panel read exactly as it did last month.\n\nStrongest support: the employment rate for workers aged 25 to 54 — a different, broader population than the industry figures below — has not fallen over the past year and sits about three quarters of a point above its pre-pandemic level, a historically strong position. Hiring is running ahead of quits, and layoffs are below normal. If displaced workers were failing to find new jobs, this is where it would show first, and it has not.\n\nStrongest against: employment in AI-exposed industries fell 1.6% over the past year while employment in control industries grew 1.19% — industries that are growing, not slumping, which argues against a general downturn explaining this away. That gap crossed into alarm territory two months ago and has stayed there since, neither closing nor worsening further. Separately, within the reabsorption data, the share of unemployed workers out of work long-term has risen 3.5 points over the past year. It hasn't crossed its own alarm line yet, but it is the one number moving the wrong way, and it is the most likely candidate to be first to signal a genuine turn if one is coming.\n\nWhat to watch: the prime-age employment rate and the long-term unemployment share, both in the reabsorption chart.",
+          "fullAnalysis": "The reading stays on the augmentation side of the ledger this month: the evidence suggests that people leaving AI-exposed industries are landing in other jobs rather than falling out of work altogether. It is important to be precise about what kind of finding this is. There is no chart here showing exposed workers earning more, producing more, or otherwise being made more valuable by AI tools — the one series that could show that is compromised (see below) and has been set aside rather than used as support. What holds up the augmentation reading is an absence of deterioration: the places where failure to reabsorb displaced workers would show up are not showing it.\n\nWhat changed since last month: almost nothing. Of the dozen panels tracked here, only one moved at all. The gap between job postings in AI-heavy industries and postings in control industries (construction, leisure and hospitality, education and health) narrowed from 30.1 percentage points below its 2020 level to 29.7 points below — a small easing, not a reversal. Postings for AI-exposed work remain deeply depressed against where they stood before the pandemic, and have moved only marginally in either direction over the past six months. Every other panel read exactly as it did a month ago.\n\nThe strongest support for the augmentation reading comes from the employment rate for workers aged 25 to 54 — a population wide enough to catch a broad failure to reabsorb displaced workers, though it is not the same population as the industry-specific figures discussed below, and the two should not be read as describing the same group. That employment rate has not fallen at all over the past year, and it currently sits about three quarters of a point above its pre-pandemic reference level — a historically strong position, not a weak one. Within the same data, hiring is running comfortably ahead of quits, and layoffs are below their normal run rate. Taken together, this is the signature of a labor market absorbing an outflow, not shedding workers into unemployment. If displacement were underway at scale, this is the chart where it would surface first, and for now it has not.\n\nThe strongest evidence against the reading sits one layer down in the industry-specific numbers. Employment in AI-exposed industries fell 1.6% over the past year, while employment in the control industries grew 1.19% over the same period — a real, industry-specific divergence rather than a general slowdown, since the comparison group is expanding, not shrinking. This gap widened enough two months ago to cross the threshold the dashboard treats as worth worrying about, and it has stayed past that line since, without closing. That matters: a gap that opens and then parks, rather than closing, is exactly the kind of residual that a clean augmentation story should not leave behind. One honest alternative explanation is that this divergence has nothing to do with AI at all — it could reflect a 2022-era, rate-driven pullback in white-collar hiring (staffing firms, finance, real estate) working through a cycle unrelated to AI deployment. That explanation was considered and set aside for now, because the specific test for it — whether the control industries are also weak, which a general slowdown would produce — comes back negative: control-industry employment is growing, not shrinking, and bond markets are not currently pricing in a broad downturn. But the explanation isn't disproven either, and the parked gap itself is not explained away by this.\n\nThere is a second piece of the reabsorption data working against the augmentation reading that deserves the same weight as the support above rather than a footnote: the share of unemployed workers who have been out of work long-term has risen by 3.5 percentage points over the past year. It has not yet crossed the level the dashboard treats as alarming, and the headline employment-rate figure — the metric this panel is built to decide on — has not moved. But this is the one indicator in the whole picture currently drifting in the wrong direction, and because the overall employment rate for a population this large moves slowly even when something real is happening underneath it, a rising long-term-unemployment share is a plausible candidate for the first clean signal of a turn, if one is coming.\n\nTwo other panels were checked and deliberately not used as evidence either way. Pay growth in AI-exposed industries is running faster than in control industries, but because exposed-industry employment is simultaneously falling, that faster pay growth is equally consistent with genuine wage gains and with a shrinking, more senior workforce pulling the average up — the panel cannot distinguish the two, so it isn't being counted as support for augmentation here. Productivity growth and the labor share of national income are both economy-wide figures running a full quarter stale relative to the other panels this month, and neither moved enough, nor arrived fresh enough, to bear on this month's call.\n\nWhat to watch: the employment rate and the long-term unemployment share for prime-age workers, both in the reabsorption chart — a renewed drop in the first, or a continued climb in the second past its own alarm line, is what would turn this reading from reallocation toward displacement.",
+          "raw": "NOTIFICATION: AI-exposed job postings gap narrows slightly to -29.7%; augmentation reading holds this month.\n\nTAGLINE: Parked gap, verdict holds\n\nFULL_ANALYSIS:\nThe reading stays on the augmentation side of the ledger this month: the evidence suggests that people leaving AI-exposed industries are landing in other jobs rather than falling out of work altogether. It is important to be precise about what kind of finding this is. There is no chart here showing exposed workers earning more, producing more, or otherwise being made more valuable by AI tools — the one series that could show that is compromised (see below) and has been set aside rather than used as support. What holds up the augmentation reading is an absence of deterioration: the places where failure to reabsorb displaced workers would show up are not showing it.\n\nWhat changed since last month: almost nothing. Of the dozen panels tracked here, only one moved at all. The gap between job postings in AI-heavy industries and postings in control industries (construction, leisure and hospitality, education and health) narrowed from 30.1 percentage points below its 2020 level to 29.7 points below — a small easing, not a reversal. Postings for AI-exposed work remain deeply depressed against where they stood before the pandemic, and have moved only marginally in either direction over the past six months. Every other panel read exactly as it did a month ago.\n\nThe strongest support for the augmentation reading comes from the employment rate for workers aged 25 to 54 — a population wide enough to catch a broad failure to reabsorb displaced workers, though it is not the same population as the industry-specific figures discussed below, and the two should not be read as describing the same group. That employment rate has not fallen at all over the past year, and it currently sits about three quarters of a point above its pre-pandemic reference level — a historically strong position, not a weak one. Within the same data, hiring is running comfortably ahead of quits, and layoffs are below their normal run rate. Taken together, this is the signature of a labor market absorbing an outflow, not shedding workers into unemployment. If displacement were underway at scale, this is the chart where it would surface first, and for now it has not.\n\nThe strongest evidence against the reading sits one layer down in the industry-specific numbers. Employment in AI-exposed industries fell 1.6% over the past year, while employment in the control industries grew 1.19% over the same period — a real, industry-specific divergence rather than a general slowdown, since the comparison group is expanding, not shrinking. This gap widened enough two months ago to cross the threshold the dashboard treats as worth worrying about, and it has stayed past that line since, without closing. That matters: a gap that opens and then parks, rather than closing, is exactly the kind of residual that a clean augmentation story should not leave behind. One honest alternative explanation is that this divergence has nothing to do with AI at all — it could reflect a 2022-era, rate-driven pullback in white-collar hiring (staffing firms, finance, real estate) working through a cycle unrelated to AI deployment. That explanation was considered and set aside for now, because the specific test for it — whether the control industries are also weak, which a general slowdown would produce — comes back negative: control-industry employment is growing, not shrinking, and bond markets are not currently pricing in a broad downturn. But the explanation isn't disproven either, and the parked gap itself is not explained away by this.\n\nThere is a second piece of the reabsorption data working against the augmentation reading that deserves the same weight as the support above rather than a footnote: the share of unemployed workers who have been out of work long-term has risen by 3.5 percentage points over the past year. It has not yet crossed the level the dashboard treats as alarming, and the headline employment-rate figure — the metric this panel is built to decide on — has not moved. But this is the one indicator in the whole picture currently drifting in the wrong direction, and because the overall employment rate for a population this large moves slowly even when something real is happening underneath it, a rising long-term-unemployment share is a plausible candidate for the first clean signal of a turn, if one is coming.\n\nTwo other panels were checked and deliberately not used as evidence either way. Pay growth in AI-exposed industries is running faster than in control industries, but because exposed-industry employment is simultaneously falling, that faster pay growth is equally consistent with genuine wage gains and with a shrinking, more senior workforce pulling the average up — the panel cannot distinguish the two, so it isn't being counted as support for augmentation here. Productivity growth and the labor share of national income are both economy-wide figures running a full quarter stale relative to the other panels this month, and neither moved enough, nor arrived fresh enough, to bear on this month's call.\n\nWhat to watch: the employment rate and the long-term unemployment share for prime-age workers, both in the reabsorption chart — a renewed drop in the first, or a continued climb in the second past its own alarm line, is what would turn this reading from reallocation toward displacement.\n\nPUBLISHED_NOTE:\nThe reading stays on the augmentation side: people leaving AI-exposed industries appear to be finding work elsewhere rather than falling out of the labor force. This rests on the absence of deterioration, not on any evidence that AI is making these workers more productive or better paid — no chart here shows that happening.\n\nWhat's new: almost nothing. Only one panel moved. The gap between job postings in AI-heavy industries and in control industries (construction, leisure, education and health) narrowed slightly, from 30.1 points below its 2020 level to 29.7 points below — a small easing, not a turnaround. Postings for AI-exposed work remain deeply depressed against that baseline. Every other panel read exactly as it did last month.\n\nStrongest support: the employment rate for workers aged 25 to 54 — a different, broader population than the industry figures below — has not fallen over the past year and sits about three quarters of a point above its pre-pandemic level, a historically strong position. Hiring is running ahead of quits, and layoffs are below normal. If displaced workers were failing to find new jobs, this is where it would show first, and it has not.\n\nStrongest against: employment in AI-exposed industries fell 1.6% over the past year while employment in control industries grew 1.19% — industries that are growing, not slumping, which argues against a general downturn explaining this away. That gap crossed into alarm territory two months ago and has stayed there since, neither closing nor worsening further. Separately, within the reabsorption data, the share of unemployed workers out of work long-term has risen 3.5 points over the past year. It hasn't crossed its own alarm line yet, but it is the one number moving the wrong way, and it is the most likely candidate to be first to signal a genuine turn if one is coming.\n\nWhat to watch: the prime-age employment rate and the long-term unemployment share, both in the reabsorption chart."
+        }
+      },
+      "usage": {
+        "pass1": {
+          "inputTokens": 43867,
+          "outputTokens": 19911
+        },
+        "pass2": {
+          "inputTokens": 19420,
+          "outputTokens": 4760
+        },
+        "totalInputTokens": 63287,
+        "totalOutputTokens": 24671,
+        "costUsd": 0.559926,
         "rate": {
           "input": 3,
           "output": 15,
