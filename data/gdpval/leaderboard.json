@@ -187,7 +187,7 @@
         "model": "GLM-5.3-Flash",
         "lab": "Z AI",
         "releaseDate": "2026-08",
-        "elo": 1650,
+        "elo": 1649,
         "poolVersion": "v2.1"
       },
       {
@@ -547,7 +547,7 @@
         "model": "DeepSeek V4 Pro 0813 (Max)",
         "lab": "DeepSeek",
         "releaseDate": "2026-08",
-        "elo": 1458,
+        "elo": 1457,
         "poolVersion": "v2.1"
       },
       {
@@ -583,10 +583,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "mistral-large-4",
+        "slug": "mistral-large-4-preview",
         "model": "Mistral Large 4 Preview",
         "lab": "Mistral",
-        "releaseDate": "2026-10-06",
+        "releaseDate": "2026-10",
         "elo": 1434,
         "poolVersion": "v2.1"
       },
@@ -2471,7 +2471,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-10-28"
+    "lastRefreshed": "2026-10-29"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
