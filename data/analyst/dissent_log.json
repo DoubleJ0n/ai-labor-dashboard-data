@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "description": "Append-only Analyst timeline. Reset 2026-07-27 when the baseline, the reabsorption axis and the falsifier format all changed; earlier entries were scored against a rolling baseline and are not comparable. Archived under archive/.",
-  "lastRefreshed": "2026-11-03T21:26:43Z",
+  "lastRefreshed": "2026-11-04T21:42:52Z",
   "entries": [
     {
       "date": "2026-06",
@@ -3655,6 +3655,122 @@
       "pairedStateAgreesWithVerdict": "agrees",
       "chainAgreesWithVerdict": "not comparable",
       "inputsFingerprint": "dfb7f67eb7eb49c04d5d04e7d9afda6e29f1bca9c4ddce9a422e867f39cfcf20",
+      "keyNumbers": {
+        "jobsDiffPp": -2.791943943407027,
+        "wagesDiffPp": 0.719592411484864
+      },
+      "panelHeadlines": {
+        "labor_productivity": {
+          "value": 2.2,
+          "date": "2026-06"
+        },
+        "exposed_vs_control_jobs": {
+          "value": -2.79,
+          "date": "2026-09"
+        },
+        "reabsorption": {
+          "value": null,
+          "date": null
+        },
+        "exposed_vs_control_wages": {
+          "value": 0.72,
+          "date": "2026-09"
+        },
+        "individual_wage_growth": {
+          "value": null,
+          "date": "2026-09"
+        },
+        "job_postings_spread": {
+          "value": -29.7,
+          "date": "2026-10"
+        },
+        "worker_share_of_income": {
+          "value": -1,
+          "date": "2026-06"
+        },
+        "ai_adoption": {
+          "value": 23.8,
+          "date": "2026-09"
+        },
+        "ai_use_automation_vs_augmentation": {
+          "value": 43.1,
+          "date": "2025-09-15"
+        },
+        "macro_regime": {
+          "value": 0.3,
+          "date": null
+        },
+        "ai_capability_metr": {
+          "value": 186,
+          "date": "Claude Mythos Preview"
+        },
+        "ai_capability_gdpval_ratings": {
+          "value": 1866,
+          "date": "2026-11"
+        },
+        "ai_capability_vs_human_experts": {
+          "value": 70.9,
+          "date": "2025-12"
+        }
+      }
+    },
+    {
+      "date": "2026-09",
+      "runAt": "2026-11-04T21:42:52Z",
+      "loadBearingPanels": [
+        "exposed_vs_control_jobs",
+        "reabsorption",
+        "job_postings_spread"
+      ],
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "confidenceBasis": "Corroborating: reabsorption headline (prime-age EPOP, 25-54, 2026-09) is flat at 0.0 over 12 months, below its own 1-SD deterioration line of roughly -0.10, and layoffs (JTSLDR) are low and falling, not elevated — a frozen-hiring pattern rather than a shedding one. Refuting/weak spots: exposed_vs_control_jobs sits past its own alarm trigger (-2.79 vs -2.48) and the attribution z-score has re-accelerated from 0.96 (2025-11) to 2.41 (2026-09), which is not simply residual from the 2023 media strikes; long-term unemployed share is up 3.5pts in 12 months (deviation 0.87, just under the 1.0 attention line) and hires-minus-quits is softening — the two named readouts the reabsorption rule itself treats as context, not decisive, but worth flagging as the nearest things to a counter-signal. Unmet doubt: job_postings_spread, the earliest-moving panel here, shows no recovery — exposed postings are still 21.6% below their own Feb-2020 level against control at +8.1% above, and the spread has been flat for six months. A leading indicator sitting this depressed with no upturn is the reason I will not go above LOW: if postings lead, their continued weakness could presage a reabsorption deterioration that the lagging household-survey headline has not shown yet.",
+      "tagLine": "Flat data, flipped verdict",
+      "notificationLine": "Call flips to augmentation on unchanged September data; no panel actually moved.",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "falsifier": {
+        "panel": "reabsorption",
+        "field": "headline.change_over_12_months",
+        "comparator": "at_or_below",
+        "value": -0.6,
+        "unit": "percentage points (12-month change in 25-54 employment-population ratio)",
+        "also": {
+          "panel": "exposed_vs_control_jobs",
+          "field": "differential_exposed_minus_control",
+          "comparator": "at_or_below",
+          "value": -2.48
+        },
+        "by": "2027-02-02",
+        "horizonDays": 90,
+        "scorable": true,
+        "unscorableReason": null
+      },
+      "falsifierPlain": "This reading is overturned if the prime-age employment-population ratio's 12-month change (reabsorption headline) falls to -0.6 points or below while the exposed-minus-control jobs gap stays at or beyond -2.48, showing exposed-sector leavers are no longer landing elsewhere.",
+      "dissent": "The analyst read AUGMENTATION from the panels without being shown either mechanical reading, and the four-corner grid places this month at DISPLACEMENT (gap wide and holding, aggregate deteriorating). Recorded, not resolved: these are different routes through the same data, and neither one overrules the other. The grid in particular turns on a single economy-wide series sitting near zero, so a month's disagreement with it is ordinary rather than a mark against either reading.",
+      "analysis": "The reading this month is augmentation, but only in the thin sense that no destruction has shown up yet in the data — not that AI is visibly making exposed workers more productive or better paid. That distinction matters because the case rests entirely on an absence: nothing bad is clearly happening, rather than something good being clearly measured.\n\nThe real news this month has nothing to do with any number moving. No panel in this dashboard changed since the last read of this same September data, and that previous read, on the identical figures, called displacement. The flip rests on one measure that sits right on a dividing line: the prime-age (25 to 54) employment-population ratio was flat over the past twelve months, at 0.0 percent change. Last time, flat was read as recovery stalling out. This time, flat is read as damage not spreading further, especially since the level itself sits comfortably above its pre-pandemic benchmark. Nothing in the underlying economy changed between those two reads. The judgment about how to weigh a flat number did.\n\nThe strongest thing supporting the augmentation reading is that the industries outside the AI-exposed group are still healthy: jobs there are growing 1.19% over the past year, versus a 1.6% decline in AI-exposed industries like software-adjacent media and professional services. Layoffs are also falling, which points toward a frozen job market rather than one where employers are actively cutting staff. A weak national jobs report this month (only 29,000 payrolls added, unemployment at 4.2%) might suggest a broader slowdown, but that doesn't fit: a broad slowdown would hit the healthy control industries too, and it hasn't.\n\nThe strongest thing against it is that the gap between AI-exposed and other industries has been widening again through 2026 after narrowing in late 2025, and it's now at a level the data treats as historically unusual — not explained by the 2023 media strikes, which had already ended. Separately, and measured economy-wide rather than just in exposed industries, the share of unemployed workers who have been out of work long-term has risen 3.5 points over the past year, the closest any secondary reading on this dashboard comes to its own warning line. It hasn't crossed that line, but it's moving the wrong way, and it's exactly the kind of drift that would need to stay flat for an \"exposed workers found other jobs\" story to hold up cleanly. It isn't staying flat.\n\nTwo other figures looked informative but turned out not to be. Pay is growing faster in AI-exposed industries than elsewhere, which sounds like good news, but exposed employment is shrinking, and a shrinking group can show rising average pay just because its lower-paid members leave first, with no actual raise involved — so that number isn't being counted either way this month. And job postings, usually the earliest-moving signal here, are simply flat: postings for AI-exposed knowledge work remain about a fifth below pre-pandemic levels while postings for hands-on control work sit above theirs, and that gap has barely moved in six months. No new warning, but no recovery either, which is the main reason this call is held at low confidence rather than anything stronger.\n\nWorth knowing plainly: this same verdict has swapped between displacement and augmentation repeatedly since July on data that barely moves month to month, and most of the conditions attached to those earlier calls were reported as triggered well before their deadlines. That could mean real lines were genuinely crossed each time, or it could mean the lines are easy to cross on ordinary noise. Either way, this month's augmentation call should be read as no more settled than last month's displacement call was.\n\nWhat to watch: the prime-age employment-population ratio inside the reabsorption panel is the number that flipped this verdict once already with no other data changing, and it is the one to check first for any further move.",
+      "fullAnalysis": "The verdict this round is augmentation, but it needs to be stated precisely: this is a reading of \"no destruction visible yet,\" not a reading of \"AI is visibly making exposed workers more productive or better paid.\" No panel in this dashboard shows that second thing happening. The case rests on the absence of a deterioration signal where the mechanism predicts one would appear first.\n\nThe most important fact about this run is one a reader cannot get from the dashboard alone: none of the underlying numbers moved since the last time this same September data was read, and that read was displacement. Four weeks ago, with the identical figures in front of it, this process called displacement. Today, augmentation. The difference is not new evidence. It is a different judgment about how to weigh one number that sits exactly on a dividing line: the 12-month change in the prime-age (25-54) employment-population ratio, which is flat at 0.0. Read one way, flat means recovery has stalled — consistent with displacement continuing. Read the other way, flat means no further damage is accumulating, and the level itself sits 0.75 points above its pre-pandemic reference, which is a strong starting point — consistent with augmentation. The panel's own rule says this flat headline, not the surrounding context numbers, is what decides. This time that rule was applied to favor \"not deteriorating.\" Last time, the same number was read as \"not growing.\" Readers should treat this flip as evidence that the reading is thin and sits close to a coin-flip line, not as evidence that anything genuinely improved last month.\n\nThree threads support the case against displacement being visible right now. First, the prime-age employment-population ratio itself: flat over twelve months, but at a level still above its pre-2020 norm — this is an economy-wide measure of all workers aged 25-54, not specific to AI-exposed industries. Second, the layoffs rate is falling, which on its own pairing logic with weak hiring points toward a \"frozen\" labor market — employers not adding much, but also not actively shedding incumbent workers — a different and less alarming story than firms cutting staff. Third, the industries outside the AI-exposed group (construction, health care, and similar hands-on sectors) are still growing jobs at 1.19% year over year, and a broader Atlanta Fed analysis cited in this month's news suggests that strength isn't concentrated in just one sector like health care. A weak national jobs report (+29,000 payrolls in September, unemployment 4.2%) raised a \"general economic cooling\" hypothesis, but it doesn't fit: if the whole economy were slowing, the control industries in this same data would be slowing too, and they aren't. The bond market agrees with that read — the yield curve is not inverted, which is not proof nothing is wrong, but it is inconsistent with a recession already being priced.\n\nAgainst that, the strongest case for continued caution — not yet overturning, but genuinely cutting against confidence in augmentation — comes from two places. Employment in AI-exposed industries (publishing, software-adjacent \"information,\" professional and financial services) is falling 1.6% year over year while jobs in the control industries are growing 1.19%, a gap that had briefly narrowed in late 2025 before widening again through 2026 to a level the dashboard's own history treats as unusual. That re-widening happened after the 2023 media and entertainment strikes had already ended, so it isn't an echo of that disruption; it reads as a fresh development inside the exposed-industry data, even though this attribution panel cannot distinguish people losing jobs to AI from people being reallocated and eventually landing elsewhere. Separately, the share of unemployed workers out of work long-term has risen 3.5 points over the past year — an economy-wide figure, not limited to exposed industries — and it sits closer to its own warning line than any other context reading on the dashboard. It hasn't crossed that line, but it is drifting the wrong way, and it is exactly the kind of thing that would need to hold steady for the \"exposed leavers found other jobs\" story to be clean. It is not holding steady.\n\nTwo further readings were considered and set aside as uninformative rather than used as support. Pay in AI-exposed industries is growing faster than in control industries (a 0.72-point gap in that direction), which on its face looks like evidence against displacement — but exposed-industry employment is shrinking, and a shrinking group whose lower-paid members leave first will show rising average pay with no actual raise involved. An economy-wide check on this (the gap between pay growth for people who switch jobs versus people who stay, both not cut by industry) came back close to historically normal, which doesn't resolve the composition question either way, so the exposed-industry pay figure is treated as not meaningful this month, neither for nor against. Productivity growth, also economy-wide, slowed to 2.2% from 2.9% and sits just below the range that would be considered consistent with an internet-boom-style acceleration — there is no sign yet that AI deployment is showing up as productivity gains in the aggregate, which argues against claiming augmentation is actively delivering results even as it says nothing about displacement one way or the other. And the earliest-moving indicator on the dashboard, job postings, is simply flat: postings for AI-exposed knowledge work remain 21.6% below their February 2020 level, postings for hands-on control work remain 8.1% above theirs, and that 29.7-point gap between them has moved by only a tenth of a point in six months. No fresh warning, but no recovery either — which is the main reason this verdict is being held at a thin, low-confidence level rather than anything stronger.\n\nOn the historical record: this same back-and-forth has happened repeatedly since July. The verdict has swung between displacement and augmentation several times on data that moves slowly, and in most of those earlier rounds the attached overturn condition was reported as triggered well ahead of its deadline — eight of nine settled cases fired, only one expired without firing. That pattern is worth reading with some suspicion rather than comfort: it may mean the underlying data genuinely crossed real lines each time, or it may mean the lines being set are loose enough to be crossed by ordinary month-to-month noise. Either way, a reader should not treat this month's augmentation call as more settled than last month's displacement call was — both were built on the same slow-moving numbers.\n\nNo single alternative explanation — a broad recession, the 2023 media strikes, a quits-driven hiring freeze — fully accounts for the pattern of exposed-industry weakness sitting next to control-industry strength. The strikes explain part of an earlier spike in the attribution gap but not its 2026 re-acceleration. A general slowdown is contradicted by healthy control industries and an uninverted yield curve. A quits-driven pullback (workers staying in jobs out of caution, per an Atlanta Fed piece in this month's news) is plausible for the softening gap between hiring and quits but can't be confirmed from the series given, since hires and quits aren't broken out separately. None of these displaces the reading; they just mean no confounder is being named with confidence this month either.",
+      "compliance": {
+        "words": 653,
+        "numbers": 12,
+        "lengthBand": "extended (a month with something to explain)"
+      },
+      "analysisStats": {
+        "present": true,
+        "words": 1202
+      },
+      "mechanicalState": "WATCH",
+      "breadth": 1,
+      "pairedState": {
+        "state": "DISPLACEMENT",
+        "attributionZ": 2.41,
+        "attributionLabel": "gap wide and holding",
+        "reabsorptionEmploymentFalling": 0,
+        "reabsorptionLabel": "aggregate deteriorating"
+      },
+      "pairedStateAgreesWithVerdict": "diverges",
+      "chainAgreesWithVerdict": "not comparable",
+      "inputsFingerprint": "4cf741168bb911c1ff63ccf09f48b22d15d3167095c90478d6a45b058284379c",
       "keyNumbers": {
         "jobsDiffPp": -2.791943943407027,
         "wagesDiffPp": 0.719592411484864
