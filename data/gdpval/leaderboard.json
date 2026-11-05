@@ -95,10 +95,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "claude-opus-5-max",
+        "slug": "claude-opus-5",
         "model": "Claude Opus 5 (Max)",
         "lab": "Anthropic",
-        "releaseDate": "2026-07",
+        "releaseDate": "2026-07-24",
         "elo": 1730,
         "poolVersion": "v2.1"
       },
@@ -319,10 +319,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "step-5",
+        "slug": "step-5-preview",
         "model": "Step 5 Preview",
         "lab": "StepFun",
-        "releaseDate": "2026-09-18",
+        "releaseDate": "2026-09",
         "elo": 1594,
         "poolVersion": "v2.1"
       },
@@ -2471,7 +2471,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-03"
+    "lastRefreshed": "2026-11-05"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
