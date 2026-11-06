@@ -231,6 +231,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "inkling-2-small",
+        "model": "Inkling 2 Small",
+        "lab": "Thinking Machines",
+        "releaseDate": "2026-11-05",
+        "elo": 1630,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "grok-4-6-high",
         "model": "Grok 4.6 (High)",
         "lab": "SpaceXAI",
@@ -1271,10 +1279,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "inkling",
+        "slug": "inkling-xhigh",
         "model": "Inkling (Xhigh)",
         "lab": "Thinking Machines",
-        "releaseDate": "2026-07-15",
+        "releaseDate": "2026-07",
         "elo": 1080,
         "poolVersion": "v2.1"
       },
@@ -2471,7 +2479,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-05"
+    "lastRefreshed": "2026-11-06"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
