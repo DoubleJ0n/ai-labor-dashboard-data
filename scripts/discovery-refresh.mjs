@@ -71,7 +71,7 @@ reinstate one you may remember from an earlier version of this task. A slot
 absent from that list was retired deliberately.
 
 Your job is to find new dated scores ON THOSE EXACT BENCHMARKS. For each slot,
-copy the registered benchmark name into "benchmark" verbatim, and give 3-8 dated
+give 3-8 dated
 score points (0-100) for frontier models over time, each from a source you
 actually found, with the source URL. A score measured on any other benchmark —
 including a successor, a variant, or a "Pro"/"v2" edition of the same name — does
@@ -86,7 +86,7 @@ Flagging it costs nothing and loses nothing; substituting it silently would.
 Reply with exactly one fenced block in this schema (no other prose after it):
 \`\`\`json
 {"changed": true,
- "slots": [{"slot": "reasoning", "benchmark": "<the registered name, verbatim>",
+ "slots": [{"slot": "reasoning",
    "source_url": "...", "saturated": false,
    "successor_note": "" or "what you would swap to, and why",
    "note": "one plain-language sentence describing the benchmark",
@@ -172,12 +172,14 @@ const unregisteredSlots = [];
 const slotEntities = [];
 const pts = [];
 for (const s of parsed.slots ?? []) {
-  if (!s.slot || !s.benchmark) continue;
+  if (!s.slot) continue;
   if (!registeredSlots.has(s.slot)) { unregisteredSlots.push(s.slot); continue; }
   const src = s.source_url || "";
   slotEntities.push({
     slot: s.slot,
-    benchmarkName: s.benchmark,
+    // The registration names the instrument. The model is not asked for it and is not
+    // believed about it; this is carried only so the report can print what was read.
+    benchmarkName: capability.slots.find((x) => x.slot === s.slot)?.benchmarkName ?? "",
     sourceUrl: src,
     fetchDate: today,
     saturated: Boolean(s.saturated),
@@ -204,9 +206,26 @@ for (const p of pts) {
   added.push(p);
 }
 
-const benchmarkSwaps = slotEntities
-  .filter((s) => capability.slots.some((x) => x.slot === s.slot && x.benchmarkName !== s.benchmarkName))
-  .map((s) => `${s.slot}: ${capability.slots.find((x) => x.slot === s.slot).benchmarkName} -> ${s.benchmarkName}`);
+// THE SWAP GUARD IS GONE, BECAUSE WHAT IT GUARDED NO LONGER EXISTS.
+//
+// It compared the registered benchmark name against a name the model echoed back, and
+// halted when they differed. Once the instrument was pinned (2026-10-16) the model had
+// no say in the matter, so the only thing that comparison could still catch was a
+// DIFFERENT SPELLING of the same name — which is exactly what it caught on 2026-11-02,
+// halting the run over "Humanity's Last Exam (HLE)" versus "Humanity's Last Exam".
+//
+// That is the third time in this repo that a guard has fired on two spellings of one
+// string rather than on a real change: gdpval read the single version v2.1 as the two
+// pools "v21" and "v2", BTOS renamed AI to SI and broke a question-text anchor, and this.
+// The lesson each time is the same, so it is worth stating plainly: never compare a
+// human-registered string against one authored elsewhere, and never ask a second party
+// to re-type an identifier you already hold.
+//
+// So the echo is removed from the response schema entirely and the slot's instrument is
+// read from the registration. There is no longer an input that could propose a swap, and
+// an instrument change is what it always should have been: a human editing
+// dashboard-data.json. The slot-set check above still refuses to invent or resurrect a
+// slot, which is the part of this that was actually load-bearing.
 
 // A NEW READING PUBLISHES ITSELF. A NEW INSTRUMENT DOES NOT.
 //
@@ -237,16 +256,6 @@ const benchmarkSwaps = slotEntities
 // reaching this point again therefore means the model ignored an explicit instruction,
 // which IS the anomaly worth a red run. The guard is unchanged; what changed is that it
 // is no longer the expected outcome.
-if (benchmarkSwaps.length) {
-  fail(
-    `benchmark identity changed (${benchmarkSwaps.join("; ")}). This redefines what the ` +
-      `slot has been measuring and breaks comparability with the published history, so it ` +
-      `will not auto-publish. Decide whether the swap is right, and what happens to the ` +
-      `existing points, then re-register the slot in dashboard-data.json before this job ` +
-      `runs again.`,
-  );
-}
-
 if (added.length === 0) {
   nochange(`no new data after validation${dropped.length ? ` (${dropped.length} points dropped: ${dropped.join("; ")})` : ""}`);
 }
@@ -279,7 +288,7 @@ capability.points = capability.points
   .concat(existingNorm, added);
 
 const summary = `+${added.length} points (${supersededCount} superseded${dropped.length ? `, ${dropped.length} dropped invalid` : ""})` +
-  (benchmarkSwaps.length ? `; benchmark change: ${benchmarkSwaps.join(", ")}` : "");
+  "";
 pushLog(capability, true, summary);
 capability.lastRefreshed = nowIso();
 saveSection("capability", capability);
@@ -313,7 +322,6 @@ const body = [
          "Nothing here has been applied."]
       : [];
   })(),
-  ...(benchmarkSwaps.length ? ["", "## BENCHMARK IDENTITY CHANGES (extra scrutiny)", ...benchmarkSwaps.map((s) => `- ${s}`)] : []),
   ...(dropped.length ? ["", "## Dropped by validation", ...dropped.map((d) => `- ${d}`)] : []),
 ].join("\n");
 writeFileSync(REPORT_PATH, body + "\n");

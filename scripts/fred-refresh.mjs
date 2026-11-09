@@ -2,7 +2,7 @@
 // fred-refresh: pulls the 8 FRED series the dashboard consumes (last 10
 // years) and rewrites ONLY the "fred" section of dashboard-data.json.
 // Free API; runs weekly via GitHub Actions. Key from FRED_API_KEY.
-import { loadPool, saveSection, nowIso } from "./lib.mjs";
+import { loadPool, saveSection, nowIso, fetchWithRetry, parseJsonOrThrow } from "./lib.mjs";
 import {
   DIFFERENTIALS, MACRO_SPREAD_IDS, REABSORPTION, INDIVIDUAL_WAGE_GROWTH,
   BASELINE_START, BASELINE_END,
@@ -111,9 +111,11 @@ async function fetchSeries(seriesId) {
   url.searchParams.set("file_type", "json");
   url.searchParams.set("observation_start", startFor(seriesId));
   url.searchParams.set("sort_order", "asc");
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`FRED ${seriesId} HTTP ${res.status}`);
-  const body = await res.json();
+  // Retry transient answers, and never hand an HTML error page to a JSON parser: on
+  // 2026-10-21 FRED replied 200 with "<!doctype ...", res.ok passed, and the job died
+  // on `SyntaxError: Unexpected token '<'` — true, and useless for working out why.
+  const res = await fetchWithRetry(url, { label: `FRED ${seriesId}` });
+  const body = parseJsonOrThrow(await res.text(), `FRED ${seriesId}`);
   // FRED marks missing values with "." — drop them (same as the app did).
   return (body.observations ?? [])
     .filter((o) => o.value !== ".")

@@ -1,7 +1,9 @@
 // Designed with Claude (Anthropic)
 // adoption-refresh: pulls the Census BTOS national estimates spreadsheet and
-// extracts the AI-adoption series ("In the last two weeks, did this business
-// use Artificial Intelligence in any of its business functions?" -> Yes %),
+// extracts the AI-adoption series ("In the last two weeks, did this business use
+// Super Intelligence or SI (formerly referred to as Artificial Intelligence or AI)
+// in any of its business functions?" -> Yes %; upstream renamed the subject from
+// AI to SI in Nov 2026 and relabelled its own history, values unchanged),
 // then PROPOSES an update to data/adoption/ai_adoption.json as a pull request.
 //
 // FREE (keyless xlsx download) — works without any API key or Anthropic credits.
@@ -54,6 +56,35 @@ function setOutput(key, value) {
   if (process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, `${key}<<EOF\n${value}\nEOF\n`);
 }
 
+// IDENTIFY THE ROW BY STRUCTURE, NOT BY VOCABULARY.
+//
+// UPDATE 2026-11-08: BTOS RENAMED THE SUBJECT OF THE SURVEY. The question now reads
+// "did this business use Super Intelligence or SI (formerly referred to as Artificial
+// Intelligence or AI) in any of its business functions?", so "use Artificial
+// Intelligence" stopped being a contiguous substring. That was the anchor in BOTH
+// workbooks, so both stopped matching on the same day and this job went red for 18
+// consecutive runs while the series sat in the spreadsheet untouched: all eleven months
+// already published here came back byte-identical, and the only genuinely new reading
+// (2026-10, 24.2%) continued the trend it was already on. The data never moved. A word
+// did, and it cost eighteen days of staleness.
+//
+// So the anchor is now the part of the question that is structure rather than
+// terminology - the recall window and what is being asked about. The terminology match
+// is kept, but as a loose alternation and only as a sanity check; it must never again be
+// the thing that identifies the row, because upstream has now renamed this concept once
+// and may well do it again.
+//
+// "business functions" IS LOAD-BEARING. Since the rename there are TWO "in the last two
+// weeks" questions about SI in this workbook: this one, about the business using SI in
+// its business functions, and a second about whether EMPLOYEES used generative SI for
+// work tasks. Those are different series with different levels, and this phrase is the
+// only thing separating them. Do not drop it to make a future match more permissive.
+const isAiUseQuestion = (q) =>
+  /in the last two weeks/i.test(q) &&
+  /business functions/i.test(q) &&
+  !/next six months/i.test(q) &&
+  /(artificial|super)\s+intelligence|\b(AI|SI)\b/i.test(q);
+
 /** BTOS cycle code YYYYCC (CC = fortnight) -> first-of-month ISO date. */
 function cycleToMonth(code) {
   const s = String(code);
@@ -77,9 +108,7 @@ function extractSizeSeries(rows, header, empsize, label) {
   const row = rows.find(
     (r) =>
       String(r[0]).trim().toUpperCase() === empsize &&
-      /use Artificial Intelligence/i.test(String(r[2] ?? "")) &&
-      /business functions/i.test(String(r[2] ?? "")) &&
-      !/next six months/i.test(String(r[2] ?? "")) &&
+      isAiUseQuestion(String(r[2] ?? "")) &&
       String(r[4]).trim().toLowerCase() === "yes",
   );
   if (!row) fail(`size class '${empsize}' AI 'Yes' row not found (structure changed?)`);
@@ -204,9 +233,7 @@ const cycleCodes = header.slice(4);
 // a changed Question ID), excluding the "next six months" future-use question.
 const aiRow = rows.find(
   (r) =>
-    /use Artificial Intelligence/i.test(String(r[1] ?? "")) &&
-    /business functions/i.test(String(r[1] ?? "")) &&
-    !/next six months/i.test(String(r[1] ?? "")) &&
+    isAiUseQuestion(String(r[1] ?? "")) &&
     String(r[3]).trim().toLowerCase() === "yes",
 );
 if (!aiRow) fail("could not find the AI current-use 'Yes' row (question text changed?)");
@@ -240,7 +267,22 @@ const latest = points[points.length - 1];
 snapshot.points = points;
 snapshot.bySize = bySize;
 snapshot.lastRefreshed = new Date().toISOString().slice(0, 10);
-snapshot.question = "In the last two weeks, did this business use Artificial Intelligence (AI) in any of its business functions? — Yes";
+// Read from the row that was actually matched, not retyped here. The hardcoded copy
+// still said "Artificial Intelligence (AI)" weeks after upstream renamed the question,
+// which is the same failure as inventing a series id - and this file already applies
+// that rule to the size-class labels, which come from the workbook's Data Dictionary.
+snapshot.question = `${String(aiRow[1]).trim()} — Yes`;
+// Record the rename where a reader of the data will see it. Census relabelled its own
+// history too and every published month is unchanged, so this is ONE series and not a
+// re-registration - but a silent vocabulary change in a survey is worth a line.
+snapshot.subjectRenamed = snapshot.subjectRenamed ?? {
+  on: "2026-11-08",
+  note:
+    "BTOS renamed the subject of this question from Artificial Intelligence to Super " +
+    "Intelligence (SI), carrying 'formerly referred to as Artificial Intelligence or AI' " +
+    "in the wording and relabelling published history. Values before and after the rename " +
+    "are identical where they overlap, so the series is continuous and was NOT re-registered.",
+};
 snapshot.note =
   "Live from the Census BTOS National.xlsx (share of firms using AI in ANY business function). " +
   "Broader than the older 'producing goods/services' supplement. Parsed with deterministic invariants.";

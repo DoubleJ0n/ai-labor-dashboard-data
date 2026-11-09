@@ -10,6 +10,7 @@
 // AUTO-COMMITS on change (the workflow commits data/postings/job_postings.json).
 // Deterministic invariants FAIL LOUD on any upstream restructure (missing sector,
 // missing variable) rather than silently mis-computing.
+import { fetchWithRetry } from "./lib.mjs";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -50,41 +51,22 @@ function parseRow(line) {
 // So: retry the transient statuses, and keep failing loudly on everything else. A 404
 // or a restructured feed is still a real problem and still stops the job on the first
 // response. Only 429 and 5xx (plus network throws) are worth a second ask.
-const RETRY_DELAYS_MS = [2_000, 8_000, 30_000];
-
+// The retry table and loop that used to live here are now fetchWithRetry in lib.mjs,
+// so every job gets this behaviour instead of just this one. The reasoning above is
+// unchanged and is the reason the helper exists.
 async function fetchCsv() {
-  for (let attempt = 0; ; attempt++) {
-    let response;
-    try {
-      response = await fetch(CSV_URL, {
-        headers: { "user-agent": "ai-labor-dashboard-data/1.0 (+https://github.com/DoubleJ0n/ai-labor-dashboard-data)" },
-      });
-    } catch (e) {
-      if (attempt >= RETRY_DELAYS_MS.length) fail(`CSV fetch threw: ${e.message ?? e}`);
-      await sleepBeforeRetry(attempt, `fetch threw (${e.message ?? e})`);
-      continue;
-    }
-
-    if (response.ok) return response.text();
-
-    const transient = response.status === 429 || response.status >= 500;
-    if (!transient || attempt >= RETRY_DELAYS_MS.length) {
-      fail(
-        `CSV HTTP ${response.status}` +
-          (transient ? ` after ${RETRY_DELAYS_MS.length + 1} attempts — upstream is still throttling or down` : ""),
-      );
-    }
-
-    // Honour Retry-After when the server sends one; it knows better than the table.
-    const retryAfter = Number(response.headers.get("retry-after"));
-    await sleepBeforeRetry(attempt, `HTTP ${response.status}`, Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : null);
+  try {
+    const response = await fetchWithRetry(CSV_URL, {
+      label: "postings CSV",
+      init: { headers: { "user-agent": "ai-labor-dashboard-data/1.0 (+https://github.com/DoubleJ0n/ai-labor-dashboard-data)" } },
+    });
+    return response.text();
+  } catch (e) {
+    // The helper throws; this job reports through fail(), which prints the
+    // "postings-refresh FATAL:" line the logs are read for. Keep that, rather than
+    // letting an unhandled rejection dump a stack trace where a sentence used to be.
+    fail(e.message ?? String(e));
   }
-}
-
-async function sleepBeforeRetry(attempt, reason, overrideMs = null) {
-  const waitMs = overrideMs ?? RETRY_DELAYS_MS[attempt];
-  console.warn(`postings-refresh: ${reason}; retrying in ${Math.round(waitMs / 1000)}s (attempt ${attempt + 2} of ${RETRY_DELAYS_MS.length + 1})`);
-  await new Promise((resolve) => setTimeout(resolve, waitMs));
 }
 
 const text = await fetchCsv();
