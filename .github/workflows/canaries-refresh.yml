@@ -1,0 +1,46 @@
+name: canaries-refresh
+
+# Daily pull of the Stanford Digital Economy Lab / ADP Research "Canaries Dashboard"
+# results: employment by occupational AI-exposure quintile and age band. FREE (public
+# ZIPs on a GCS bucket, no key, no model). Mechanical like FRED: auto-commits the
+# snapshot on change; the script's invariants fail the run loud on any upstream
+# restructure (renamed column, changed label, moved index base).
+#
+# The publisher updates monthly, around the third week. A daily check costs one
+# small download and picks the new vintage up the day it lands.
+on:
+  schedule:
+    - cron: "25 14 * * *" # 14:25 UTC daily, inside the free-feed window
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Shares the pool-write group with every other refresh job, so commits to main never
+# race.
+concurrency:
+  group: pool-write
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Pull the Canaries exposure-by-age index
+        run: node scripts/canaries-refresh.mjs
+      - name: Commit updated snapshot
+        run: |
+          git config user.name "pool-refresh-bot"
+          git config user.email "actions@github.com"
+          git add data/canaries/canaries.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "canaries-refresh: new Canaries vintage"
+            git pull --rebase origin main
+            git push
+          fi

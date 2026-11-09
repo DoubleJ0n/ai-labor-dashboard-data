@@ -101,10 +101,25 @@ export const PAIRED_STATES = {
  * displacement. null means the axis could not be placed, which is NOT the same as
  * flat and must never collapse into it.
  */
-function axisMoving(value, line) {
+function axisMoving(value, line, { strict = false } = {}) {
   if (value == null) return null;
-  return value >= line;
+  return strict ? value > line : value >= line;
 }
+
+// THE REABSORPTION AXIS IS STRICT: ABOVE ZERO, NOT AT OR ABOVE (parity fix 2026-11-09).
+//
+// The app made this change on 2026-08-06 (Reabsorption.kt, isDeteriorating) with a
+// comment saying the two repos "must agree", and this file was not updated. The axis
+// asks whether prime-age employment is LOWER than a year ago; a reading of exactly 0.0
+// says it is not. The series prints to one decimal, so exact zeros are ordinary: July
+// and September 2026 both read 0.0, and on those months this file stored DISPLACEMENT
+// as the check on the analyst while the app showed the reader REALLOCATION. Part of
+// the dissent log's "diverges" flag on those months was manufactured here.
+//
+// The attribution axis stays inclusive, as it is in the app (PairedPlacement.gapWide
+// uses >=). It is a z-score on a continuous differential, so a reading exactly on the
+// line is a measure-zero event there; on the employment axis it is a monthly fact.
+const REABSORPTION_STRICT = { strict: true };
 
 /**
  * The paired state.
@@ -122,7 +137,7 @@ function axisMoving(value, line) {
  */
 export function pairedState(attributionZ, reabsorptionFalling, attributionHeld = undefined) {
   const wide = axisMoving(attributionZ, ATTRIBUTION_AXIS_Z);
-  const deteriorating = axisMoving(reabsorptionFalling, REABSORPTION_AXIS_LINE);
+  const deteriorating = axisMoving(reabsorptionFalling, REABSORPTION_AXIS_LINE, REABSORPTION_STRICT);
   // THE GAP HAS TO HOLD, NOT MERELY BE WIDE. See ATTRIBUTION_SUSTAIN_MONTHS: a
   // single month past the line used to establish this axis, the gap has been past
   // the line since 2023, and the consequence was that the AI-specific axis never

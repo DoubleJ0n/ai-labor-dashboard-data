@@ -30,6 +30,7 @@ test("config.mjs matches registered-values.json", () => {
   assert.equal(config.ATTRIBUTION_AXIS_Z, registered.attributionAxisZ);
   assert.equal(config.ATTRIBUTION_SUSTAIN_MONTHS, registered.attributionSustainMonths);
   assert.deepEqual(config.INDIVIDUAL_WAGE_GROWTH, registered.individualWageGrowth);
+  assert.deepEqual(config.JOLTS_INDUSTRY, registered.joltsIndustry);
   assert.equal(config.REABSORPTION_AXIS_LINE, registered.reabsorptionAxisLine);
   assert.equal(config.JOINT_BASELINE_SIGMAS, registered.jointBaselineSigmas);
   assert.equal(config.EARLY_WARNING_EXPOSED_JOB_LOSS_PCT, registered.earlyWarningExposedJobLossPct);

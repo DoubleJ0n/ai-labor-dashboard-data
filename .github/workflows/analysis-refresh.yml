@@ -127,12 +127,20 @@ jobs:
         if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' && github.event.inputs.verify_series == '' }}
         run: node scripts/analysis-refresh.mjs
 
+      # The falsifier scorecard the app draws. Derived from runs.json, no model call,
+      # regenerated whole; the dissent log stays append-only. Runs whether or not the
+      # analyst above appended anything, because a prior run's falsifier can settle on
+      # a day the verdict itself does not move.
+      - name: Publish the falsifier scorecard
+        if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' && github.event.inputs.verify_series == '' }}
+        run: node scripts/analyst/scorecard.mjs
+
       - name: Commit the pool + both append-only logs
         if: ${{ github.event.inputs.dry_run != 'true' && github.event.inputs.ab_run != 'true' && github.event.inputs.verify_series == '' }}
         run: |
           git config user.name "pool-refresh-bot"
           git config user.email "actions@github.com"
-          git add dashboard-data.json data/analyst/dissent_log.json data/analyst/runs.json data/analyst/runs
+          git add dashboard-data.json data/analyst/dissent_log.json data/analyst/runs.json data/analyst/runs data/analyst/scorecard.json
           if git diff --cached --quiet; then
             echo "no changes"
           else

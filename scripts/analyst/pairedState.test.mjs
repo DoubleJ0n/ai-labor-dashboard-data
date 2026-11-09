@@ -28,12 +28,19 @@ test("the 2x2 truth table", () => {
   assert.equal(pairedState(A_FLAT, R_FLAT).state, "STABLE");
 });
 
-test("the axis threshold is inclusive at exactly the registered line", () => {
-  // A reading sitting exactly on the line counts as moving. Stated in a test
-  // because "at or above" versus "above" silently changes which quadrant a
-  // borderline month lands in, and that is the whole output of this module.
+test("the attribution axis is inclusive at its line; the reabsorption axis is strict", () => {
+  // "At or above" versus "above" silently changes which quadrant a borderline month
+  // lands in, and that is the whole output of this module, so both are pinned.
+  //
+  // Attribution: a z exactly on the line counts as moving, as in the app (>=).
   assert.equal(pairedState(ATTRIBUTION_AXIS_Z, R_FLAT).attribution.moving, true);
-  assert.equal(pairedState(A_FLAT, REABSORPTION_AXIS_LINE).reabsorption.moving, true);
+  // Reabsorption: exactly zero means employment is the SAME as a year ago, not lower,
+  // so it is not deterioration. The app has read it this way since 2026-08-06 and the
+  // series prints to one decimal, so exact zeros happen (July and September 2026).
+  // This file said >= until 2026-11-09 and stored DISPLACEMENT on months the app
+  // showed as REALLOCATION.
+  assert.equal(pairedState(A_FLAT, REABSORPTION_AXIS_LINE).reabsorption.moving, false);
+  assert.equal(pairedState(A_FLAT, REABSORPTION_AXIS_LINE + 0.1).reabsorption.moving, true);
 });
 
 test("a maximally negative gap with a healthy aggregate is REALLOCATION, not DISPLACEMENT", () => {
@@ -72,11 +79,13 @@ test("the reabsorption axis reads a CHANGE against raw zero", () => {
   // Employment FALLING: the aggregate is deteriorating.
   assert.equal(pairedState(A_MOVING, 0.5).state, "DISPLACEMENT");
 
-  // Exactly flat sits ON the line and counts as the moving side. A boundary case
-  // that is vanishingly rare on a continuous measure, resolved toward SHOWING
-  // deterioration rather than hiding it, which is the right bias for an
-  // early-warning display and matches the attribution axis convention.
-  assert.equal(pairedState(A_MOVING, REABSORPTION_AXIS_LINE).reabsorption.moving, true);
+  // Exactly flat sits ON the line and is NOT the moving side (2026-11-09, matching
+  // the app since 2026-08-06). The earlier reasoning here was that a reading exactly
+  // on the line is vanishingly rare on a continuous measure. It is not: the series is
+  // published to one decimal, so exact zeros are ordinary (July and September 2026),
+  // and "employment is the same as a year ago" is not deterioration.
+  assert.equal(pairedState(A_MOVING, REABSORPTION_AXIS_LINE).reabsorption.moving, false);
+  assert.equal(pairedState(A_MOVING, REABSORPTION_AXIS_LINE).state, "REALLOCATION");
 });
 
 test("both lines sit at zero, because the grid displays rather than triggers", () => {

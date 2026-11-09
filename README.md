@@ -18,6 +18,8 @@ https://raw.githubusercontent.com/DoubleJ0n/ai-labor-dashboard-data/main/dashboa
 | discovery-refresh | `scripts/discovery-refresh.mjs` | Claude Haiku 4.5 (`claude-haiku-4-5-20251001`) + web search | Mon 06:20 | `dashboard-data.json` → `capability` (normalized benchmark slots only) |
 | metr-fetch | `scripts/metr-fetch.mjs` | METR YAML feed (free) | Mon 06:40 | **PR** proposing `data/metr/time_horizons.json` |
 | postings-refresh | `scripts/postings-refresh.mjs` | Indeed Hiring Lab CSV (free, CC BY 4.0) | Mon 06:20 | auto-commits `data/postings/job_postings.json` |
+| canaries-refresh | `scripts/canaries-refresh.mjs` | Stanford DEL / ADP Canaries ZIPs (free) | daily 14:25 | auto-commits `data/canaries/canaries.json` |
+| challenger-refresh | `scripts/challenger-refresh.mjs` | Challenger report PDF via pdf.js (free) | daily 14:35 | auto-commits `data/challenger/job_cuts.json` |
 | gdpval-refresh | `scripts/gdpval-refresh.mjs` | Artificial Analysis GDPval-AA leaderboard page (free) | Mon 06:50 | **PR** proposing `data/gdpval/leaderboard.json` |
 | analysis-refresh | `scripts/analysis-refresh.mjs` | Claude Sonnet 5 (`claude-sonnet-5`) | Mon 06:50 (after the others) | `dashboard-data.json` → `analysis` |
 
@@ -42,6 +44,74 @@ Exposed-vs-control **job-postings** spread from Indeed Hiring Lab's US
   level, is the signal. Mechanical index → **auto-commits** on change like
   `fred-refresh`; deterministic invariants **fail the run loud** on any upstream
   restructure (renamed/removed sector or variable).
+
+### `data/canaries/canaries.json`: exposure-by-age employment index (Stanford / ADP)
+
+The Stanford Digital Economy Lab and ADP Research
+[Canaries Dashboard](https://digitaleconomy.stanford.edu/project/indicators/canaries-dashboard/):
+employment indexed to 2022-11 = 100 by occupational AI-exposure quintile and age band,
+from a rolling five-year balanced panel of ADP payroll records. Pulled daily by
+`canaries-refresh` from the publisher's ZIP packages on a public bucket; **auto-commits**
+on a new vintage; the script asserts every column, quintile label, age label and the
+normalization date against the package's own data dictionary and **fails loud** if any
+of them moves.
+
+```
+{ "vintage": "YYYY-MM-DD", "normalizationDate": "2022-11-01",
+  "months": [ { "date": "YYYY-MM-01",
+                "index":     { "22-25": { "exposed", "control" }, ... "50+": {...} },
+                "yoyChange": { "22-25": { "exposed", "control" }, ... },
+                "yoyGap":    { "22-25": <exposed yoy − control yoy, pts>, ... } } ],
+  "allAges": [ { "date", "exposed", "control" } ] }
+```
+
+- **Exposed** = quintiles 4 and 5, **control** = quintiles 1 to 3: the paper's own
+  grouping. Each side is the equal-weight mean of its quintile series.
+- The year-over-year figures are the publisher's, not recomputed.
+- **No baseline.** The series starts 2021-10; there is no 2010-2019 window and no
+  z-score. The gap is shown against zero. History revises every vintage, which is why
+  the vintage is stored.
+
+### `data/challenger/job_cuts.json`: announced job cuts by stated reason (Challenger)
+
+Challenger, Gray & Christmas' monthly
+[Job Cuts Report](https://www.challengergray.com/blog/category/job-cuts-report/):
+announced US job cuts by the reason the employer gave, including the
+**Artificial Intelligence** line and Challenger's own "Technological Update (possibly
+AI)" bucket. `challenger-refresh` reads the report PDF with pdf.js, matching table rows
+by label and columns by position (the report was redesigned in autumn 2026 and plain
+text extraction interleaves its columns). One month per PDF, so the file
+**accumulates**; a daily run only looks for posts it has not seen, and
+`--backfill <pages>` walks the archive. Posts without a PDF (everything before
+April 2025) are recorded under `skippedPosts`.
+
+```
+{ "months": [ { "month": "YYYY-MM", "releaseDate", "postUrl", "pdfUrl",
+                "totalCuts", "ytdCuts", "aiCuts", "aiYtd", "aiSharePct", "aiYtdSharePct",
+                "possiblyAiCuts", "possiblyAiYtd", "hiringPlans", "hiringPlansYtd",
+                "reasons": { "<publisher's label>": { "month", "ytd" }, ... } } ] }
+```
+
+- Announcements, not realised separations; reasons are self-reported; AI tracked as a
+  distinct reason only since 2023, so **no baseline and no z-score**. Descriptive.
+- Year-to-date is cross-checked two ways (sum of the months against Table 1's TOTAL
+  row, and Table 4's TOTAL against Table 1's month) and a PDF that fails either is
+  skipped with the reason recorded.
+
+### `data/analyst/scorecard.json`: the falsifier record
+
+Every analyst run pre-registers a condition that would overturn it within 90 days and
+later runs score it. The outcomes have always lived in `runs.json`; this file is the
+same record in a shape the app draws, regenerated whole by `scripts/analyst/scorecard.mjs`
+after each analyst run. No model call, and the dissent log is untouched.
+
+```
+{ "tally": { "FIRED", "NOT_FIRED", "NOT_YET_DUE", "UNCHECKABLE" }, "settled", "firedSharePct",
+  "byVerdict": { "<verdict>": { ...tally, "runs" } },
+  "streak": { "verdict", "runs", "dataMonths", "since" }, "flips",
+  "entries": [ { "runAt", "dataMonth", "verdict", "confidence", "outcome", "reason", "by",
+                 "distanceToThreshold", "observed", "threshold", "falsifierPlain" } ] }
+```
 
 ### `data/gdpval/leaderboard.json`: GDPval-AA Elo + expert win rates
 

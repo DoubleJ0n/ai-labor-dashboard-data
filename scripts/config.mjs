@@ -444,6 +444,57 @@ export const INDIVIDUAL_WAGE_GROWTH = {
   jobSwitcher: "FRBATLWGT12MMUMHWGJSW",
 };
 
+// --- JOLTS by industry: the "hiring freeze or active cuts" grid (new 2026-11-09) ---
+//
+// WHY. The analyst's own notes keep turning on one distinction the dashboard could not
+// draw: "a frozen, cautious hiring market" against "incumbent workers being actively
+// cut loose". The total-nonfarm layoffs rate (JTSLDR) was added in July to separate the
+// two economy-wide, but economy-wide is the wrong cut for an AI question. These series
+// make the same distinction INSIDE the exposed-versus-control frame: is professional and
+// business services hiring less than hands-on work, relative to normal, and is it
+// shedding more?
+//
+// PROFESSIONAL AND BUSINESS SERVICES STANDS IN FOR THE EXPOSED GROUP. It is the only one
+// of the three exposed industries with seasonally adjusted JOLTS rates on FRED;
+// information and financial activities exist unadjusted only (JTU5100HIR, JTU510099HIR,
+// verified the same day) and are not wired. PBS is also the largest of the three.
+//
+// LAYOFFS ARE UNADJUSTED, BECAUSE NO ADJUSTED INDUSTRY SERIES EXISTS. FRED carries
+// seasonally adjusted layoffs rates for totals and regions only (seven series). The
+// unadjusted industry rates are read against the 2010-2019 mean FOR THE SAME CALENDAR
+// MONTH, which is the standard remedy and is what the app does.
+//
+// Every id below was verified against the FRED series endpoint in CI on 2026-11-09
+// (run 42625707140), titles as returned, all monthly rates, 2000-12 .. 2026-09:
+//   JTS540099HIR  Hires: Professional and Business Services            SA
+//   JTS540099QUR  Quits: Professional and Business Services            SA
+//   JTS2300HIR    Hires: Construction                                  SA
+//   JTS7000HIR    Hires: Leisure and Hospitality                       SA
+//   JTS6000HIR    Hires: Private Education and Health Services         SA
+//   JTU540099LDR  Layoffs and Discharges: Professional and Business Services  NSA
+//   JTU2300LDR    Layoffs and Discharges: Construction                        NSA
+//   JTU7000LDR    Layoffs and Discharges: Leisure and Hospitality             NSA
+//   JTU6000LDR    Layoffs and Discharges: Private Education and Health Services  NSA
+// None votes, gates or carries a threshold. The grid they feed is a display, like the
+// four-corner grid, with both dividers at the 2010s norm. They are NOT in the analyst's
+// payload: adding a panel there changes the input hash and spends money, and is a
+// separate decision.
+export const JOLTS_INDUSTRY = {
+  exposed: {
+    hires: "JTS540099HIR",
+    quits: "JTS540099QUR",
+    layoffsNsa: "JTU540099LDR",
+  },
+  control: {
+    hires: ["JTS2300HIR", "JTS7000HIR", "JTS6000HIR"],
+    layoffsNsa: ["JTU2300LDR", "JTU7000LDR", "JTU6000LDR"],
+  },
+};
+export const JOLTS_INDUSTRY_IDS = [
+  JOLTS_INDUSTRY.exposed.hires, JOLTS_INDUSTRY.exposed.quits, JOLTS_INDUSTRY.exposed.layoffsNsa,
+  ...JOLTS_INDUSTRY.control.hires, ...JOLTS_INDUSTRY.control.layoffsNsa,
+];
+
 // --- Macro-regime gate series (the recession-veto inputs) ---
 export const MACRO_SPREAD_IDS = ["T10Y2Y", "T10Y3M"];
 

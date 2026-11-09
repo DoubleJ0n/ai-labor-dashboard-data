@@ -1,0 +1,4118 @@
+{
+  "schemaVersion": 1,
+  "source": "Stanford Digital Economy Lab and ADP Research, AI Economic Indicators: Canaries Dashboard",
+  "sourceUrl": "https://digitaleconomy.stanford.edu/project/indicators/canaries-dashboard/",
+  "dataUrl": "https://storage.googleapis.com/aviary-del-public/release_memos/latest/downloads/",
+  "citation": "Stanford Digital Economy Lab and ADP Research. \"AI Economic Indicators: Canaries Dashboard.\"",
+  "license": "No licence is stated by the publisher; the dashboard page gives a citation format and links general terms of use.",
+  "note": "Employment index by occupational AI-exposure quintile and age band, 2022-11 = 100, from anonymised ADP payroll records for a rolling five-year balanced panel of firms. Exposed = the two most exposed quintiles, control = the three least, which is the paper's own grouping. Each side is the equal-weight mean of its quintile series. The year-over-year figures are the publisher's, not recomputed. The sample is not representative of the US labour market, occupations are weighted equally rather than by employment, and history revises with every vintage. No pre-2020 history exists, so this panel carries no baseline z-score.",
+  "exposedQuintiles": [
+    "Quintile 4",
+    "Quintile 5 (most exposed)"
+  ],
+  "controlQuintiles": [
+    "Quintile 1 (least exposed)",
+    "Quintile 2",
+    "Quintile 3"
+  ],
+  "bands": [
+    "22-25",
+    "26-30",
+    "31-34",
+    "35-40",
+    "41-49",
+    "50+"
+  ],
+  "headlineBand": "22-25",
+  "comparatorBand": "50+",
+  "normalizationDate": "2022-11-01",
+  "vintage": "2026-10-16",
+  "allAgesVintage": "2026-10-16",
+  "sourceEtag": "\"a510e0ccaf564904ea523f666864aba3\"",
+  "sourceLastModified": "Wed, 21 Oct 2026 06:23:33 GMT",
+  "lastRefreshed": "2026-11-09",
+  "months": [
+    {
+      "date": "2021-10-01",
+      "index": {
+        "22-25": {
+          "exposed": 88.34,
+          "control": 87.19
+        },
+        "26-30": {
+          "exposed": 91.29,
+          "control": 91.27
+        },
+        "31-34": {
+          "exposed": 90.61,
+          "control": 88.87
+        },
+        "35-40": {
+          "exposed": 91.98,
+          "control": 91.03
+        },
+        "41-49": {
+          "exposed": 92.21,
+          "control": 92.51
+        },
+        "50+": {
+          "exposed": 92.6,
+          "control": 92.88
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2021-11-01",
+      "index": {
+        "22-25": {
+          "exposed": 89.55,
+          "control": 89.13
+        },
+        "26-30": {
+          "exposed": 92.18,
+          "control": 92.42
+        },
+        "31-34": {
+          "exposed": 91.57,
+          "control": 90.15
+        },
+        "35-40": {
+          "exposed": 92.65,
+          "control": 91.88
+        },
+        "41-49": {
+          "exposed": 92.89,
+          "control": 93.36
+        },
+        "50+": {
+          "exposed": 93.39,
+          "control": 93.79
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2021-12-01",
+      "index": {
+        "22-25": {
+          "exposed": 90.35,
+          "control": 91.09
+        },
+        "26-30": {
+          "exposed": 92.99,
+          "control": 94.19
+        },
+        "31-34": {
+          "exposed": 92.19,
+          "control": 91.85
+        },
+        "35-40": {
+          "exposed": 93.1,
+          "control": 93.23
+        },
+        "41-49": {
+          "exposed": 93.25,
+          "control": 94.38
+        },
+        "50+": {
+          "exposed": 93.75,
+          "control": 94.53
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-01-01",
+      "index": {
+        "22-25": {
+          "exposed": 91.14,
+          "control": 89.92
+        },
+        "26-30": {
+          "exposed": 93.85,
+          "control": 93.63
+        },
+        "31-34": {
+          "exposed": 93.19,
+          "control": 91.61
+        },
+        "35-40": {
+          "exposed": 94.1,
+          "control": 92.98
+        },
+        "41-49": {
+          "exposed": 94.31,
+          "control": 94.24
+        },
+        "50+": {
+          "exposed": 94.05,
+          "control": 93.52
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-02-01",
+      "index": {
+        "22-25": {
+          "exposed": 91.78,
+          "control": 90.53
+        },
+        "26-30": {
+          "exposed": 94.36,
+          "control": 94.18
+        },
+        "31-34": {
+          "exposed": 93.66,
+          "control": 92.4
+        },
+        "35-40": {
+          "exposed": 94.53,
+          "control": 93.68
+        },
+        "41-49": {
+          "exposed": 94.81,
+          "control": 94.64
+        },
+        "50+": {
+          "exposed": 94.47,
+          "control": 94.04
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-03-01",
+      "index": {
+        "22-25": {
+          "exposed": 91.85,
+          "control": 90.63
+        },
+        "26-30": {
+          "exposed": 94.75,
+          "control": 94.42
+        },
+        "31-34": {
+          "exposed": 94.27,
+          "control": 92.64
+        },
+        "35-40": {
+          "exposed": 94.96,
+          "control": 94.06
+        },
+        "41-49": {
+          "exposed": 95.29,
+          "control": 95.13
+        },
+        "50+": {
+          "exposed": 95.07,
+          "control": 94.71
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-04-01",
+      "index": {
+        "22-25": {
+          "exposed": 92.95,
+          "control": 92.24
+        },
+        "26-30": {
+          "exposed": 95.72,
+          "control": 95.67
+        },
+        "31-34": {
+          "exposed": 95.28,
+          "control": 94.22
+        },
+        "35-40": {
+          "exposed": 95.76,
+          "control": 95.38
+        },
+        "41-49": {
+          "exposed": 96.02,
+          "control": 96.18
+        },
+        "50+": {
+          "exposed": 95.71,
+          "control": 95.86
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-05-01",
+      "index": {
+        "22-25": {
+          "exposed": 92.97,
+          "control": 92
+        },
+        "26-30": {
+          "exposed": 95.97,
+          "control": 95.49
+        },
+        "31-34": {
+          "exposed": 95.59,
+          "control": 94.14
+        },
+        "35-40": {
+          "exposed": 96.04,
+          "control": 95.38
+        },
+        "41-49": {
+          "exposed": 96.28,
+          "control": 96.28
+        },
+        "50+": {
+          "exposed": 95.98,
+          "control": 96.11
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-06-01",
+      "index": {
+        "22-25": {
+          "exposed": 95.03,
+          "control": 93.45
+        },
+        "26-30": {
+          "exposed": 96.53,
+          "control": 96.09
+        },
+        "31-34": {
+          "exposed": 96.06,
+          "control": 95.01
+        },
+        "35-40": {
+          "exposed": 96.6,
+          "control": 95.98
+        },
+        "41-49": {
+          "exposed": 96.94,
+          "control": 96.79
+        },
+        "50+": {
+          "exposed": 96.63,
+          "control": 96.7
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-07-01",
+      "index": {
+        "22-25": {
+          "exposed": 97.2,
+          "control": 95.6
+        },
+        "26-30": {
+          "exposed": 97.72,
+          "control": 97.2
+        },
+        "31-34": {
+          "exposed": 97.1,
+          "control": 96.46
+        },
+        "35-40": {
+          "exposed": 97.58,
+          "control": 96.81
+        },
+        "41-49": {
+          "exposed": 97.75,
+          "control": 97.34
+        },
+        "50+": {
+          "exposed": 97.42,
+          "control": 97.28
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-08-01",
+      "index": {
+        "22-25": {
+          "exposed": 97.33,
+          "control": 95.4
+        },
+        "26-30": {
+          "exposed": 97.6,
+          "control": 97.11
+        },
+        "31-34": {
+          "exposed": 97.49,
+          "control": 96.59
+        },
+        "35-40": {
+          "exposed": 97.9,
+          "control": 96.8
+        },
+        "41-49": {
+          "exposed": 98.05,
+          "control": 97.54
+        },
+        "50+": {
+          "exposed": 97.83,
+          "control": 97.6
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-09-01",
+      "index": {
+        "22-25": {
+          "exposed": 99,
+          "control": 97.97
+        },
+        "26-30": {
+          "exposed": 98.92,
+          "control": 98.55
+        },
+        "31-34": {
+          "exposed": 98.7,
+          "control": 98.38
+        },
+        "35-40": {
+          "exposed": 98.9,
+          "control": 98.5
+        },
+        "41-49": {
+          "exposed": 99.03,
+          "control": 98.96
+        },
+        "50+": {
+          "exposed": 98.73,
+          "control": 98.93
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": null,
+          "control": null
+        },
+        "26-30": {
+          "exposed": null,
+          "control": null
+        },
+        "31-34": {
+          "exposed": null,
+          "control": null
+        },
+        "35-40": {
+          "exposed": null,
+          "control": null
+        },
+        "41-49": {
+          "exposed": null,
+          "control": null
+        },
+        "50+": {
+          "exposed": null,
+          "control": null
+        }
+      },
+      "yoyGap": {
+        "22-25": null,
+        "26-30": null,
+        "31-34": null,
+        "35-40": null,
+        "41-49": null,
+        "50+": null
+      }
+    },
+    {
+      "date": "2022-10-01",
+      "index": {
+        "22-25": {
+          "exposed": 99.92,
+          "control": 99.02
+        },
+        "26-30": {
+          "exposed": 99.57,
+          "control": 99.48
+        },
+        "31-34": {
+          "exposed": 99.32,
+          "control": 99.29
+        },
+        "35-40": {
+          "exposed": 99.55,
+          "control": 99.51
+        },
+        "41-49": {
+          "exposed": 99.49,
+          "control": 99.67
+        },
+        "50+": {
+          "exposed": 99.35,
+          "control": 99.65
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 13.13,
+          "control": 13.59
+        },
+        "26-30": {
+          "exposed": 9.07,
+          "control": 9
+        },
+        "31-34": {
+          "exposed": 9.61,
+          "control": 11.74
+        },
+        "35-40": {
+          "exposed": 8.24,
+          "control": 9.33
+        },
+        "41-49": {
+          "exposed": 7.9,
+          "control": 7.73
+        },
+        "50+": {
+          "exposed": 7.3,
+          "control": 7.3
+        }
+      },
+      "yoyGap": {
+        "22-25": -0.46,
+        "26-30": 0.07,
+        "31-34": -2.13,
+        "35-40": -1.09,
+        "41-49": 0.17,
+        "50+": 0
+      }
+    },
+    {
+      "date": "2022-11-01",
+      "index": {
+        "22-25": {
+          "exposed": 100,
+          "control": 100
+        },
+        "26-30": {
+          "exposed": 100,
+          "control": 100
+        },
+        "31-34": {
+          "exposed": 100,
+          "control": 100
+        },
+        "35-40": {
+          "exposed": 100,
+          "control": 100
+        },
+        "41-49": {
+          "exposed": 100,
+          "control": 100
+        },
+        "50+": {
+          "exposed": 100,
+          "control": 100
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 11.7,
+          "control": 12.24
+        },
+        "26-30": {
+          "exposed": 8.49,
+          "control": 8.21
+        },
+        "31-34": {
+          "exposed": 9.21,
+          "control": 10.94
+        },
+        "35-40": {
+          "exposed": 7.94,
+          "control": 8.84
+        },
+        "41-49": {
+          "exposed": 7.65,
+          "control": 7.11
+        },
+        "50+": {
+          "exposed": 7.08,
+          "control": 6.63
+        }
+      },
+      "yoyGap": {
+        "22-25": -0.55,
+        "26-30": 0.28,
+        "31-34": -1.72,
+        "35-40": -0.91,
+        "41-49": 0.54,
+        "50+": 0.45
+      }
+    },
+    {
+      "date": "2022-12-01",
+      "index": {
+        "22-25": {
+          "exposed": 100.05,
+          "control": 101.5
+        },
+        "26-30": {
+          "exposed": 100.05,
+          "control": 101.13
+        },
+        "31-34": {
+          "exposed": 100.14,
+          "control": 101.13
+        },
+        "35-40": {
+          "exposed": 100.2,
+          "control": 100.97
+        },
+        "41-49": {
+          "exposed": 100.1,
+          "control": 100.67
+        },
+        "50+": {
+          "exposed": 100.05,
+          "control": 100.63
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 10.75,
+          "control": 11.48
+        },
+        "26-30": {
+          "exposed": 7.6,
+          "control": 7.39
+        },
+        "31-34": {
+          "exposed": 8.62,
+          "control": 10.12
+        },
+        "35-40": {
+          "exposed": 7.64,
+          "control": 8.31
+        },
+        "41-49": {
+          "exposed": 7.35,
+          "control": 6.66
+        },
+        "50+": {
+          "exposed": 6.73,
+          "control": 6.46
+        }
+      },
+      "yoyGap": {
+        "22-25": -0.73,
+        "26-30": 0.21,
+        "31-34": -1.49,
+        "35-40": -0.67,
+        "41-49": 0.68,
+        "50+": 0.26
+      }
+    },
+    {
+      "date": "2023-01-01",
+      "index": {
+        "22-25": {
+          "exposed": 99.9,
+          "control": 100.77
+        },
+        "26-30": {
+          "exposed": 100.25,
+          "control": 100.97
+        },
+        "31-34": {
+          "exposed": 100.75,
+          "control": 101.53
+        },
+        "35-40": {
+          "exposed": 101,
+          "control": 101.2
+        },
+        "41-49": {
+          "exposed": 100.95,
+          "control": 100.83
+        },
+        "50+": {
+          "exposed": 100.2,
+          "control": 99.86
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 9.63,
+          "control": 12.11
+        },
+        "26-30": {
+          "exposed": 6.83,
+          "control": 7.84
+        },
+        "31-34": {
+          "exposed": 8.11,
+          "control": 10.84
+        },
+        "35-40": {
+          "exposed": 7.34,
+          "control": 8.85
+        },
+        "41-49": {
+          "exposed": 7.04,
+          "control": 6.99
+        },
+        "50+": {
+          "exposed": 6.55,
+          "control": 6.79
+        }
+      },
+      "yoyGap": {
+        "22-25": -2.47,
+        "26-30": -1.02,
+        "31-34": -2.73,
+        "35-40": -1.5,
+        "41-49": 0.05,
+        "50+": -0.24
+      }
+    },
+    {
+      "date": "2023-02-01",
+      "index": {
+        "22-25": {
+          "exposed": 99.95,
+          "control": 102.07
+        },
+        "26-30": {
+          "exposed": 100.45,
+          "control": 101.57
+        },
+        "31-34": {
+          "exposed": 101,
+          "control": 101.9
+        },
+        "35-40": {
+          "exposed": 101.3,
+          "control": 101.7
+        },
+        "41-49": {
+          "exposed": 101.25,
+          "control": 101.47
+        },
+        "50+": {
+          "exposed": 100.5,
+          "control": 100.35
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 8.92,
+          "control": 12.75
+        },
+        "26-30": {
+          "exposed": 6.46,
+          "control": 7.84
+        },
+        "31-34": {
+          "exposed": 7.84,
+          "control": 10.29
+        },
+        "35-40": {
+          "exposed": 7.17,
+          "control": 8.56
+        },
+        "41-49": {
+          "exposed": 6.8,
+          "control": 7.22
+        },
+        "50+": {
+          "exposed": 6.38,
+          "control": 6.72
+        }
+      },
+      "yoyGap": {
+        "22-25": -3.83,
+        "26-30": -1.38,
+        "31-34": -2.45,
+        "35-40": -1.4,
+        "41-49": -0.42,
+        "50+": -0.33
+      }
+    },
+    {
+      "date": "2023-03-01",
+      "index": {
+        "22-25": {
+          "exposed": 99.64,
+          "control": 102.7
+        },
+        "26-30": {
+          "exposed": 100.5,
+          "control": 102.17
+        },
+        "31-34": {
+          "exposed": 101.2,
+          "control": 102.17
+        },
+        "35-40": {
+          "exposed": 101.7,
+          "control": 102.27
+        },
+        "41-49": {
+          "exposed": 101.65,
+          "control": 101.87
+        },
+        "50+": {
+          "exposed": 100.8,
+          "control": 100.93
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 8.49,
+          "control": 13.31
+        },
+        "26-30": {
+          "exposed": 6.07,
+          "control": 8.21
+        },
+        "31-34": {
+          "exposed": 7.36,
+          "control": 10.29
+        },
+        "35-40": {
+          "exposed": 7.11,
+          "control": 8.73
+        },
+        "41-49": {
+          "exposed": 6.68,
+          "control": 7.08
+        },
+        "50+": {
+          "exposed": 6.03,
+          "control": 6.58
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.82,
+        "26-30": -2.14,
+        "31-34": -2.93,
+        "35-40": -1.63,
+        "41-49": -0.4,
+        "50+": -0.54
+      }
+    },
+    {
+      "date": "2023-04-01",
+      "index": {
+        "22-25": {
+          "exposed": 98.93,
+          "control": 102.87
+        },
+        "26-30": {
+          "exposed": 100.55,
+          "control": 102.2
+        },
+        "31-34": {
+          "exposed": 101.6,
+          "control": 102.9
+        },
+        "35-40": {
+          "exposed": 102,
+          "control": 102.53
+        },
+        "41-49": {
+          "exposed": 102.05,
+          "control": 102.4
+        },
+        "50+": {
+          "exposed": 101.2,
+          "control": 101.37
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 6.43,
+          "control": 11.52
+        },
+        "26-30": {
+          "exposed": 5.05,
+          "control": 6.84
+        },
+        "31-34": {
+          "exposed": 6.63,
+          "control": 9.22
+        },
+        "35-40": {
+          "exposed": 6.52,
+          "control": 7.5
+        },
+        "41-49": {
+          "exposed": 6.28,
+          "control": 6.47
+        },
+        "50+": {
+          "exposed": 5.74,
+          "control": 5.75
+        }
+      },
+      "yoyGap": {
+        "22-25": -5.09,
+        "26-30": -1.79,
+        "31-34": -2.58,
+        "35-40": -0.99,
+        "41-49": -0.19,
+        "50+": 0
+      }
+    },
+    {
+      "date": "2023-05-01",
+      "index": {
+        "22-25": {
+          "exposed": 98.59,
+          "control": 102.79
+        },
+        "26-30": {
+          "exposed": 100.45,
+          "control": 102.33
+        },
+        "31-34": {
+          "exposed": 101.75,
+          "control": 102.8
+        },
+        "35-40": {
+          "exposed": 102.3,
+          "control": 102.73
+        },
+        "41-49": {
+          "exposed": 102.45,
+          "control": 102.43
+        },
+        "50+": {
+          "exposed": 101.75,
+          "control": 101.7
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 6.05,
+          "control": 11.74
+        },
+        "26-30": {
+          "exposed": 4.67,
+          "control": 7.18
+        },
+        "31-34": {
+          "exposed": 6.45,
+          "control": 9.2
+        },
+        "35-40": {
+          "exposed": 6.52,
+          "control": 7.71
+        },
+        "41-49": {
+          "exposed": 6.42,
+          "control": 6.39
+        },
+        "50+": {
+          "exposed": 6.02,
+          "control": 5.81
+        }
+      },
+      "yoyGap": {
+        "22-25": -5.69,
+        "26-30": -2.5,
+        "31-34": -2.75,
+        "35-40": -1.19,
+        "41-49": 0.03,
+        "50+": 0.21
+      }
+    },
+    {
+      "date": "2023-06-01",
+      "index": {
+        "22-25": {
+          "exposed": 99.73,
+          "control": 104.6
+        },
+        "26-30": {
+          "exposed": 100.65,
+          "control": 103.07
+        },
+        "31-34": {
+          "exposed": 101.9,
+          "control": 103.8
+        },
+        "35-40": {
+          "exposed": 102.7,
+          "control": 103.43
+        },
+        "41-49": {
+          "exposed": 102.75,
+          "control": 102.87
+        },
+        "50+": {
+          "exposed": 102.05,
+          "control": 101.97
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 4.95,
+          "control": 11.97
+        },
+        "26-30": {
+          "exposed": 4.27,
+          "control": 7.27
+        },
+        "31-34": {
+          "exposed": 6.09,
+          "control": 9.26
+        },
+        "35-40": {
+          "exposed": 6.32,
+          "control": 7.78
+        },
+        "41-49": {
+          "exposed": 6,
+          "control": 6.28
+        },
+        "50+": {
+          "exposed": 5.61,
+          "control": 5.45
+        }
+      },
+      "yoyGap": {
+        "22-25": -7.02,
+        "26-30": -3,
+        "31-34": -3.17,
+        "35-40": -1.46,
+        "41-49": -0.28,
+        "50+": 0.16
+      }
+    },
+    {
+      "date": "2023-07-01",
+      "index": {
+        "22-25": {
+          "exposed": 99.51,
+          "control": 104.03
+        },
+        "26-30": {
+          "exposed": 100.3,
+          "control": 102
+        },
+        "31-34": {
+          "exposed": 101.7,
+          "control": 103.4
+        },
+        "35-40": {
+          "exposed": 102.6,
+          "control": 102.83
+        },
+        "41-49": {
+          "exposed": 102.8,
+          "control": 102.13
+        },
+        "50+": {
+          "exposed": 102.05,
+          "control": 101.47
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 2.38,
+          "control": 8.85
+        },
+        "26-30": {
+          "exposed": 2.65,
+          "control": 4.95
+        },
+        "31-34": {
+          "exposed": 4.74,
+          "control": 7.2
+        },
+        "35-40": {
+          "exposed": 5.14,
+          "control": 6.23
+        },
+        "41-49": {
+          "exposed": 5.17,
+          "control": 4.92
+        },
+        "50+": {
+          "exposed": 4.75,
+          "control": 4.3
+        }
+      },
+      "yoyGap": {
+        "22-25": -6.46,
+        "26-30": -2.3,
+        "31-34": -2.46,
+        "35-40": -1.09,
+        "41-49": 0.24,
+        "50+": 0.46
+      }
+    },
+    {
+      "date": "2023-08-01",
+      "index": {
+        "22-25": {
+          "exposed": 99.17,
+          "control": 103.8
+        },
+        "26-30": {
+          "exposed": 100.19,
+          "control": 102.2
+        },
+        "31-34": {
+          "exposed": 102.1,
+          "control": 103.63
+        },
+        "35-40": {
+          "exposed": 102.8,
+          "control": 103.3
+        },
+        "41-49": {
+          "exposed": 103.15,
+          "control": 102.67
+        },
+        "50+": {
+          "exposed": 102.5,
+          "control": 102.03
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 1.9,
+          "control": 8.82
+        },
+        "26-30": {
+          "exposed": 2.65,
+          "control": 5.26
+        },
+        "31-34": {
+          "exposed": 4.73,
+          "control": 7.3
+        },
+        "35-40": {
+          "exposed": 5.01,
+          "control": 6.73
+        },
+        "41-49": {
+          "exposed": 5.2,
+          "control": 5.26
+        },
+        "50+": {
+          "exposed": 4.77,
+          "control": 4.54
+        }
+      },
+      "yoyGap": {
+        "22-25": -6.93,
+        "26-30": -2.61,
+        "31-34": -2.57,
+        "35-40": -1.72,
+        "41-49": -0.05,
+        "50+": 0.23
+      }
+    },
+    {
+      "date": "2023-09-01",
+      "index": {
+        "22-25": {
+          "exposed": 100.33,
+          "control": 106.23
+        },
+        "26-30": {
+          "exposed": 100.9,
+          "control": 103.77
+        },
+        "31-34": {
+          "exposed": 102.6,
+          "control": 105.5
+        },
+        "35-40": {
+          "exposed": 103.45,
+          "control": 104.83
+        },
+        "41-49": {
+          "exposed": 103.75,
+          "control": 103.9
+        },
+        "50+": {
+          "exposed": 103,
+          "control": 103.07
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 1.34,
+          "control": 8.44
+        },
+        "26-30": {
+          "exposed": 2,
+          "control": 5.3
+        },
+        "31-34": {
+          "exposed": 3.95,
+          "control": 7.24
+        },
+        "35-40": {
+          "exposed": 4.61,
+          "control": 6.44
+        },
+        "41-49": {
+          "exposed": 4.77,
+          "control": 4.99
+        },
+        "50+": {
+          "exposed": 4.33,
+          "control": 4.18
+        }
+      },
+      "yoyGap": {
+        "22-25": -7.1,
+        "26-30": -3.3,
+        "31-34": -3.28,
+        "35-40": -1.83,
+        "41-49": -0.22,
+        "50+": 0.15
+      }
+    },
+    {
+      "date": "2023-10-01",
+      "index": {
+        "22-25": {
+          "exposed": 100.29,
+          "control": 106.93
+        },
+        "26-30": {
+          "exposed": 100.9,
+          "control": 103.93
+        },
+        "31-34": {
+          "exposed": 102.8,
+          "control": 105.57
+        },
+        "35-40": {
+          "exposed": 103.7,
+          "control": 105.07
+        },
+        "41-49": {
+          "exposed": 104.05,
+          "control": 104.1
+        },
+        "50+": {
+          "exposed": 103.4,
+          "control": 103.2
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 0.38,
+          "control": 7.99
+        },
+        "26-30": {
+          "exposed": 1.34,
+          "control": 4.48
+        },
+        "31-34": {
+          "exposed": 3.51,
+          "control": 6.32
+        },
+        "35-40": {
+          "exposed": 4.17,
+          "control": 5.58
+        },
+        "41-49": {
+          "exposed": 4.58,
+          "control": 4.45
+        },
+        "50+": {
+          "exposed": 4.07,
+          "control": 3.56
+        }
+      },
+      "yoyGap": {
+        "22-25": -7.61,
+        "26-30": -3.14,
+        "31-34": -2.81,
+        "35-40": -1.41,
+        "41-49": 0.14,
+        "50+": 0.51
+      }
+    },
+    {
+      "date": "2023-11-01",
+      "index": {
+        "22-25": {
+          "exposed": 100.15,
+          "control": 108.5
+        },
+        "26-30": {
+          "exposed": 101.2,
+          "control": 105
+        },
+        "31-34": {
+          "exposed": 103.2,
+          "control": 106.4
+        },
+        "35-40": {
+          "exposed": 104.25,
+          "control": 106.07
+        },
+        "41-49": {
+          "exposed": 104.55,
+          "control": 104.83
+        },
+        "50+": {
+          "exposed": 104,
+          "control": 103.73
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": 0.15,
+          "control": 8.5
+        },
+        "26-30": {
+          "exposed": 1.2,
+          "control": 5
+        },
+        "31-34": {
+          "exposed": 3.2,
+          "control": 6.4
+        },
+        "35-40": {
+          "exposed": 4.25,
+          "control": 6.07
+        },
+        "41-49": {
+          "exposed": 4.55,
+          "control": 4.83
+        },
+        "50+": {
+          "exposed": 4,
+          "control": 3.73
+        }
+      },
+      "yoyGap": {
+        "22-25": -8.35,
+        "26-30": -3.8,
+        "31-34": -3.2,
+        "35-40": -1.82,
+        "41-49": -0.28,
+        "50+": 0.27
+      }
+    },
+    {
+      "date": "2023-12-01",
+      "index": {
+        "22-25": {
+          "exposed": 98.62,
+          "control": 108.03
+        },
+        "26-30": {
+          "exposed": 100.41,
+          "control": 104.5
+        },
+        "31-34": {
+          "exposed": 102.7,
+          "control": 106.2
+        },
+        "35-40": {
+          "exposed": 103.7,
+          "control": 105.97
+        },
+        "41-49": {
+          "exposed": 104.1,
+          "control": 104.63
+        },
+        "50+": {
+          "exposed": 103.5,
+          "control": 103.47
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -1.43,
+          "control": 6.44
+        },
+        "26-30": {
+          "exposed": 0.35,
+          "control": 3.33
+        },
+        "31-34": {
+          "exposed": 2.56,
+          "control": 5.01
+        },
+        "35-40": {
+          "exposed": 3.49,
+          "control": 4.95
+        },
+        "41-49": {
+          "exposed": 4,
+          "control": 3.94
+        },
+        "50+": {
+          "exposed": 3.45,
+          "control": 2.82
+        }
+      },
+      "yoyGap": {
+        "22-25": -7.87,
+        "26-30": -2.97,
+        "31-34": -2.45,
+        "35-40": -1.46,
+        "41-49": 0.06,
+        "50+": 0.63
+      }
+    },
+    {
+      "date": "2024-01-01",
+      "index": {
+        "22-25": {
+          "exposed": 98.89,
+          "control": 107.93
+        },
+        "26-30": {
+          "exposed": 101.1,
+          "control": 104.77
+        },
+        "31-34": {
+          "exposed": 103.5,
+          "control": 106.7
+        },
+        "35-40": {
+          "exposed": 104.7,
+          "control": 106.53
+        },
+        "41-49": {
+          "exposed": 105.05,
+          "control": 105.03
+        },
+        "50+": {
+          "exposed": 103.5,
+          "control": 102.83
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -1.01,
+          "control": 7.12
+        },
+        "26-30": {
+          "exposed": 0.85,
+          "control": 3.77
+        },
+        "31-34": {
+          "exposed": 2.73,
+          "control": 5.09
+        },
+        "35-40": {
+          "exposed": 3.66,
+          "control": 5.27
+        },
+        "41-49": {
+          "exposed": 4.06,
+          "control": 4.17
+        },
+        "50+": {
+          "exposed": 3.29,
+          "control": 2.97
+        }
+      },
+      "yoyGap": {
+        "22-25": -8.13,
+        "26-30": -2.92,
+        "31-34": -2.36,
+        "35-40": -1.61,
+        "41-49": -0.11,
+        "50+": 0.32
+      }
+    },
+    {
+      "date": "2024-02-01",
+      "index": {
+        "22-25": {
+          "exposed": 98.62,
+          "control": 107.83
+        },
+        "26-30": {
+          "exposed": 101.05,
+          "control": 104.67
+        },
+        "31-34": {
+          "exposed": 103.6,
+          "control": 106.83
+        },
+        "35-40": {
+          "exposed": 105,
+          "control": 106.67
+        },
+        "41-49": {
+          "exposed": 105.35,
+          "control": 105.03
+        },
+        "50+": {
+          "exposed": 103.7,
+          "control": 102.9
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -1.33,
+          "control": 5.66
+        },
+        "26-30": {
+          "exposed": 0.6,
+          "control": 3.06
+        },
+        "31-34": {
+          "exposed": 2.57,
+          "control": 4.84
+        },
+        "35-40": {
+          "exposed": 3.65,
+          "control": 4.89
+        },
+        "41-49": {
+          "exposed": 4.05,
+          "control": 3.52
+        },
+        "50+": {
+          "exposed": 3.18,
+          "control": 2.54
+        }
+      },
+      "yoyGap": {
+        "22-25": -6.99,
+        "26-30": -2.46,
+        "31-34": -2.27,
+        "35-40": -1.23,
+        "41-49": 0.53,
+        "50+": 0.64
+      }
+    },
+    {
+      "date": "2024-03-01",
+      "index": {
+        "22-25": {
+          "exposed": 98.16,
+          "control": 108.4
+        },
+        "26-30": {
+          "exposed": 101.1,
+          "control": 105.27
+        },
+        "31-34": {
+          "exposed": 103.8,
+          "control": 107.37
+        },
+        "35-40": {
+          "exposed": 105.2,
+          "control": 107.3
+        },
+        "41-49": {
+          "exposed": 105.65,
+          "control": 105.53
+        },
+        "50+": {
+          "exposed": 104,
+          "control": 103.33
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -1.49,
+          "control": 5.56
+        },
+        "26-30": {
+          "exposed": 0.6,
+          "control": 3.04
+        },
+        "31-34": {
+          "exposed": 2.57,
+          "control": 5.09
+        },
+        "35-40": {
+          "exposed": 3.44,
+          "control": 4.93
+        },
+        "41-49": {
+          "exposed": 3.93,
+          "control": 3.6
+        },
+        "50+": {
+          "exposed": 3.17,
+          "control": 2.38
+        }
+      },
+      "yoyGap": {
+        "22-25": -7.05,
+        "26-30": -2.44,
+        "31-34": -2.52,
+        "35-40": -1.48,
+        "41-49": 0.33,
+        "50+": 0.79
+      }
+    },
+    {
+      "date": "2024-04-01",
+      "index": {
+        "22-25": {
+          "exposed": 97.01,
+          "control": 107.73
+        },
+        "26-30": {
+          "exposed": 100.85,
+          "control": 104.87
+        },
+        "31-34": {
+          "exposed": 103.65,
+          "control": 107.17
+        },
+        "35-40": {
+          "exposed": 105.35,
+          "control": 107.07
+        },
+        "41-49": {
+          "exposed": 105.9,
+          "control": 105.37
+        },
+        "50+": {
+          "exposed": 104.15,
+          "control": 103.2
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -1.95,
+          "control": 4.74
+        },
+        "26-30": {
+          "exposed": 0.3,
+          "control": 2.62
+        },
+        "31-34": {
+          "exposed": 2.02,
+          "control": 4.15
+        },
+        "35-40": {
+          "exposed": 3.28,
+          "control": 4.42
+        },
+        "41-49": {
+          "exposed": 3.77,
+          "control": 2.9
+        },
+        "50+": {
+          "exposed": 2.91,
+          "control": 1.81
+        }
+      },
+      "yoyGap": {
+        "22-25": -6.69,
+        "26-30": -2.32,
+        "31-34": -2.13,
+        "35-40": -1.14,
+        "41-49": 0.87,
+        "50+": 1.1
+      }
+    },
+    {
+      "date": "2024-05-01",
+      "index": {
+        "22-25": {
+          "exposed": 97.22,
+          "control": 108.97
+        },
+        "26-30": {
+          "exposed": 101.2,
+          "control": 105.9
+        },
+        "31-34": {
+          "exposed": 103.9,
+          "control": 108.1
+        },
+        "35-40": {
+          "exposed": 105.9,
+          "control": 108.33
+        },
+        "41-49": {
+          "exposed": 106.4,
+          "control": 106.03
+        },
+        "50+": {
+          "exposed": 104.5,
+          "control": 103.77
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -1.4,
+          "control": 6.02
+        },
+        "26-30": {
+          "exposed": 0.75,
+          "control": 3.49
+        },
+        "31-34": {
+          "exposed": 2.11,
+          "control": 5.16
+        },
+        "35-40": {
+          "exposed": 3.52,
+          "control": 5.45
+        },
+        "41-49": {
+          "exposed": 3.85,
+          "control": 3.52
+        },
+        "50+": {
+          "exposed": 2.7,
+          "control": 2.03
+        }
+      },
+      "yoyGap": {
+        "22-25": -7.42,
+        "26-30": -2.75,
+        "31-34": -3.04,
+        "35-40": -1.94,
+        "41-49": 0.34,
+        "50+": 0.67
+      }
+    },
+    {
+      "date": "2024-06-01",
+      "index": {
+        "22-25": {
+          "exposed": 97.3,
+          "control": 108.57
+        },
+        "26-30": {
+          "exposed": 100.85,
+          "control": 105.47
+        },
+        "31-34": {
+          "exposed": 103.55,
+          "control": 107.63
+        },
+        "35-40": {
+          "exposed": 105.75,
+          "control": 107.87
+        },
+        "41-49": {
+          "exposed": 106.4,
+          "control": 105.5
+        },
+        "50+": {
+          "exposed": 104.6,
+          "control": 103.57
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.43,
+          "control": 3.8
+        },
+        "26-30": {
+          "exposed": 0.2,
+          "control": 2.34
+        },
+        "31-34": {
+          "exposed": 1.62,
+          "control": 3.69
+        },
+        "35-40": {
+          "exposed": 2.97,
+          "control": 4.29
+        },
+        "41-49": {
+          "exposed": 3.55,
+          "control": 2.56
+        },
+        "50+": {
+          "exposed": 2.5,
+          "control": 1.57
+        }
+      },
+      "yoyGap": {
+        "22-25": -6.23,
+        "26-30": -2.14,
+        "31-34": -2.07,
+        "35-40": -1.32,
+        "41-49": 0.99,
+        "50+": 0.93
+      }
+    },
+    {
+      "date": "2024-07-01",
+      "index": {
+        "22-25": {
+          "exposed": 96.84,
+          "control": 107.73
+        },
+        "26-30": {
+          "exposed": 100.17,
+          "control": 104.83
+        },
+        "31-34": {
+          "exposed": 103.05,
+          "control": 107.03
+        },
+        "35-40": {
+          "exposed": 105.65,
+          "control": 107.53
+        },
+        "41-49": {
+          "exposed": 106.25,
+          "control": 104.93
+        },
+        "50+": {
+          "exposed": 104.5,
+          "control": 103
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.69,
+          "control": 3.56
+        },
+        "26-30": {
+          "exposed": -0.13,
+          "control": 2.79
+        },
+        "31-34": {
+          "exposed": 1.32,
+          "control": 3.52
+        },
+        "35-40": {
+          "exposed": 2.97,
+          "control": 4.58
+        },
+        "41-49": {
+          "exposed": 3.35,
+          "control": 2.75
+        },
+        "50+": {
+          "exposed": 2.4,
+          "control": 1.51
+        }
+      },
+      "yoyGap": {
+        "22-25": -6.25,
+        "26-30": -2.92,
+        "31-34": -2.19,
+        "35-40": -1.6,
+        "41-49": 0.6,
+        "50+": 0.89
+      }
+    },
+    {
+      "date": "2024-08-01",
+      "index": {
+        "22-25": {
+          "exposed": 97.34,
+          "control": 109.43
+        },
+        "26-30": {
+          "exposed": 100.85,
+          "control": 106.4
+        },
+        "31-34": {
+          "exposed": 103.85,
+          "control": 108.73
+        },
+        "35-40": {
+          "exposed": 106.4,
+          "control": 109.17
+        },
+        "41-49": {
+          "exposed": 107.1,
+          "control": 106.43
+        },
+        "50+": {
+          "exposed": 105.3,
+          "control": 104.1
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -1.85,
+          "control": 5.43
+        },
+        "26-30": {
+          "exposed": 0.66,
+          "control": 4.11
+        },
+        "31-34": {
+          "exposed": 1.71,
+          "control": 4.92
+        },
+        "35-40": {
+          "exposed": 3.5,
+          "control": 5.68
+        },
+        "41-49": {
+          "exposed": 3.83,
+          "control": 3.67
+        },
+        "50+": {
+          "exposed": 2.73,
+          "control": 2.03
+        }
+      },
+      "yoyGap": {
+        "22-25": -7.28,
+        "26-30": -3.45,
+        "31-34": -3.21,
+        "35-40": -2.18,
+        "41-49": 0.15,
+        "50+": 0.7
+      }
+    },
+    {
+      "date": "2024-09-01",
+      "index": {
+        "22-25": {
+          "exposed": 96.78,
+          "control": 108.5
+        },
+        "26-30": {
+          "exposed": 100.55,
+          "control": 105.97
+        },
+        "31-34": {
+          "exposed": 103.65,
+          "control": 108.13
+        },
+        "35-40": {
+          "exposed": 106.35,
+          "control": 109.23
+        },
+        "41-49": {
+          "exposed": 107.05,
+          "control": 106.13
+        },
+        "50+": {
+          "exposed": 105.2,
+          "control": 104.03
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.54,
+          "control": 2.13
+        },
+        "26-30": {
+          "exposed": -0.35,
+          "control": 2.12
+        },
+        "31-34": {
+          "exposed": 1.02,
+          "control": 2.5
+        },
+        "35-40": {
+          "exposed": 2.8,
+          "control": 4.2
+        },
+        "41-49": {
+          "exposed": 3.18,
+          "control": 2.15
+        },
+        "50+": {
+          "exposed": 2.13,
+          "control": 0.94
+        }
+      },
+      "yoyGap": {
+        "22-25": -5.67,
+        "26-30": -2.47,
+        "31-34": -1.48,
+        "35-40": -1.39,
+        "41-49": 1.03,
+        "50+": 1.19
+      }
+    },
+    {
+      "date": "2024-10-01",
+      "index": {
+        "22-25": {
+          "exposed": 96.9,
+          "control": 109.5
+        },
+        "26-30": {
+          "exposed": 100.65,
+          "control": 106.7
+        },
+        "31-34": {
+          "exposed": 103.9,
+          "control": 108.87
+        },
+        "35-40": {
+          "exposed": 106.8,
+          "control": 109.8
+        },
+        "41-49": {
+          "exposed": 107.4,
+          "control": 106.63
+        },
+        "50+": {
+          "exposed": 105.65,
+          "control": 104.37
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.39,
+          "control": 2.4
+        },
+        "26-30": {
+          "exposed": -0.25,
+          "control": 2.66
+        },
+        "31-34": {
+          "exposed": 1.07,
+          "control": 3.13
+        },
+        "35-40": {
+          "exposed": 2.99,
+          "control": 4.5
+        },
+        "41-49": {
+          "exposed": 3.22,
+          "control": 2.43
+        },
+        "50+": {
+          "exposed": 2.17,
+          "control": 1.13
+        }
+      },
+      "yoyGap": {
+        "22-25": -5.79,
+        "26-30": -2.91,
+        "31-34": -2.06,
+        "35-40": -1.51,
+        "41-49": 0.78,
+        "50+": 1.04
+      }
+    },
+    {
+      "date": "2024-11-01",
+      "index": {
+        "22-25": {
+          "exposed": 97.27,
+          "control": 112.37
+        },
+        "26-30": {
+          "exposed": 101.45,
+          "control": 108.8
+        },
+        "31-34": {
+          "exposed": 104.45,
+          "control": 110.77
+        },
+        "35-40": {
+          "exposed": 107.65,
+          "control": 112.27
+        },
+        "41-49": {
+          "exposed": 108,
+          "control": 108.7
+        },
+        "50+": {
+          "exposed": 106.4,
+          "control": 106.5
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.89,
+          "control": 3.57
+        },
+        "26-30": {
+          "exposed": 0.25,
+          "control": 3.62
+        },
+        "31-34": {
+          "exposed": 1.21,
+          "control": 4.1
+        },
+        "35-40": {
+          "exposed": 3.26,
+          "control": 5.85
+        },
+        "41-49": {
+          "exposed": 3.3,
+          "control": 3.69
+        },
+        "50+": {
+          "exposed": 2.31,
+          "control": 2.67
+        }
+      },
+      "yoyGap": {
+        "22-25": -6.46,
+        "26-30": -3.37,
+        "31-34": -2.9,
+        "35-40": -2.58,
+        "41-49": -0.39,
+        "50+": -0.36
+      }
+    },
+    {
+      "date": "2024-12-01",
+      "index": {
+        "22-25": {
+          "exposed": 95.94,
+          "control": 111.5
+        },
+        "26-30": {
+          "exposed": 100.85,
+          "control": 108.3
+        },
+        "31-34": {
+          "exposed": 104.05,
+          "control": 110.17
+        },
+        "35-40": {
+          "exposed": 107.35,
+          "control": 111.73
+        },
+        "41-49": {
+          "exposed": 107.85,
+          "control": 108.2
+        },
+        "50+": {
+          "exposed": 106.1,
+          "control": 106
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.72,
+          "control": 3.23
+        },
+        "26-30": {
+          "exposed": 0.44,
+          "control": 3.63
+        },
+        "31-34": {
+          "exposed": 1.31,
+          "control": 3.74
+        },
+        "35-40": {
+          "exposed": 3.52,
+          "control": 5.44
+        },
+        "41-49": {
+          "exposed": 3.6,
+          "control": 3.41
+        },
+        "50+": {
+          "exposed": 2.51,
+          "control": 2.45
+        }
+      },
+      "yoyGap": {
+        "22-25": -5.94,
+        "26-30": -3.19,
+        "31-34": -2.42,
+        "35-40": -1.92,
+        "41-49": 0.19,
+        "50+": 0.06
+      }
+    },
+    {
+      "date": "2025-01-01",
+      "index": {
+        "22-25": {
+          "exposed": 96.07,
+          "control": 110.77
+        },
+        "26-30": {
+          "exposed": 101.1,
+          "control": 108.13
+        },
+        "31-34": {
+          "exposed": 104.3,
+          "control": 110.03
+        },
+        "35-40": {
+          "exposed": 107.95,
+          "control": 112.2
+        },
+        "41-49": {
+          "exposed": 108.5,
+          "control": 108.53
+        },
+        "50+": {
+          "exposed": 105.7,
+          "control": 105.07
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.86,
+          "control": 2.63
+        },
+        "26-30": {
+          "exposed": 0,
+          "control": 3.21
+        },
+        "31-34": {
+          "exposed": 0.77,
+          "control": 3.12
+        },
+        "35-40": {
+          "exposed": 3.1,
+          "control": 5.32
+        },
+        "41-49": {
+          "exposed": 3.28,
+          "control": 3.33
+        },
+        "50+": {
+          "exposed": 2.12,
+          "control": 2.17
+        }
+      },
+      "yoyGap": {
+        "22-25": -5.49,
+        "26-30": -3.21,
+        "31-34": -2.35,
+        "35-40": -2.21,
+        "41-49": -0.05,
+        "50+": -0.05
+      }
+    },
+    {
+      "date": "2025-02-01",
+      "index": {
+        "22-25": {
+          "exposed": 95.41,
+          "control": 110.33
+        },
+        "26-30": {
+          "exposed": 100.8,
+          "control": 107.7
+        },
+        "31-34": {
+          "exposed": 103.95,
+          "control": 109.7
+        },
+        "35-40": {
+          "exposed": 107.9,
+          "control": 112.33
+        },
+        "41-49": {
+          "exposed": 108.55,
+          "control": 108.6
+        },
+        "50+": {
+          "exposed": 105.75,
+          "control": 104.97
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.27,
+          "control": 2.32
+        },
+        "26-30": {
+          "exposed": -0.25,
+          "control": 2.9
+        },
+        "31-34": {
+          "exposed": 0.34,
+          "control": 2.68
+        },
+        "35-40": {
+          "exposed": 2.76,
+          "control": 5.31
+        },
+        "41-49": {
+          "exposed": 3.03,
+          "control": 3.4
+        },
+        "50+": {
+          "exposed": 1.97,
+          "control": 2.01
+        }
+      },
+      "yoyGap": {
+        "22-25": -5.59,
+        "26-30": -3.14,
+        "31-34": -2.35,
+        "35-40": -2.55,
+        "41-49": -0.36,
+        "50+": -0.04
+      }
+    },
+    {
+      "date": "2025-03-01",
+      "index": {
+        "22-25": {
+          "exposed": 94.62,
+          "control": 109.53
+        },
+        "26-30": {
+          "exposed": 100.35,
+          "control": 107.37
+        },
+        "31-34": {
+          "exposed": 103.55,
+          "control": 109.23
+        },
+        "35-40": {
+          "exposed": 107.8,
+          "control": 112.2
+        },
+        "41-49": {
+          "exposed": 108.55,
+          "control": 108.5
+        },
+        "50+": {
+          "exposed": 105.65,
+          "control": 104.87
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.61,
+          "control": 1.04
+        },
+        "26-30": {
+          "exposed": -0.74,
+          "control": 1.99
+        },
+        "31-34": {
+          "exposed": -0.24,
+          "control": 1.74
+        },
+        "35-40": {
+          "exposed": 2.47,
+          "control": 4.56
+        },
+        "41-49": {
+          "exposed": 2.74,
+          "control": 2.81
+        },
+        "50+": {
+          "exposed": 1.58,
+          "control": 1.49
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.65,
+        "26-30": -2.73,
+        "31-34": -1.98,
+        "35-40": -2.09,
+        "41-49": -0.07,
+        "50+": 0.1
+      }
+    },
+    {
+      "date": "2025-04-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.54,
+          "control": 108.7
+        },
+        "26-30": {
+          "exposed": 99.92,
+          "control": 107.23
+        },
+        "31-34": {
+          "exposed": 103.4,
+          "control": 108.83
+        },
+        "35-40": {
+          "exposed": 107.95,
+          "control": 112.23
+        },
+        "41-49": {
+          "exposed": 108.75,
+          "control": 108.43
+        },
+        "50+": {
+          "exposed": 105.75,
+          "control": 105.03
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.58,
+          "control": 0.88
+        },
+        "26-30": {
+          "exposed": -0.93,
+          "control": 2.25
+        },
+        "31-34": {
+          "exposed": -0.24,
+          "control": 1.56
+        },
+        "35-40": {
+          "exposed": 2.47,
+          "control": 4.82
+        },
+        "41-49": {
+          "exposed": 2.69,
+          "control": 2.91
+        },
+        "50+": {
+          "exposed": 1.53,
+          "control": 1.78
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.47,
+        "26-30": -3.18,
+        "31-34": -1.79,
+        "35-40": -2.36,
+        "41-49": -0.22,
+        "50+": -0.24
+      }
+    },
+    {
+      "date": "2025-05-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.61,
+          "control": 109.7
+        },
+        "26-30": {
+          "exposed": 100.14,
+          "control": 107.8
+        },
+        "31-34": {
+          "exposed": 103.65,
+          "control": 109.47
+        },
+        "35-40": {
+          "exposed": 108.4,
+          "control": 113.03
+        },
+        "41-49": {
+          "exposed": 109.15,
+          "control": 109.03
+        },
+        "50+": {
+          "exposed": 106.05,
+          "control": 105.43
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.72,
+          "control": 0.66
+        },
+        "26-30": {
+          "exposed": -1.05,
+          "control": 1.79
+        },
+        "31-34": {
+          "exposed": -0.24,
+          "control": 1.26
+        },
+        "35-40": {
+          "exposed": 2.36,
+          "control": 4.34
+        },
+        "41-49": {
+          "exposed": 2.58,
+          "control": 2.83
+        },
+        "50+": {
+          "exposed": 1.48,
+          "control": 1.61
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.38,
+        "26-30": -2.84,
+        "31-34": -1.5,
+        "35-40": -1.98,
+        "41-49": -0.25,
+        "50+": -0.13
+      }
+    },
+    {
+      "date": "2025-06-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.45,
+          "control": 108.67
+        },
+        "26-30": {
+          "exposed": 99.22,
+          "control": 106.63
+        },
+        "31-34": {
+          "exposed": 102.95,
+          "control": 108.3
+        },
+        "35-40": {
+          "exposed": 108.1,
+          "control": 112.37
+        },
+        "41-49": {
+          "exposed": 108.95,
+          "control": 108.27
+        },
+        "50+": {
+          "exposed": 105.7,
+          "control": 104.93
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.97,
+          "control": 0.08
+        },
+        "26-30": {
+          "exposed": -1.62,
+          "control": 1.1
+        },
+        "31-34": {
+          "exposed": -0.58,
+          "control": 0.62
+        },
+        "35-40": {
+          "exposed": 2.22,
+          "control": 4.17
+        },
+        "41-49": {
+          "exposed": 2.39,
+          "control": 2.62
+        },
+        "50+": {
+          "exposed": 1.05,
+          "control": 1.32
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.05,
+        "26-30": -2.72,
+        "31-34": -1.2,
+        "35-40": -1.95,
+        "41-49": -0.23,
+        "50+": -0.27
+      }
+    },
+    {
+      "date": "2025-07-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.31,
+          "control": 108.43
+        },
+        "26-30": {
+          "exposed": 99.01,
+          "control": 106.4
+        },
+        "31-34": {
+          "exposed": 102.7,
+          "control": 107.87
+        },
+        "35-40": {
+          "exposed": 108.25,
+          "control": 112.27
+        },
+        "41-49": {
+          "exposed": 109,
+          "control": 107.73
+        },
+        "50+": {
+          "exposed": 105.85,
+          "control": 104.6
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.65,
+          "control": 0.63
+        },
+        "26-30": {
+          "exposed": -1.16,
+          "control": 1.49
+        },
+        "31-34": {
+          "exposed": -0.34,
+          "control": 0.78
+        },
+        "35-40": {
+          "exposed": 2.46,
+          "control": 4.4
+        },
+        "41-49": {
+          "exposed": 2.58,
+          "control": 2.67
+        },
+        "50+": {
+          "exposed": 1.29,
+          "control": 1.56
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.29,
+        "26-30": -2.65,
+        "31-34": -1.12,
+        "35-40": -1.94,
+        "41-49": -0.09,
+        "50+": -0.27
+      }
+    },
+    {
+      "date": "2025-08-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.76,
+          "control": 109.83
+        },
+        "26-30": {
+          "exposed": 99.41,
+          "control": 107.73
+        },
+        "31-34": {
+          "exposed": 103.05,
+          "control": 109.1
+        },
+        "35-40": {
+          "exposed": 108.9,
+          "control": 113.9
+        },
+        "41-49": {
+          "exposed": 109.6,
+          "control": 108.97
+        },
+        "50+": {
+          "exposed": 106.3,
+          "control": 105.4
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.69,
+          "control": 0.35
+        },
+        "26-30": {
+          "exposed": -1.43,
+          "control": 1.25
+        },
+        "31-34": {
+          "exposed": -0.77,
+          "control": 0.34
+        },
+        "35-40": {
+          "exposed": 2.35,
+          "control": 4.34
+        },
+        "41-49": {
+          "exposed": 2.33,
+          "control": 2.38
+        },
+        "50+": {
+          "exposed": 0.95,
+          "control": 1.25
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.04,
+        "26-30": -2.68,
+        "31-34": -1.1,
+        "35-40": -1.99,
+        "41-49": -0.05,
+        "50+": -0.31
+      }
+    },
+    {
+      "date": "2025-09-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.54,
+          "control": 108.33
+        },
+        "26-30": {
+          "exposed": 99.23,
+          "control": 107.17
+        },
+        "31-34": {
+          "exposed": 102.8,
+          "control": 108.47
+        },
+        "35-40": {
+          "exposed": 109.1,
+          "control": 113.5
+        },
+        "41-49": {
+          "exposed": 109.9,
+          "control": 108.9
+        },
+        "50+": {
+          "exposed": 106.7,
+          "control": 105.57
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.37,
+          "control": -0.17
+        },
+        "26-30": {
+          "exposed": -1.32,
+          "control": 1.13
+        },
+        "31-34": {
+          "exposed": -0.82,
+          "control": 0.31
+        },
+        "35-40": {
+          "exposed": 2.59,
+          "control": 3.9
+        },
+        "41-49": {
+          "exposed": 2.66,
+          "control": 2.61
+        },
+        "50+": {
+          "exposed": 1.42,
+          "control": 1.47
+        }
+      },
+      "yoyGap": {
+        "22-25": -3.2,
+        "26-30": -2.44,
+        "31-34": -1.12,
+        "35-40": -1.32,
+        "41-49": 0.05,
+        "50+": -0.05
+      }
+    },
+    {
+      "date": "2025-10-01",
+      "index": {
+        "22-25": {
+          "exposed": 94.25,
+          "control": 110.6
+        },
+        "26-30": {
+          "exposed": 99.7,
+          "control": 108.77
+        },
+        "31-34": {
+          "exposed": 103.15,
+          "control": 109.6
+        },
+        "35-40": {
+          "exposed": 109.75,
+          "control": 115.3
+        },
+        "41-49": {
+          "exposed": 110.5,
+          "control": 110.03
+        },
+        "50+": {
+          "exposed": 107.3,
+          "control": 106.6
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.75,
+          "control": 1
+        },
+        "26-30": {
+          "exposed": -0.94,
+          "control": 1.93
+        },
+        "31-34": {
+          "exposed": -0.72,
+          "control": 0.67
+        },
+        "35-40": {
+          "exposed": 2.76,
+          "control": 5.01
+        },
+        "41-49": {
+          "exposed": 2.88,
+          "control": 3.18
+        },
+        "50+": {
+          "exposed": 1.56,
+          "control": 2.14
+        }
+      },
+      "yoyGap": {
+        "22-25": -3.75,
+        "26-30": -2.87,
+        "31-34": -1.39,
+        "35-40": -2.25,
+        "41-49": -0.3,
+        "50+": -0.58
+      }
+    },
+    {
+      "date": "2025-11-01",
+      "index": {
+        "22-25": {
+          "exposed": 94.08,
+          "control": 111.6
+        },
+        "26-30": {
+          "exposed": 99.82,
+          "control": 109.67
+        },
+        "31-34": {
+          "exposed": 103.1,
+          "control": 110.1
+        },
+        "35-40": {
+          "exposed": 110.05,
+          "control": 116
+        },
+        "41-49": {
+          "exposed": 110.85,
+          "control": 110.33
+        },
+        "50+": {
+          "exposed": 107.55,
+          "control": 106.9
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.3,
+          "control": -0.68
+        },
+        "26-30": {
+          "exposed": -1.61,
+          "control": 0.79
+        },
+        "31-34": {
+          "exposed": -1.29,
+          "control": -0.61
+        },
+        "35-40": {
+          "exposed": 2.23,
+          "control": 3.32
+        },
+        "41-49": {
+          "exposed": 2.63,
+          "control": 1.5
+        },
+        "50+": {
+          "exposed": 1.08,
+          "control": 0.37
+        }
+      },
+      "yoyGap": {
+        "22-25": -2.62,
+        "26-30": -2.4,
+        "31-34": -0.68,
+        "35-40": -1.09,
+        "41-49": 1.14,
+        "50+": 0.7
+      }
+    },
+    {
+      "date": "2025-12-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.29,
+          "control": 111.23
+        },
+        "26-30": {
+          "exposed": 99.47,
+          "control": 109.23
+        },
+        "31-34": {
+          "exposed": 102.85,
+          "control": 109.63
+        },
+        "35-40": {
+          "exposed": 110.05,
+          "control": 115.93
+        },
+        "41-49": {
+          "exposed": 110.75,
+          "control": 110.2
+        },
+        "50+": {
+          "exposed": 107.35,
+          "control": 106.9
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.78,
+          "control": -0.24
+        },
+        "26-30": {
+          "exposed": -1.37,
+          "control": 0.85
+        },
+        "31-34": {
+          "exposed": -1.15,
+          "control": -0.49
+        },
+        "35-40": {
+          "exposed": 2.51,
+          "control": 3.76
+        },
+        "41-49": {
+          "exposed": 2.68,
+          "control": 1.84
+        },
+        "50+": {
+          "exposed": 1.17,
+          "control": 0.85
+        }
+      },
+      "yoyGap": {
+        "22-25": -2.54,
+        "26-30": -2.22,
+        "31-34": -0.66,
+        "35-40": -1.24,
+        "41-49": 0.84,
+        "50+": 0.33
+      }
+    },
+    {
+      "date": "2026-01-01",
+      "index": {
+        "22-25": {
+          "exposed": 93.27,
+          "control": 110.77
+        },
+        "26-30": {
+          "exposed": 99.39,
+          "control": 109.27
+        },
+        "31-34": {
+          "exposed": 103.1,
+          "control": 109.63
+        },
+        "35-40": {
+          "exposed": 110.55,
+          "control": 116.3
+        },
+        "41-49": {
+          "exposed": 111.35,
+          "control": 110.6
+        },
+        "50+": {
+          "exposed": 106.95,
+          "control": 106
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.93,
+          "control": -0.01
+        },
+        "26-30": {
+          "exposed": -1.7,
+          "control": 1.04
+        },
+        "31-34": {
+          "exposed": -1.15,
+          "control": -0.36
+        },
+        "35-40": {
+          "exposed": 2.41,
+          "control": 3.65
+        },
+        "41-49": {
+          "exposed": 2.62,
+          "control": 1.9
+        },
+        "50+": {
+          "exposed": 1.18,
+          "control": 0.88
+        }
+      },
+      "yoyGap": {
+        "22-25": -2.93,
+        "26-30": -2.74,
+        "31-34": -0.78,
+        "35-40": -1.25,
+        "41-49": 0.72,
+        "50+": 0.29
+      }
+    },
+    {
+      "date": "2026-02-01",
+      "index": {
+        "22-25": {
+          "exposed": 92.48,
+          "control": 110.17
+        },
+        "26-30": {
+          "exposed": 98.93,
+          "control": 108.83
+        },
+        "31-34": {
+          "exposed": 102.65,
+          "control": 109.13
+        },
+        "35-40": {
+          "exposed": 110.35,
+          "control": 115.77
+        },
+        "41-49": {
+          "exposed": 111.35,
+          "control": 110.43
+        },
+        "50+": {
+          "exposed": 106.85,
+          "control": 105.73
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.08,
+          "control": -0.16
+        },
+        "26-30": {
+          "exposed": -1.86,
+          "control": 1.05
+        },
+        "31-34": {
+          "exposed": -1.25,
+          "control": -0.52
+        },
+        "35-40": {
+          "exposed": 2.27,
+          "control": 3.06
+        },
+        "41-49": {
+          "exposed": 2.57,
+          "control": 1.68
+        },
+        "50+": {
+          "exposed": 1.03,
+          "control": 0.73
+        }
+      },
+      "yoyGap": {
+        "22-25": -2.92,
+        "26-30": -2.91,
+        "31-34": -0.73,
+        "35-40": -0.79,
+        "41-49": 0.89,
+        "50+": 0.31
+      }
+    },
+    {
+      "date": "2026-03-01",
+      "index": {
+        "22-25": {
+          "exposed": 91.33,
+          "control": 109.33
+        },
+        "26-30": {
+          "exposed": 98.3,
+          "control": 108.5
+        },
+        "31-34": {
+          "exposed": 102.45,
+          "control": 108.6
+        },
+        "35-40": {
+          "exposed": 110.15,
+          "control": 115.8
+        },
+        "41-49": {
+          "exposed": 111.3,
+          "control": 110.53
+        },
+        "50+": {
+          "exposed": 106.85,
+          "control": 105.73
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.49,
+          "control": -0.18
+        },
+        "26-30": {
+          "exposed": -2.05,
+          "control": 1.06
+        },
+        "31-34": {
+          "exposed": -1.06,
+          "control": -0.58
+        },
+        "35-40": {
+          "exposed": 2.18,
+          "control": 3.22
+        },
+        "41-49": {
+          "exposed": 2.53,
+          "control": 1.87
+        },
+        "50+": {
+          "exposed": 1.13,
+          "control": 0.82
+        }
+      },
+      "yoyGap": {
+        "22-25": -3.3,
+        "26-30": -3.11,
+        "31-34": -0.48,
+        "35-40": -1.04,
+        "41-49": 0.66,
+        "50+": 0.31
+      }
+    },
+    {
+      "date": "2026-04-01",
+      "index": {
+        "22-25": {
+          "exposed": 90.51,
+          "control": 109.17
+        },
+        "26-30": {
+          "exposed": 98.04,
+          "control": 108.5
+        },
+        "31-34": {
+          "exposed": 102,
+          "control": 108.5
+        },
+        "35-40": {
+          "exposed": 110.25,
+          "control": 115.87
+        },
+        "41-49": {
+          "exposed": 111.5,
+          "control": 110.43
+        },
+        "50+": {
+          "exposed": 106.9,
+          "control": 105.8
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.25,
+          "control": 0.43
+        },
+        "26-30": {
+          "exposed": -1.88,
+          "control": 1.19
+        },
+        "31-34": {
+          "exposed": -1.35,
+          "control": -0.31
+        },
+        "35-40": {
+          "exposed": 2.13,
+          "control": 3.24
+        },
+        "41-49": {
+          "exposed": 2.52,
+          "control": 1.84
+        },
+        "50+": {
+          "exposed": 1.08,
+          "control": 0.72
+        }
+      },
+      "yoyGap": {
+        "22-25": -3.68,
+        "26-30": -3.07,
+        "31-34": -1.05,
+        "35-40": -1.11,
+        "41-49": 0.68,
+        "50+": 0.36
+      }
+    },
+    {
+      "date": "2026-05-01",
+      "index": {
+        "22-25": {
+          "exposed": 90.1,
+          "control": 109.7
+        },
+        "26-30": {
+          "exposed": 97.89,
+          "control": 108.97
+        },
+        "31-34": {
+          "exposed": 102,
+          "control": 108.5
+        },
+        "35-40": {
+          "exposed": 110.25,
+          "control": 116.2
+        },
+        "41-49": {
+          "exposed": 111.7,
+          "control": 110.93
+        },
+        "50+": {
+          "exposed": 107.05,
+          "control": 105.87
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.76,
+          "control": 0.01
+        },
+        "26-30": {
+          "exposed": -2.24,
+          "control": 1.09
+        },
+        "31-34": {
+          "exposed": -1.59,
+          "control": -0.88
+        },
+        "35-40": {
+          "exposed": 1.7,
+          "control": 2.81
+        },
+        "41-49": {
+          "exposed": 2.33,
+          "control": 1.74
+        },
+        "50+": {
+          "exposed": 0.94,
+          "control": 0.41
+        }
+      },
+      "yoyGap": {
+        "22-25": -3.77,
+        "26-30": -3.33,
+        "31-34": -0.71,
+        "35-40": -1.1,
+        "41-49": 0.59,
+        "50+": 0.53
+      }
+    },
+    {
+      "date": "2026-06-01",
+      "index": {
+        "22-25": {
+          "exposed": 90.29,
+          "control": 109.57
+        },
+        "26-30": {
+          "exposed": 97.22,
+          "control": 108.6
+        },
+        "31-34": {
+          "exposed": 101.5,
+          "control": 107.97
+        },
+        "35-40": {
+          "exposed": 110.05,
+          "control": 115.83
+        },
+        "41-49": {
+          "exposed": 111.65,
+          "control": 110.33
+        },
+        "50+": {
+          "exposed": 106.9,
+          "control": 105.7
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.38,
+          "control": 0.85
+        },
+        "26-30": {
+          "exposed": -2.01,
+          "control": 1.86
+        },
+        "31-34": {
+          "exposed": -1.41,
+          "control": -0.31
+        },
+        "35-40": {
+          "exposed": 1.8,
+          "control": 3.09
+        },
+        "41-49": {
+          "exposed": 2.47,
+          "control": 1.9
+        },
+        "50+": {
+          "exposed": 1.13,
+          "control": 0.73
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.23,
+        "26-30": -3.87,
+        "31-34": -1.1,
+        "35-40": -1.29,
+        "41-49": 0.57,
+        "50+": 0.4
+      }
+    },
+    {
+      "date": "2026-07-01",
+      "index": {
+        "22-25": {
+          "exposed": 90.65,
+          "control": 110.07
+        },
+        "26-30": {
+          "exposed": 97.34,
+          "control": 108.67
+        },
+        "31-34": {
+          "exposed": 101.45,
+          "control": 108.23
+        },
+        "35-40": {
+          "exposed": 110.15,
+          "control": 116.13
+        },
+        "41-49": {
+          "exposed": 111.85,
+          "control": 110.33
+        },
+        "50+": {
+          "exposed": 107.05,
+          "control": 105.53
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -2.85,
+          "control": 1.53
+        },
+        "26-30": {
+          "exposed": -1.69,
+          "control": 2.15
+        },
+        "31-34": {
+          "exposed": -1.22,
+          "control": 0.34
+        },
+        "35-40": {
+          "exposed": 1.75,
+          "control": 3.46
+        },
+        "41-49": {
+          "exposed": 2.61,
+          "control": 2.41
+        },
+        "50+": {
+          "exposed": 1.13,
+          "control": 0.89
+        }
+      },
+      "yoyGap": {
+        "22-25": -4.38,
+        "26-30": -3.83,
+        "31-34": -1.56,
+        "35-40": -1.7,
+        "41-49": 0.2,
+        "50+": 0.24
+      }
+    },
+    {
+      "date": "2026-08-01",
+      "index": {
+        "22-25": {
+          "exposed": 90.19,
+          "control": 108.77
+        },
+        "26-30": {
+          "exposed": 96.59,
+          "control": 108.07
+        },
+        "31-34": {
+          "exposed": 101.15,
+          "control": 107.33
+        },
+        "35-40": {
+          "exposed": 109.9,
+          "control": 115.6
+        },
+        "41-49": {
+          "exposed": 111.85,
+          "control": 110.47
+        },
+        "50+": {
+          "exposed": 106.95,
+          "control": 105.57
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.81,
+          "control": -0.95
+        },
+        "26-30": {
+          "exposed": -2.84,
+          "control": 0.32
+        },
+        "31-34": {
+          "exposed": -1.84,
+          "control": -1.61
+        },
+        "35-40": {
+          "exposed": 0.92,
+          "control": 1.5
+        },
+        "41-49": {
+          "exposed": 2.05,
+          "control": 1.37
+        },
+        "50+": {
+          "exposed": 0.6,
+          "control": 0.15
+        }
+      },
+      "yoyGap": {
+        "22-25": -2.87,
+        "26-30": -3.16,
+        "31-34": -0.23,
+        "35-40": -0.58,
+        "41-49": 0.68,
+        "50+": 0.45
+      }
+    },
+    {
+      "date": "2026-09-01",
+      "index": {
+        "22-25": {
+          "exposed": 90,
+          "control": 108.4
+        },
+        "26-30": {
+          "exposed": 96.32,
+          "control": 107.8
+        },
+        "31-34": {
+          "exposed": 100.73,
+          "control": 107.23
+        },
+        "35-40": {
+          "exposed": 109.9,
+          "control": 115.7
+        },
+        "41-49": {
+          "exposed": 111.9,
+          "control": 110.53
+        },
+        "50+": {
+          "exposed": 107.05,
+          "control": 105.8
+        }
+      },
+      "yoyChange": {
+        "22-25": {
+          "exposed": -3.78,
+          "control": 0.1
+        },
+        "26-30": {
+          "exposed": -2.92,
+          "control": 0.6
+        },
+        "31-34": {
+          "exposed": -2.02,
+          "control": -1.13
+        },
+        "35-40": {
+          "exposed": 0.73,
+          "control": 1.94
+        },
+        "41-49": {
+          "exposed": 1.81,
+          "control": 1.5
+        },
+        "50+": {
+          "exposed": 0.32,
+          "control": 0.21
+        }
+      },
+      "yoyGap": {
+        "22-25": -3.88,
+        "26-30": -3.52,
+        "31-34": -0.89,
+        "35-40": -1.21,
+        "41-49": 0.32,
+        "50+": 0.11
+      }
+    }
+  ],
+  "allAges": [
+    {
+      "date": "2021-10-01",
+      "exposed": 91.78,
+      "control": 91.37
+    },
+    {
+      "date": "2021-11-01",
+      "exposed": 92.59,
+      "control": 92.43
+    },
+    {
+      "date": "2021-12-01",
+      "exposed": 93.07,
+      "control": 93.67
+    },
+    {
+      "date": "2022-01-01",
+      "exposed": 93.82,
+      "control": 93.06
+    },
+    {
+      "date": "2022-02-01",
+      "exposed": 94.29,
+      "control": 93.62
+    },
+    {
+      "date": "2022-03-01",
+      "exposed": 94.78,
+      "control": 94.06
+    },
+    {
+      "date": "2022-04-01",
+      "exposed": 95.57,
+      "control": 95.31
+    },
+    {
+      "date": "2022-05-01",
+      "exposed": 95.82,
+      "control": 95.36
+    },
+    {
+      "date": "2022-06-01",
+      "exposed": 96.53,
+      "control": 96.04
+    },
+    {
+      "date": "2022-07-01",
+      "exposed": 97.51,
+      "control": 96.96
+    },
+    {
+      "date": "2022-08-01",
+      "exposed": 97.8,
+      "control": 97.09
+    },
+    {
+      "date": "2022-09-01",
+      "exposed": 98.85,
+      "control": 98.67
+    },
+    {
+      "date": "2022-10-01",
+      "exposed": 99.47,
+      "control": 99.51
+    },
+    {
+      "date": "2022-11-01",
+      "exposed": 100,
+      "control": 100
+    },
+    {
+      "date": "2022-12-01",
+      "exposed": 100.1,
+      "control": 100.9
+    },
+    {
+      "date": "2023-01-01",
+      "exposed": 100.55,
+      "control": 100.63
+    },
+    {
+      "date": "2023-02-01",
+      "exposed": 100.8,
+      "control": 101.27
+    },
+    {
+      "date": "2023-03-01",
+      "exposed": 101.05,
+      "control": 101.73
+    },
+    {
+      "date": "2023-04-01",
+      "exposed": 101.35,
+      "control": 102.17
+    },
+    {
+      "date": "2023-05-01",
+      "exposed": 101.6,
+      "control": 102.33
+    },
+    {
+      "date": "2023-06-01",
+      "exposed": 102,
+      "control": 102.97
+    },
+    {
+      "date": "2023-07-01",
+      "exposed": 101.9,
+      "control": 102.3
+    },
+    {
+      "date": "2023-08-01",
+      "exposed": 102.15,
+      "control": 102.7
+    },
+    {
+      "date": "2023-09-01",
+      "exposed": 102.8,
+      "control": 104.17
+    },
+    {
+      "date": "2023-10-01",
+      "exposed": 103,
+      "control": 104.33
+    },
+    {
+      "date": "2023-11-01",
+      "exposed": 103.5,
+      "control": 105.2
+    },
+    {
+      "date": "2023-12-01",
+      "exposed": 102.85,
+      "control": 104.9
+    },
+    {
+      "date": "2024-01-01",
+      "exposed": 103.45,
+      "control": 104.93
+    },
+    {
+      "date": "2024-02-01",
+      "exposed": 103.65,
+      "control": 104.93
+    },
+    {
+      "date": "2024-03-01",
+      "exposed": 103.8,
+      "control": 105.47
+    },
+    {
+      "date": "2024-04-01",
+      "exposed": 103.85,
+      "control": 105.23
+    },
+    {
+      "date": "2024-05-01",
+      "exposed": 104.2,
+      "control": 106.1
+    },
+    {
+      "date": "2024-06-01",
+      "exposed": 104.15,
+      "control": 105.7
+    },
+    {
+      "date": "2024-07-01",
+      "exposed": 103.9,
+      "control": 105.13
+    },
+    {
+      "date": "2024-08-01",
+      "exposed": 104.65,
+      "control": 106.57
+    },
+    {
+      "date": "2024-09-01",
+      "exposed": 104.5,
+      "control": 106.27
+    },
+    {
+      "date": "2024-10-01",
+      "exposed": 104.9,
+      "control": 106.83
+    },
+    {
+      "date": "2024-11-01",
+      "exposed": 105.6,
+      "control": 109.07
+    },
+    {
+      "date": "2024-12-01",
+      "exposed": 105.2,
+      "control": 108.5
+    },
+    {
+      "date": "2025-01-01",
+      "exposed": 105.35,
+      "control": 108.2
+    },
+    {
+      "date": "2025-02-01",
+      "exposed": 105.25,
+      "control": 108.07
+    },
+    {
+      "date": "2025-03-01",
+      "exposed": 105.1,
+      "control": 107.83
+    },
+    {
+      "date": "2025-04-01",
+      "exposed": 105,
+      "control": 107.73
+    },
+    {
+      "date": "2025-05-01",
+      "exposed": 105.4,
+      "control": 108.37
+    },
+    {
+      "date": "2025-06-01",
+      "exposed": 104.95,
+      "control": 107.53
+    },
+    {
+      "date": "2025-07-01",
+      "exposed": 104.95,
+      "control": 107.23
+    },
+    {
+      "date": "2025-08-01",
+      "exposed": 105.5,
+      "control": 108.4
+    },
+    {
+      "date": "2025-09-01",
+      "exposed": 105.65,
+      "control": 108.13
+    },
+    {
+      "date": "2025-10-01",
+      "exposed": 106.2,
+      "control": 109.47
+    },
+    {
+      "date": "2025-11-01",
+      "exposed": 106.4,
+      "control": 110
+    },
+    {
+      "date": "2025-12-01",
+      "exposed": 106.2,
+      "control": 109.8
+    },
+    {
+      "date": "2026-01-01",
+      "exposed": 106.3,
+      "control": 109.63
+    },
+    {
+      "date": "2026-02-01",
+      "exposed": 106.1,
+      "control": 109.23
+    },
+    {
+      "date": "2026-03-01",
+      "exposed": 105.9,
+      "control": 109.07
+    },
+    {
+      "date": "2026-04-01",
+      "exposed": 105.85,
+      "control": 109.07
+    },
+    {
+      "date": "2026-05-01",
+      "exposed": 105.85,
+      "control": 109.33
+    },
+    {
+      "date": "2026-06-01",
+      "exposed": 105.65,
+      "control": 109.03
+    },
+    {
+      "date": "2026-07-01",
+      "exposed": 105.8,
+      "control": 109.1
+    },
+    {
+      "date": "2026-08-01",
+      "exposed": 105.55,
+      "control": 108.73
+    },
+    {
+      "date": "2026-09-01",
+      "exposed": 105.5,
+      "control": 108.77
+    }
+  ]
+}

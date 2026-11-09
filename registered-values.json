@@ -36,6 +36,19 @@
     "jobStayer": "FRBATLWGT12MMUMHWGJST",
     "jobSwitcher": "FRBATLWGT12MMUMHWGJSW"
   },
+  "joltsIndustry": {
+    "exposed": {
+      "hires": "JTS540099HIR",
+      "quits": "JTS540099QUR",
+      "layoffsNsa": "JTU540099LDR"
+    },
+    "control": {
+      "hires": ["JTS2300HIR", "JTS7000HIR", "JTS6000HIR"],
+      "layoffsNsa": ["JTU2300LDR", "JTU7000LDR", "JTU6000LDR"]
+    }
+  },
+  "added_2026_11_09_jolts_industry": "NINE NEW SERIES, every id verified against FRED in CI on 2026-11-09 (analysis-refresh run 42625707140) before wiring, per the standing rule. Titles as FRED returned them, all monthly rates from 2000-12: JTS540099HIR 'Hires: Professional and Business Services' (SA); JTS540099QUR 'Quits: Professional and Business Services' (SA); JTS2300HIR 'Hires: Construction' (SA); JTS7000HIR 'Hires: Leisure and Hospitality' (SA); JTS6000HIR 'Hires: Private Education and Health Services' (SA); JTU540099LDR, JTU2300LDR, JTU7000LDR, JTU6000LDR 'Layoffs and Discharges' for the same four industries, NOT seasonally adjusted because FRED publishes adjusted layoffs rates for totals and regions only. They feed a second display grid, 'hiring freeze or active cuts': across is the exposed-minus-control HIRES gap less its 2010-2019 mean, up is the exposed-minus-control LAYOFFS gap less its 2010-2019 mean for the same calendar month (the seasonal remedy for unadjusted series). Professional and business services stands in for the exposed group because it is the only exposed industry with adjusted JOLTS rates (information and financial activities exist unadjusted only, JTU5100HIR and JTU510099HIR, verified the same day and not wired). None votes, gates or carries a threshold, and none is sent to the analyst: that would change the input hash and spend money, and is a separate decision.",
+  "parity_fix_2026_11_09_reabsorption_axis_strict": "The data repo's copy of the paired-state placement (scripts/analyst/pairedState.mjs) read the reabsorption axis as AT OR ABOVE zero while the app has read it as STRICTLY ABOVE since 2026-08-06. The series prints to one decimal, so exact zeros occur (July and September 2026), and on those months the stored check said DISPLACEMENT while the app showed REALLOCATION. Fixed to strict; the attribution axis stays inclusive in both repos. Stored pairedState values in runs.json from before this date are not recomputed.",
   "added_2026_07_28_series": "THREE NEW SERIES, every id verified against FRED on 2026-07-29 before wiring, per the standing rule that an unverified series id never gets wired. Titles as FRED returned them. JTSLDR: 'Layoffs and Discharges: Total Nonfarm, Rate, Monthly, Seasonally Adjusted', 2000-12..2026-05 - added as a fourth secondary readout on the reabsorption panel to separate a FROZEN labour market (weak hiring, normal layoffs, the burden on entrants) from a CYCLICAL one (weak hiring, elevated layoffs, firms shedding incumbents); nothing on the dashboard previously distinguished these and the reabsorption headline reads identically on both. FRBATLWGT12MMUMHWGJST and FRBATLWGT12MMUMHWGJSW: '12-Month Moving Average of Unweighted Median Hourly Wage Growth: Job Stayer' and ': Job Switcher', percent change from year ago, monthly, NSA, 1997-12..2026-06 - the Atlanta Fed Wage Growth Tracker, which follows the SAME INDIVIDUALS twelve months apart so composition cannot move it. It is the composition-immune control on the exposed-vs-control pay panel, which is an industry average and would rise on a hiring freeze alone. Both wage series are missing October 2025 at source, the same CPS gap that removes that month from LNS12300060. None of the three votes, gates or carries a threshold.",
   "prodBandLowPct": 2.7,
   "prodBandHighPct": 3.4,

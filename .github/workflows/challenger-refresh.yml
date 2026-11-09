@@ -1,0 +1,56 @@
+name: challenger-refresh
+
+# Daily check for a new Challenger, Gray & Christmas monthly Job Cuts Report. FREE
+# (public PDF, no key, no model). Mechanical: auto-commits the snapshot when a new
+# month parses; fails loud when the report's tables stop matching.
+#
+# Reports land on the first Thursday or so of each month at 05:30 ET. A daily check
+# at 14:35 UTC picks one up the day it is published and costs one small HTML fetch on
+# every other day. pdf.js does the text extraction; see the script header.
+on:
+  schedule:
+    - cron: "35 14 * * *" # 14:35 UTC daily, inside the free-feed window
+  workflow_dispatch:
+    inputs:
+      backfill_pages:
+        description: "Walk this many archive pages and parse every monthly PDF found (initial load). Blank = newest page only."
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pool-write
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # pdf.js (pure JavaScript) does the PDF reading, so the same code runs here and on
+      # the maintainer's machine. No system packages.
+      - run: npm ci --no-audit --no-fund
+      - name: Pull the Challenger job-cuts report
+        run: |
+          if [ -n "${{ github.event.inputs.backfill_pages }}" ]; then
+            node scripts/challenger-refresh.mjs --backfill "${{ github.event.inputs.backfill_pages }}"
+          else
+            node scripts/challenger-refresh.mjs
+          fi
+      - name: Commit updated snapshot
+        run: |
+          git config user.name "pool-refresh-bot"
+          git config user.email "actions@github.com"
+          git add data/challenger/job_cuts.json
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "challenger-refresh: new monthly job-cuts report"
+            git pull --rebase origin main
+            git push
+          fi
