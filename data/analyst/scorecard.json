@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "description": "Each analyst run pre-registers a condition that would overturn it within its horizon; later runs score it. FIRED means the data did what the analyst said would prove it wrong. NOT_FIRED means the horizon passed and it did not, which is weak evidence for the reading, since most falsifiers sit at levels rarely reached. Derived from runs.json; the dissent log is untouched.",
-  "lastRefreshed": "2026-11-09T13:35:18Z",
-  "runs": 35,
+  "lastRefreshed": "2026-11-09T23:59:29Z",
+  "runs": 36,
   "tally": {
     "FIRED": 8,
     "NOT_FIRED": 4,
-    "NOT_YET_DUE": 23,
+    "NOT_YET_DUE": 24,
     "UNCHECKABLE": 0
   },
   "settled": 12,
@@ -22,14 +22,14 @@
     "AUGMENTATION": {
       "FIRED": 2,
       "NOT_FIRED": 2,
-      "NOT_YET_DUE": 16,
+      "NOT_YET_DUE": 17,
       "UNCHECKABLE": 0,
-      "runs": 20
+      "runs": 21
     }
   },
   "streak": {
     "verdict": "AUGMENTATION",
-    "runs": 3,
+    "runs": 4,
     "dataMonths": 2,
     "since": "2026-11-04T21:42:52Z"
   },
@@ -558,6 +558,21 @@
       "observed": null,
       "threshold": null,
       "falsifierPlain": "If the prime-age employment-population ratio's 12-month change falls to -0.6 points or worse while control-industry job growth (construction/leisure/education-health) stays at or above 0.5% year-over-year, that would be the labor market failing to absorb AI-exposed outflow even though the broader economy is fine, and this reading would be wrong.",
+      "flippedFromPriorRun": false
+    },
+    {
+      "runAt": "2026-11-09T23:59:29Z",
+      "dataMonth": "2026-10",
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "outcome": "NOT_YET_DUE",
+      "reason": "registered this run",
+      "by": "2027-02-07",
+      "horizonDays": 90,
+      "distanceToThreshold": null,
+      "observed": null,
+      "threshold": null,
+      "falsifierPlain": "This reading is wrong if the prime-age employment-to-population ratio's 12-month change falls to -0.6 points or worse while control-industry job growth (construction, leisure/hospitality, education/health) stays at or above +0.5% YoY — real reabsorption failure without a general downturn to blame it on.",
       "flippedFromPriorRun": false
     }
   ]

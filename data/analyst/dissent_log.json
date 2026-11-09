@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "description": "Append-only Analyst timeline. Reset 2026-07-27 when the baseline, the reabsorption axis and the falsifier format all changed; earlier entries were scored against a rolling baseline and are not comparable. Archived under archive/.",
-  "lastRefreshed": "2026-11-06T21:14:33Z",
+  "lastRefreshed": "2026-11-09T23:59:29Z",
   "entries": [
     {
       "date": "2026-06",
@@ -4046,6 +4046,122 @@
         },
         "macro_regime": {
           "value": 0.4,
+          "date": null
+        },
+        "ai_capability_metr": {
+          "value": 186,
+          "date": "Claude Mythos Preview"
+        },
+        "ai_capability_gdpval_ratings": {
+          "value": 1866,
+          "date": "2026-11"
+        },
+        "ai_capability_vs_human_experts": {
+          "value": 70.9,
+          "date": "2025-12"
+        }
+      }
+    },
+    {
+      "date": "2026-10",
+      "runAt": "2026-11-09T23:59:29Z",
+      "loadBearingPanels": [
+        "reabsorption",
+        "exposed_vs_control_jobs",
+        "job_postings_spread"
+      ],
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "confidenceBasis": "Corroborates absence-of-deterioration: reabsorption headline (flat 12m change, level above 2019 reference) and layoffs_rate (below norm) say the aggregate market is still catching people; job_postings_spread (Indeed, independent source cut by occupation) and exposed_vs_control_jobs (CES, cut by industry) independently agree knowledge-work demand is specifically soft, which is real cross-source corroboration of the attribution half only. Unmet doubt: the long_term_unemployed_share secondary readout is rising (+3.5pts/12m, closest of the reabsorption components to its attention line) and is the one thread in the reabsorption bundle moving toward deterioration rather than away from it — I weighed this and did not let it flip the call, because the headline that actually decides the reabsorption panel is flat/healthy and three of the four secondary readouts (layoffs, hires-minus-quits, U6-U3) are at or inside normal, but it is a genuine fragility I am naming rather than hiding.",
+      "tagLine": "Gap parked, not closing",
+      "notificationLine": "AUGMENTATION verdict holds; AI adoption rose to 24.2% of firms, all else unchanged this month.",
+      "confoundedPathway": null,
+      "namedConfounder": null,
+      "falsifier": {
+        "panel": "reabsorption",
+        "field": "headline.change_over_12_months",
+        "comparator": "at_or_below",
+        "value": -0.6,
+        "unit": "percentage points (12-month change in 25-54 employment-to-population ratio)",
+        "also": {
+          "panel": "exposed_vs_control_jobs",
+          "field": "control_value",
+          "comparator": "at_or_above",
+          "value": 0.5
+        },
+        "by": "2027-02-07",
+        "horizonDays": 90,
+        "scorable": true,
+        "unscorableReason": null
+      },
+      "falsifierPlain": "This reading is wrong if the prime-age employment-to-population ratio's 12-month change falls to -0.6 points or worse while control-industry job growth (construction, leisure/hospitality, education/health) stays at or above +0.5% YoY — real reabsorption failure without a general downturn to blame it on.",
+      "dissent": "The analyst read AUGMENTATION from the panels without being shown either mechanical reading, and the four-corner grid places this month at DISPLACEMENT (gap wide and holding, aggregate deteriorating), while the rule-based chain reads BREAK with 2 of three differentials firing. Recorded, not resolved: these are different routes through the same data, and neither one overrules the other. The grid in particular turns on a single economy-wide series sitting near zero, so a month's disagreement with it is ordinary rather than a mark against either reading.",
+      "analysis": "The reading this month is AUGMENTATION: the data still describes displacement that hasn't started, rather than augmentation that's visibly working. That distinction matters because this verdict rests on the absence of deterioration — on hiring and employment holding roughly steady — not on any positive sign that AI is making exposed workers more productive or better paid. Confidence is low.\n\nNothing that actually decides this verdict moved since last month. The share of firms using AI in any business function ticked up to 24.2% from 23.8%, and the bond market eased slightly, but both are context, not evidence either way. Every panel that bears on displacement versus augmentation — employment in exposed versus unexposed industries, the prime-age employment rate, pay comparisons, job postings, worker income share — is unchanged from a month ago. This is a quiet month on the evidence that matters.\n\nThe strongest case for the verdict: the share of prime-age adults (25-54) who are employed has been flat over the past year, but it still sits comfortably above its pre-pandemic level, and layoffs are running below their historical norm. Soft hiring paired with low layoffs looks like a frozen market, not one where exposed workers are being pushed out. And industries AI should mostly leave alone — construction, hospitality, education, health care — are adding jobs at 1.17% a year, above their own normal pace, which rules out a general downturn as the explanation for weakness anywhere else.\n\nThe strongest case against: employment in AI-exposed industries is falling, down 1.35% over the past year against that same 1.17% growth elsewhere — about a 2.5-point gap that has now sat past the alarm level for three straight months without closing. It isn't widening, but it isn't healing either; it's parked. A second, independent dataset backs this up with a different cut of the labor market: job postings for knowledge-work occupations sit 21.6% below their pre-COVID level, while postings for hands-on occupations sit 8.1% above theirs. Two different data sources agree something specific to exposed work is happening. The usual explanation is that most of this opened during the 2022 interest-rate shock and has simply never closed, rather than being new damage — but a gap this persistent, years later, and overlapping a year of fast-rising AI adoption, is also what it would look like if an old shock were being locked in by something newer. That possibility cannot be ruled out here. Separately, the share of long-term unemployed workers is rising, both over the past year and faster still over the past three months — a genuine warning sign, even though it covers the whole economy rather than exposed industries alone.\n\nWhat to watch: the share of long-term unemployed in the reabsorption data, since it is the fastest-moving signal of whether people leaving exposed industries are actually landing new jobs, and it is currently the one piece of that picture moving the wrong way.",
+      "fullAnalysis": "The verdict is AUGMENTATION, read as low confidence: the picture so far looks like displacement that has not started rather than augmentation that is visibly paying off. That distinction matters and is explained below, because the case for this verdict rests almost entirely on the absence of deterioration in a few key indicators, not on any positive evidence that AI is making exposed workers more productive or better paid.\n\nWhat moved since last month: almost nothing that bears on the verdict. The share of firms reporting any use of AI in their business ticked up to 24.2% of firms from 23.8%, continuing a year-long rise from 17.3%. The bond market's yield curve eased slightly (a measure of recession expectations) but remains un-inverted, meaning investors still are not pricing in a downturn. Both of these are context. Every series that actually decides this verdict — employment in AI-exposed industries versus unexposed ones, the prime-age employment rate, wage growth comparisons, job postings, and the share of income going to workers — is unchanged from the prior reading. This is a quiet month on the load-bearing evidence, which is the normal condition and argues for caution rather than confidence in either direction.\n\nThe case for augmentation rests on two pillars. First, the share of prime-age adults (25 to 54) who are employed has been flat over the past year, but it still sits comfortably above its pre-pandemic level, and the rate at which employers are laying people off is below its historical norm. Soft hiring paired with low layoffs looks like a frozen market, where it's harder to get hired but employers are not actively cutting staff, rather than a market where exposed workers are being pushed out the door. Second, industries AI is expected to leave largely untouched — construction, hospitality, education, and health care — are adding jobs at 1.17% year over year, well above their own historical pace. That rules out a general economy-wide downturn as the explanation for any softness seen elsewhere: whatever weakness exists is not broad-based.\n\nThe case against complacency, and the part that argues hardest against the augmentation reading: employment in AI-exposed industries (information, professional services, financial activities) is falling, down 1.35% over the past year, against that same 1.17% growth in unexposed industries — roughly a 2.5-point gap. That gap has now sat past the level the panel treats as a genuine alarm for three straight months in a row, and it is not closing. It is not widening either — it's parked — but \"parked\" is a materially different and more worrying story than \"narrowing,\" because a gap that holds steady for this long could just as easily be the AI effect settling into a new, lower baseline for exposed-industry hiring rather than a shock working itself out. A second, independent dataset backs this up with a different cut of the economy: job postings for knowledge-work occupations sit 21.6% below where they stood before COVID, while postings for hands-on occupations sit 8.1% above theirs. Two different data providers, cutting the labor market two different ways — by industry and by occupation — and landing on the same conclusion: something specific to exposed work is going on, and it has been going on for a while. The standard explanation is that this spread mostly opened during the 2022 interest-rate shock that hit white-collar hiring hardest, and it has barely moved in six months, meaning it is not visibly accelerating right now. But a gap this persistent, years after that shock, and overlapping with a year in which AI adoption among firms has risen sharply, is also consistent with a newer cause locking in what an older shock started. The data available cannot settle which of these is true, and that is treated here as a live, unresolved possibility rather than something explained away.\n\nA related warning sign: the share of unemployed workers who have been out of work long-term is rising, both over the past year and, faster still, over just the past three months. This is an economy-wide figure, not an exposed-industries-only one, but it speaks directly to whether people who do leave a job are landing a new one quickly, which is exactly the mechanism a displacement story would move first.\n\nTwo panels were examined and excluded from the load-bearing case because they cannot currently answer the question they're being asked. The pay-growth gap between exposed and unexposed industries collapsed this month, from a modest exposed-industry advantage to essentially zero. Normally a shrinking pay advantage for exposed workers would read as bad news for them, but because exposed-industry employment is simultaneously shrinking, this could equally reflect lower-paid new hires leaving those industries and higher earners staying on (a compositional effect that inflates average pay), which would normally push the gap up, not down — exactly the opposite of what happened. That tension could not be resolved with what was available this run, so the figure was treated as unresolved rather than as evidence for or against. Separately, a same-persons wage tracker covering the whole economy shows people who changed jobs got real raises averaging 4.4%, against 3.5% for those who stayed — a healthy premium for switching jobs, and not a signal of unusual weakness. That reassures about the economy broadly but cannot be narrowed to exposed industries specifically, so it was used only to check that the broader wage story isn't obviously falling apart, not as direct support for augmentation.\n\nOn the stronger question of whether augmentation is actually working — not merely that displacement hasn't started — the evidence here is thin. Economy-wide productivity growth is 2.1%, down from 2.3% the prior quarter and still below the 2.7-to-3.4% range seen during the internet-driven productivity boom of the late 1990s, for two quarters running. If AI were visibly making workers more productive at scale, this is the number that would be expected to break out upward, and it has not. The share of national income going to workers continues a long-running decline that long predates AI and cannot be attributed to it with the data available; it is noted as background, not evidence either way. Measures of frontier AI capability — benchmark scores against human experts, model-use surveys splitting automation from augmentation — show continued improvement in what the models can do, but none of them carry any direct link to actual layoffs or hiring decisions, and the most relevant of these readings is nearly a year old. They establish that the tools keep getting more capable, which keeps an AI-driven story available, but they supply no evidence that employers are currently acting on that capability.\n\nTaken together: the reading rests on the fact that the one panel built to tell destruction apart from reallocation — whether workers leaving exposed industries are landing elsewhere — shows no sign of workers failing to land somewhere, not on any sign that AI is currently making anyone more valuable. The attribution gap between exposed and unexposed industries is real, persistent, and corroborated by a second independent data source, but three straight months parked past an alarm level, with a long-term-unemployment indicator moving the wrong way alongside it, keeps this at low rather than medium confidence.",
+      "compliance": {
+        "words": 486,
+        "numbers": 11,
+        "lengthBand": "ordinary"
+      },
+      "analysisStats": {
+        "present": true,
+        "words": 1200
+      },
+      "mechanicalState": "BREAK",
+      "breadth": 2,
+      "pairedState": {
+        "state": "DISPLACEMENT",
+        "attributionZ": 2.04,
+        "attributionLabel": "gap wide and holding",
+        "reabsorptionEmploymentFalling": 0.1,
+        "reabsorptionLabel": "aggregate deteriorating"
+      },
+      "pairedStateAgreesWithVerdict": "diverges",
+      "chainAgreesWithVerdict": "diverges",
+      "inputsFingerprint": "fbf065624a2cf8e3859299a9d5bd76ddc155e4aa887618271d378717b80bb29f",
+      "keyNumbers": {
+        "jobsDiffPp": -2.51671260324519,
+        "wagesDiffPp": 0.07567372565081953
+      },
+      "panelHeadlines": {
+        "labor_productivity": {
+          "value": 2.1,
+          "date": "2026-09"
+        },
+        "exposed_vs_control_jobs": {
+          "value": -2.52,
+          "date": "2026-10"
+        },
+        "reabsorption": {
+          "value": null,
+          "date": null
+        },
+        "exposed_vs_control_wages": {
+          "value": 0.08,
+          "date": "2026-10"
+        },
+        "individual_wage_growth": {
+          "value": null,
+          "date": "2026-09"
+        },
+        "job_postings_spread": {
+          "value": -29.7,
+          "date": "2026-10"
+        },
+        "worker_share_of_income": {
+          "value": -1,
+          "date": "2026-06"
+        },
+        "ai_adoption": {
+          "value": 24.2,
+          "date": "2026-10"
+        },
+        "ai_use_automation_vs_augmentation": {
+          "value": 43.1,
+          "date": "2025-09-15"
+        },
+        "macro_regime": {
+          "value": 0.3,
           "date": null
         },
         "ai_capability_metr": {
