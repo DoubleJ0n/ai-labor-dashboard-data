@@ -75377,7 +75377,7 @@
     }
   },
   "capability": {
-    "lastRefreshed": "2026-11-09T04:01:43Z",
+    "lastRefreshed": "2026-11-09T23:28:05Z",
     "points": [
       {
         "metricId": "metr",
@@ -76275,6 +76275,114 @@
         "value": 61.5,
         "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
         "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-15",
+        "label": "Claude Opus 5.5 (HLE)",
+        "value": 61.4,
+        "sourceUrl": "https://labs.scale.com/leaderboard/hle-diamond",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-01-15",
+        "label": "Gemini 4 Argon (HLE)",
+        "value": 57.1,
+        "sourceUrl": "https://labs.scale.com/leaderboard/hle-diamond",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-09-01",
+        "label": "GPT-6 Astra (HLE-Diamond)",
+        "value": 60.6,
+        "sourceUrl": "https://labs.scale.com/leaderboard/hle-diamond",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-09-01",
+        "label": "Claude Opus 5.5 (HLE-Diamond)",
+        "value": 55,
+        "sourceUrl": "https://labs.scale.com/leaderboard/hle-diamond",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-04-03",
+        "label": "Gemini 3 Pro (HLE)",
+        "value": 38.3,
+        "sourceUrl": "https://labs.scale.com/leaderboard/hle-diamond",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "reasoning",
+        "pointDate": "2025-04-03",
+        "label": "GPT-5 (HLE)",
+        "value": 25.3,
+        "sourceUrl": "https://labs.scale.com/leaderboard/hle-diamond",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-06-15",
+        "label": "Claude Fable 5 (SWE-bench Pro)",
+        "value": 80.3,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-03-01",
+        "label": "Claude Opus 4.8 (SWE-bench Pro)",
+        "value": 69.2,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-09-18",
+        "label": "Claude Sonnet 4.5 (SWE-bench Pro)",
+        "value": 43.6,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2025-09-18",
+        "label": "Claude Sonnet 4 (SWE-bench Pro)",
+        "value": 42.7,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-11-09",
+        "label": "Muse Spark 1.1 (SWE-bench Pro)",
+        "value": 61.5,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-11-09"
+      },
+      {
+        "metricId": "normalized",
+        "seriesKey": "coding",
+        "pointDate": "2026-11-09",
+        "label": "GPT-5.4 xHigh (SWE-bench Pro)",
+        "value": 59.1,
+        "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
+        "fetchDate": "2026-11-09"
       }
     ],
     "slots": [
@@ -76293,11 +76401,16 @@
         "sourceUrl": "https://labs.scale.com/leaderboard/swe_bench_pro",
         "fetchDate": "2026-11-09",
         "saturated": false,
-        "successorNote": "SWE-bench Pro V2 launched with substantially higher ceilings (97.7% for Kimi K3); original Pro may be approaching saturation.",
+        "successorNote": "",
         "note": "Real GitHub issue resolution on PRIVATE codebases that are legally inaccessible to model trainers, so contamination is structurally prevented rather than merely checked for. SOURCE PINNED to Scale's PUBLIC STANDARDIZED leaderboard and not to vendor self-reports: the two disagree by about twenty points (leaders near 60 standardized against 80-90 self-reported), and mixing them would rebuild a pool-roll error one field down. Replaced SWE-bench Verified, which saturated: OpenAI stopped reporting it in early 2026."
       }
     ],
     "log": [
+      {
+        "runDate": "2026-11-09",
+        "foundNew": true,
+        "summary": "+12 points (0 superseded)"
+      },
       {
         "runDate": "2026-11-09",
         "foundNew": true,
