@@ -47,6 +47,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "claude-fable-5-2",
+        "model": "Claude Fable 5.2 (Max, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-11-09",
+        "elo": 1831,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "muse-wonder",
         "model": "Muse Wonder (Max)",
         "lab": "Meta",
@@ -60,6 +68,14 @@
         "lab": "Anthropic",
         "releaseDate": "2026-09-01",
         "elo": 1763,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "claude-fable-5-2-xhigh-default-fallback",
+        "model": "Claude Fable 5.2 (Xhigh, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-11",
+        "elo": 1751,
         "poolVersion": "v2.1"
       },
       {
@@ -103,6 +119,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "claude-fable-5-2-high-default-fallback",
+        "model": "Claude Fable 5.2 (High, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-11",
+        "elo": 1718,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "grok-4-7",
         "model": "Grok 4.7 (Xhigh)",
         "lab": "SpaceXAI",
@@ -143,10 +167,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "muse-spark-1-3-max",
+        "slug": "muse-spark-1-3",
         "model": "Muse Spark 1.3 (Max)",
         "lab": "Meta",
-        "releaseDate": "2026-09",
+        "releaseDate": "2026-09-02",
         "elo": 1681,
         "poolVersion": "v2.1"
       },
@@ -343,6 +367,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "claude-fable-5-2-medium-default-fallback",
+        "model": "Claude Fable 5.2 (Medium, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-11",
+        "elo": 1591,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "grok-4-7-low",
         "model": "Grok 4.7 (Low)",
         "lab": "SpaceXAI",
@@ -407,6 +439,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "claude-fable-5-2-low-default-fallback",
+        "model": "Claude Fable 5.2 (Low, Default Fallback)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-11",
+        "elo": 1546,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "kimi-k3-max",
         "model": "Kimi K3 (Max)",
         "lab": "Kimi",
@@ -452,6 +492,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-07",
         "elo": 1512,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "agnes-2-5-pro-theta",
+        "model": "Agnes 2.5 Pro Theta",
+        "lab": "Sapiens AI",
+        "releaseDate": "2026-11",
+        "elo": 1507,
         "poolVersion": "v2.1"
       },
       {
@@ -522,7 +570,7 @@
         "slug": "minimax-m3-1-flash",
         "model": "MiniMax-M3.1-Flash",
         "lab": "MiniMax",
-        "releaseDate": "2026-10-19",
+        "releaseDate": "2026-10",
         "elo": 1465,
         "poolVersion": "v2.1"
       },
@@ -679,10 +727,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "muse-spark-open",
+        "slug": "muse-spark-open-xhigh",
         "model": "Muse Spark Open (Xhigh)",
         "lab": "Meta",
-        "releaseDate": "2026-10-15",
+        "releaseDate": "2026-10",
         "elo": 1401,
         "poolVersion": "v2.1"
       },
@@ -2479,7 +2527,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-06"
+    "lastRefreshed": "2026-11-09"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
