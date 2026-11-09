@@ -3,7 +3,7 @@
   "source": "US Census Bureau, Business Trends and Outlook Survey (BTOS) — share of firms using AI to produce goods or services",
   "sourceUrl": "https://www.census.gov/hfp/btos/",
   "note": "Live from the Census BTOS National.xlsx (share of firms using AI in ANY business function). Broader than the older 'producing goods/services' supplement. Parsed with deterministic invariants.",
-  "lastRefreshed": "2026-10-08",
+  "lastRefreshed": "2026-11-09",
   "points": [
     {
       "date": "2025-11-01",
@@ -48,9 +48,13 @@
     {
       "date": "2026-09-01",
       "pct": 23.8
+    },
+    {
+      "date": "2026-10-01",
+      "pct": 24.2
     }
   ],
-  "question": "In the last two weeks, did this business use Artificial Intelligence (AI) in any of its business functions? — Yes",
+  "question": "In the last two weeks, did this business use Super Intelligence or SI (formerly referred to as Artificial Intelligence or AI) in any of its business functions? (Examples of SI use include: SI-powered data analysis; generative SI for marketing, product design, or coding; virtual SI agents for customer service; SI-powered forecasting or pricing; SI-driven computer vision for quality control, etc.) — Yes",
   "bySize": {
     "source": "US Census Bureau, BTOS Employment Size Class.xlsx — AI use in any business function (Yes), by firm employment-size class",
     "sourceUrl": "https://www.census.gov/hfp/btos/downloads/Employment%20Size%20Class.xlsx",
@@ -103,6 +107,10 @@
           {
             "date": "2026-09-01",
             "pct": 23.9
+          },
+          {
+            "date": "2026-10-01",
+            "pct": 22.8
           }
         ]
       },
@@ -153,6 +161,10 @@
           {
             "date": "2026-09-01",
             "pct": 21.5
+          },
+          {
+            "date": "2026-10-01",
+            "pct": 23.4
           }
         ]
       },
@@ -203,6 +215,10 @@
           {
             "date": "2026-09-01",
             "pct": 22.4
+          },
+          {
+            "date": "2026-10-01",
+            "pct": 25.3
           }
         ]
       },
@@ -253,6 +269,10 @@
           {
             "date": "2026-09-01",
             "pct": 24.8
+          },
+          {
+            "date": "2026-10-01",
+            "pct": 29.2
           }
         ]
       },
@@ -303,6 +323,10 @@
           {
             "date": "2026-09-01",
             "pct": 29.2
+          },
+          {
+            "date": "2026-10-01",
+            "pct": 33.2
           }
         ]
       },
@@ -353,6 +377,10 @@
           {
             "date": "2026-09-01",
             "pct": 36.4
+          },
+          {
+            "date": "2026-10-01",
+            "pct": 40
           }
         ]
       },
@@ -403,6 +431,10 @@
           {
             "date": "2026-09-01",
             "pct": 36.5
+          },
+          {
+            "date": "2026-10-01",
+            "pct": 44.1
           }
         ]
       }
@@ -454,6 +486,10 @@
         {
           "date": "2026-09-01",
           "pct": 23.9
+        },
+        {
+          "date": "2026-10-01",
+          "pct": 22.8
         }
       ]
     },
@@ -504,8 +540,16 @@
         {
           "date": "2026-09-01",
           "pct": 36.5
+        },
+        {
+          "date": "2026-10-01",
+          "pct": 44.1
         }
       ]
     }
+  },
+  "subjectRenamed": {
+    "on": "2026-11-08",
+    "note": "BTOS renamed the subject of this question from Artificial Intelligence to Super Intelligence (SI), carrying 'formerly referred to as Artificial Intelligence or AI' in the wording and relabelling published history. Values before and after the rename are identical where they overlap, so the series is continuous and was NOT re-registered."
   }
 }
