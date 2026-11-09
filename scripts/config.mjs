@@ -386,6 +386,44 @@ export const ATTRIBUTION_SUSTAIN_MONTHS = 3;
 // displacement, and fires on 27% of the observation period including now.
 export const REABSORPTION_AXIS_LINE = 0.0;
 
+// THE UP AXIS IS PLACED ON A THREE-MONTH AVERAGE of the twelve-month change
+// (re-registered 2026-11-09, maintainer's decision: "the smooth long term trend line
+// is more valuable than the noisy month to month change").
+//
+// What was measured first. The month-to-month jump in the twelve-month change of the
+// prime-age employment share is 0.28 points in the 2010s and 0.27 points since 2023:
+// identical, so the recent wobble is not turbulence, it is the household survey's
+// sampling error (BLS puts the 90% band on a one-month move in the ratio at about
+// +/-0.2) printed to one decimal and inherited at both ends of a twelve-month
+// difference. On a line drawn at zero, that noise alone crossed the axis TWELVE times
+// since 2023 and produced seven exact zeros.
+//
+// Validated the same way the raw axis was before it was adopted:
+//                       boom 2014-19 called      side-flips      exact zeros
+//                       deteriorating            since 2023      since 2023
+//   raw 12-month change        0 / 72                12               7
+//   3-month average            0 / 72                 3               2
+//   6-month average            0 / 72                 3               0
+// Three buys nearly all the stability and never once calls the best labour market on
+// record displacement. Six buys nothing further and adds a quarter of lag. Twelve,
+// which the JOLTS grid needed, would make a twelve-month change into a two-year
+// construct on a series that is far less noisy than JOLTS.
+//
+// What it costs: a genuine turn appears about one month later than on the raw series,
+// and the smoothed line sits below zero in 20 of the 120 baseline months rather than
+// 15, which is inside the noise and not a boom year in either count.
+//
+// WHAT IT DOES NOT CHANGE. The reabsorption PANEL still reports the raw twelve-month
+// change; that is the field every falsifier on file references and the sentence the
+// card prints. Only the grid's placement, here and in the app, uses the average. The
+// analyst never sees the grid, so the payload and its hash are untouched.
+//
+// Window rule: the mean of the readings in the latest three calendar months, with at
+// least two present. One missing print (October 2025 is one) therefore costs nothing;
+// two in a row leave the month unplaceable, which is reported as such.
+export const REABSORPTION_AXIS_SMOOTHING_MONTHS = 3;
+export const REABSORPTION_AXIS_SMOOTHING_MIN_READINGS = 2;
+
 // The "historical norm" ring on the four-corner grid: how many standard deviations of
 // the FIXED baseline, per axis, count as the range that decade occupied on both axes
 // at once.

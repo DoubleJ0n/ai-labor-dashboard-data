@@ -52,6 +52,7 @@
 import {
   ATTRIBUTION_AXIS_Z, REABSORPTION_AXIS_LINE, ATTRIBUTION_SUSTAIN_MONTHS,
   BASELINE_START, BASELINE_END,
+  REABSORPTION_AXIS_SMOOTHING_MONTHS, REABSORPTION_AXIS_SMOOTHING_MIN_READINGS,
 } from "../config.mjs";
 // The dependency points THIS way on purpose: the state module reads the payload's
 // axes, and payload.mjs imports nothing from here. That is what keeps the state
@@ -121,6 +122,42 @@ function axisMoving(value, line, { strict = false } = {}) {
 // line is a measure-zero event there; on the employment axis it is a monthly fact.
 const REABSORPTION_STRICT = { strict: true };
 
+/** "YYYY-MM" minus k months. */
+function minusMonths(ym, k) {
+  const [y, m] = ym.split("-").map(Number);
+  const idx = y * 12 + (m - 1) - k;
+  return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, "0")}`;
+}
+
+/**
+ * The series the up axis is placed on: for each month with a reading, the mean of the
+ * readings in the latest REABSORPTION_AXIS_SMOOTHING_MONTHS calendar months ending
+ * there, when at least REABSORPTION_AXIS_SMOOTHING_MIN_READINGS are present. Months
+ * without enough are dropped, never interpolated. See config.mjs for the measurement
+ * behind the window; the app's smoothedForAxis applies the identical rule, and the two
+ * must agree or this stored check is checking something the reader never saw.
+ */
+export function smoothedForAxis(
+  oriented,
+  months = REABSORPTION_AXIS_SMOOTHING_MONTHS,
+  minReadings = REABSORPTION_AXIS_SMOOTHING_MIN_READINGS,
+) {
+  const byMonth = new Map(oriented);
+  const out = [];
+  for (const [m] of oriented) {
+    const window = [];
+    for (let k = 0; k < months; k++) {
+      const v = byMonth.get(minusMonths(m, k));
+      if (v != null) window.push(v);
+    }
+    if (window.length < minReadings) continue;
+    // Four decimals, as in the app: a mean of one-decimal prints must not land a
+    // hair's breadth from zero and fall on the wrong side of a strict divider.
+    out.push([m, Math.round((window.reduce((a, b) => a + b, 0) / window.length) * 10_000) / 10_000]);
+  }
+  return out;
+}
+
 /**
  * The paired state.
  *
@@ -188,7 +225,9 @@ export function pairedState(attributionZ, reabsorptionFalling, attributionHeld =
         `line since 2023, and the result was that the only thing ever changing the quadrant ` +
         `was an economy-wide employment change that an ordinary recession moves`,
       deteriorating: `the prime-age (25-54) employment-population ratio is LOWER than ` +
-        `it was twelve months ago. A change against raw zero, with no baseline, no ` +
+        `it was twelve months ago, on the mean of the latest ${REABSORPTION_AXIS_SMOOTHING_MONTHS} monthly ` +
+        `readings (re-registered 2026-11-09: the single-month reading switched sides on ` +
+        `sampling noise alone, twelve times since 2023). A change against raw zero, with no baseline, no ` +
         `reference year and no threshold, because those were all the wrong kind of ` +
         `answer here: a level against 2019 anchored the boundary to a cyclical peak ` +
         `and would have read displacement across most of the 2010s, and z-scoring the ` +
@@ -253,7 +292,9 @@ export function pairedPath(attributionOriented, reabsorptionShortfall, zOf, mont
 /** The current state plus the trailing 24-month path, straight off the pool. */
 export function pairedStateFromPool(pool, months = 24) {
   const attribution = attributionAxisOriented(pool);
-  const reabsorption = reabsorptionAxisOriented(pool);
+  // The panel's raw twelve-month change, averaged over three months for PLACEMENT
+  // only (2026-11-09). The payload keeps sending the raw figure.
+  const reabsorption = smoothedForAxis(reabsorptionAxisOriented(pool));
   const latestShortfall = reabsorption.length ? reabsorption[reabsorption.length - 1][1] : null;
 
   // The run of wide readings ending at the latest attribution month. Read off the
