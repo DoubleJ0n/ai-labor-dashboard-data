@@ -19,7 +19,7 @@
         "model": "Kimi K3.1 Pro",
         "lab": "Kimi",
         "releaseDate": "2026-10-23",
-        "elo": 1858,
+        "elo": 1861,
         "poolVersion": "v2.1"
       },
       {
@@ -131,7 +131,7 @@
         "model": "Grok 4.7 (Xhigh)",
         "lab": "SpaceXAI",
         "releaseDate": "2026-09-21",
-        "elo": 1718,
+        "elo": 1717,
         "poolVersion": "v2.1"
       },
       {
@@ -163,7 +163,7 @@
         "model": "MiMo-V2.6-Pro",
         "lab": "Xiaomi",
         "releaseDate": "2026-09-21",
-        "elo": 1689,
+        "elo": 1692,
         "poolVersion": "v2.1"
       },
       {
@@ -231,6 +231,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "gemini-4-argon-high",
+        "model": "Gemini 4 Argon (High)",
+        "lab": "Google",
+        "releaseDate": "2026-09",
+        "elo": 1633,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "muse-spark-1-3-xhigh",
         "model": "Muse Spark 1.3 (Xhigh)",
         "lab": "Meta",
@@ -239,27 +247,19 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "claude-haiku-5-5",
-        "model": "Claude Haiku 5.5 (Max)",
-        "lab": "Anthropic",
-        "releaseDate": "2026-10-07",
-        "elo": 1631,
-        "poolVersion": "v2.1"
-      },
-      {
-        "slug": "gemini-4-argon-high",
-        "model": "Gemini 4 Argon (High)",
-        "lab": "Google",
-        "releaseDate": "2026-09",
-        "elo": 1631,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "inkling-2-small",
         "model": "Inkling 2 Small",
         "lab": "Thinking Machines",
         "releaseDate": "2026-11-05",
         "elo": 1630,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "claude-haiku-5-5",
+        "model": "Claude Haiku 5.5 (Max)",
+        "lab": "Anthropic",
+        "releaseDate": "2026-10-07",
+        "elo": 1629,
         "poolVersion": "v2.1"
       },
       {
@@ -331,7 +331,7 @@
         "model": "GPT-6.1 Sol (Max)",
         "lab": "OpenAI",
         "releaseDate": "2026-09-29",
-        "elo": 1609,
+        "elo": 1608,
         "poolVersion": "v2.1"
       },
       {
@@ -351,19 +351,19 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "step-5-preview",
-        "model": "Step 5 Preview",
-        "lab": "StepFun",
-        "releaseDate": "2026-09",
-        "elo": 1594,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "claude-opus-5-5-medium-default-fallback",
         "model": "Claude Opus 5.5 (Medium, Default Fallback)",
         "lab": "Anthropic",
         "releaseDate": "2026-09",
         "elo": 1593,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "step-5-preview",
+        "model": "Step 5 Preview",
+        "lab": "StepFun",
+        "releaseDate": "2026-09",
+        "elo": 1592,
         "poolVersion": "v2.1"
       },
       {
@@ -387,7 +387,7 @@
         "model": "GPT-6 Astra (Max)",
         "lab": "OpenAI",
         "releaseDate": "2026-09-03",
-        "elo": 1584,
+        "elo": 1586,
         "poolVersion": "v2.1"
       },
       {
@@ -703,19 +703,19 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "gemini-3-7-flash-high",
+        "model": "Gemini 3.7 Flash (High)",
+        "lab": "Google",
+        "releaseDate": "2026-08",
+        "elo": 1404,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "gpt-6-sol-high",
         "model": "GPT-6 Sol (High)",
         "lab": "OpenAI",
         "releaseDate": "2026-09",
         "elo": 1404,
-        "poolVersion": "v2.1"
-      },
-      {
-        "slug": "gemini-3-7-flash-high",
-        "model": "Gemini 3.7 Flash (High)",
-        "lab": "Google",
-        "releaseDate": "2026-08",
-        "elo": 1403,
         "poolVersion": "v2.1"
       },
       {
@@ -1115,7 +1115,7 @@
         "model": "Apodex 1.1",
         "lab": "Apodex",
         "releaseDate": "2026-08",
-        "elo": 1196,
+        "elo": 1195,
         "poolVersion": "v2.1"
       },
       {
@@ -2527,7 +2527,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-09"
+    "lastRefreshed": "2026-11-10"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
