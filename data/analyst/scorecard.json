@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "description": "Each analyst run pre-registers a condition that would overturn it within its horizon; later runs score it. FIRED means the data did what the analyst said would prove it wrong. NOT_FIRED means the horizon passed and it did not, which is weak evidence for the reading, since most falsifiers sit at levels rarely reached. Derived from runs.json; the dissent log is untouched.",
-  "lastRefreshed": "2026-11-09T23:59:29Z",
-  "runs": 36,
+  "lastRefreshed": "2026-11-12T22:02:46Z",
+  "runs": 37,
   "tally": {
     "FIRED": 8,
-    "NOT_FIRED": 4,
-    "NOT_YET_DUE": 24,
+    "NOT_FIRED": 6,
+    "NOT_YET_DUE": 23,
     "UNCHECKABLE": 0
   },
-  "settled": 12,
-  "firedSharePct": 66.7,
+  "settled": 14,
+  "firedSharePct": 57.1,
   "byVerdict": {
     "DISPLACEMENT": {
       "FIRED": 6,
@@ -21,15 +21,15 @@
     },
     "AUGMENTATION": {
       "FIRED": 2,
-      "NOT_FIRED": 2,
-      "NOT_YET_DUE": 17,
+      "NOT_FIRED": 4,
+      "NOT_YET_DUE": 16,
       "UNCHECKABLE": 0,
-      "runs": 21
+      "runs": 22
     }
   },
   "streak": {
     "verdict": "AUGMENTATION",
-    "runs": 4,
+    "runs": 5,
     "dataMonths": 2,
     "since": "2026-11-04T21:42:52Z"
   },
@@ -145,13 +145,13 @@
       "dataMonth": "2026-07",
       "verdict": "AUGMENTATION",
       "confidence": "LOW",
-      "outcome": "NOT_YET_DUE",
-      "reason": "registered this run",
+      "outcome": "NOT_FIRED",
+      "reason": "the horizon passed without every condition being met",
       "by": "2026-11-10",
       "horizonDays": 90,
-      "distanceToThreshold": null,
-      "observed": null,
-      "threshold": null,
+      "distanceToThreshold": -0.6,
+      "observed": 0,
+      "threshold": -0.6,
       "falsifierPlain": "The prime-age employment-share chart moves first — if its 12-month change falls to −0.6 points or lower by 10 November while control-industry job growth is still at or above 0.8 percent, the exposed outflow is no longer landing anywhere and this reading was wrong.",
       "flippedFromPriorRun": false
     },
@@ -160,13 +160,13 @@
       "dataMonth": "2026-07",
       "verdict": "AUGMENTATION",
       "confidence": "LOW",
-      "outcome": "NOT_YET_DUE",
-      "reason": "registered this run",
+      "outcome": "NOT_FIRED",
+      "reason": "the horizon passed without every condition being met",
       "by": "2026-11-11",
       "horizonDays": 90,
-      "distanceToThreshold": null,
-      "observed": null,
-      "threshold": null,
+      "distanceToThreshold": -0.8,
+      "observed": 0,
+      "threshold": -0.8,
       "falsifierPlain": "The prime-age employment-rate chart moves first — if its twelve-month change drops to -0.8 points or worse while control-industry job growth is still at or above 0.5 percent, absorption has failed in a way that is specific to AI-exposed work and this reading was wrong.",
       "flippedFromPriorRun": false
     },
@@ -573,6 +573,21 @@
       "observed": null,
       "threshold": null,
       "falsifierPlain": "This reading is wrong if the prime-age employment-to-population ratio's 12-month change falls to -0.6 points or worse while control-industry job growth (construction, leisure/hospitality, education/health) stays at or above +0.5% YoY — real reabsorption failure without a general downturn to blame it on.",
+      "flippedFromPriorRun": false
+    },
+    {
+      "runAt": "2026-11-12T22:02:46Z",
+      "dataMonth": "2026-10",
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "outcome": "NOT_YET_DUE",
+      "reason": "registered this run",
+      "by": "2027-02-10",
+      "horizonDays": 90,
+      "distanceToThreshold": null,
+      "observed": null,
+      "threshold": null,
+      "falsifierPlain": "This reading is overturned if the prime-age employment-population ratio's 12-month change drops to -0.1 points or worse while control-industry (construction, leisure/hospitality, education/health) job growth is still at or above 0.5% — showing absorption failing specifically, not a broad downturn dragging everyone down together.",
       "flippedFromPriorRun": false
     }
   ]
