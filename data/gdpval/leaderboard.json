@@ -194,7 +194,7 @@
         "slug": "grok-4-6-xhigh",
         "model": "Grok 4.6 (Xhigh)",
         "lab": "SpaceXAI",
-        "releaseDate": "2026-08",
+        "releaseDate": "2026-08-12",
         "elo": 1654,
         "poolVersion": "v2.1"
       },
@@ -615,10 +615,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "gemini-3-8-flash",
+        "slug": "gemini-3-8-flash-high",
         "model": "Gemini 3.8 Flash (High)",
         "lab": "Google",
-        "releaseDate": "2026-09-02",
+        "releaseDate": "2026-09",
         "elo": 1445,
         "poolVersion": "v2.1"
       },
@@ -879,8 +879,8 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "jt-4-1-flash-236b-a21b-reasoning",
-        "model": "JT-4.1 Flash 236B A21B (Reasoning)",
+        "slug": "jt-4-1-flash-236b-a21b-0709-reasoning",
+        "model": "JT-4.1 Flash 236B A21B 0709 (Reasoning)",
         "lab": "China Mobile",
         "releaseDate": "2026-07",
         "elo": 1335,
@@ -1231,8 +1231,8 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "jt-4-1-flash-236b-a21b-non-reasoning",
-        "model": "JT-4.1 Flash 236B A21B (Non-reasoning)",
+        "slug": "jt-4-1-flash-236b-a21b-0709-non-reasoning",
+        "model": "JT-4.1 Flash 236B A21B 0709 (Non-reasoning)",
         "lab": "China Mobile",
         "releaseDate": "2026-07",
         "elo": 1128,
@@ -2527,7 +2527,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-10"
+    "lastRefreshed": "2026-11-12"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
