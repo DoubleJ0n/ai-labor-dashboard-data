@@ -391,6 +391,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "gemini-4-argon-medium",
+        "model": "Gemini 4 Argon (Medium)",
+        "lab": "Google",
+        "releaseDate": "2026-09",
+        "elo": 1579,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "gpt-5-6-sol-xhigh",
         "model": "GPT-5.6 Sol (Xhigh)",
         "lab": "OpenAI",
@@ -860,6 +868,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-07",
         "elo": 1339,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "deepseek-v4-pro-0813-high",
+        "model": "DeepSeek V4 Pro 0813 (High)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-08",
+        "elo": 1337,
         "poolVersion": "v2.1"
       },
       {
@@ -2527,7 +2543,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-12"
+    "lastRefreshed": "2026-11-13"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
