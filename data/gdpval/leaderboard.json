@@ -55,6 +55,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "qwen4-max",
+        "model": "Qwen4 Max",
+        "lab": "Alibaba",
+        "releaseDate": "2026-11-16",
+        "elo": 1809,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "muse-wonder",
         "model": "Muse Wonder (Max)",
         "lab": "Meta",
@@ -186,7 +194,7 @@
         "slug": "grok-4-6-xhigh",
         "model": "Grok 4.6 (Xhigh)",
         "lab": "SpaceXAI",
-        "releaseDate": "2026-08-12",
+        "releaseDate": "2026-08",
         "elo": 1658,
         "poolVersion": "v2.1"
       },
@@ -940,6 +948,14 @@
         "lab": "OpenAI",
         "releaseDate": "2026-09",
         "elo": 1322,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "deepseek-v4-1-flash-1017-non-reasoning",
+        "model": "DeepSeek V4.1 Flash 1017 (Non-reasoning)",
+        "lab": "DeepSeek",
+        "releaseDate": "2026-10",
+        "elo": 1317,
         "poolVersion": "v2.1"
       },
       {
@@ -1771,7 +1787,7 @@
         "model": "Claude 4.5 Haiku (Reasoning)",
         "lab": "Anthropic",
         "releaseDate": "2025-10",
-        "elo": 740,
+        "elo": 739,
         "poolVersion": "v2.1"
       },
       {
@@ -2543,7 +2559,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-14"
+    "lastRefreshed": "2026-11-16"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
