@@ -194,7 +194,7 @@
         "slug": "grok-4-6-xhigh",
         "model": "Grok 4.6 (Xhigh)",
         "lab": "SpaceXAI",
-        "releaseDate": "2026-08",
+        "releaseDate": "2026-08-12",
         "elo": 1658,
         "poolVersion": "v2.1"
       },
@@ -218,7 +218,7 @@
         "slug": "glm-5-3-flash",
         "model": "GLM-5.3-Flash",
         "lab": "Z AI",
-        "releaseDate": "2026-08",
+        "releaseDate": "2026-08-26",
         "elo": 1648,
         "poolVersion": "v2.1"
       },
@@ -335,10 +335,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "gpt-6-1-sol",
+        "slug": "gpt-6-1-sol-max",
         "model": "GPT-6.1 Sol (Max)",
         "lab": "OpenAI",
-        "releaseDate": "2026-09-29",
+        "releaseDate": "2026-09",
         "elo": 1607,
         "poolVersion": "v2.1"
       },
@@ -383,10 +383,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "gpt-6-astra",
+        "slug": "gpt-6-astra-max",
         "model": "GPT-6 Astra (Max)",
         "lab": "OpenAI",
-        "releaseDate": "2026-09-03",
+        "releaseDate": "2026-09",
         "elo": 1587,
         "poolVersion": "v2.1"
       },
@@ -1579,7 +1579,7 @@
         "model": "A.X-K2",
         "lab": "SK Telecom",
         "releaseDate": "2026-08",
-        "elo": 968,
+        "elo": 967,
         "poolVersion": "v2.1"
       },
       {
@@ -1707,7 +1707,7 @@
         "model": "K-EXAONE 2.0",
         "lab": "LG AI Research",
         "releaseDate": "2026-08",
-        "elo": 816,
+        "elo": 815,
         "poolVersion": "v2.1"
       },
       {
@@ -2559,7 +2559,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-16"
+    "lastRefreshed": "2026-11-17"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
