@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "description": "Each analyst run pre-registers a condition that would overturn it within its horizon; later runs score it. FIRED means the data did what the analyst said would prove it wrong. NOT_FIRED means the horizon passed and it did not, which is weak evidence for the reading, since most falsifiers sit at levels rarely reached. Derived from runs.json; the dissent log is untouched.",
-  "lastRefreshed": "2026-11-12T22:02:46Z",
-  "runs": 37,
+  "lastRefreshed": "2026-11-18T22:50:37Z",
+  "runs": 38,
   "tally": {
     "FIRED": 8,
-    "NOT_FIRED": 6,
-    "NOT_YET_DUE": 23,
+    "NOT_FIRED": 8,
+    "NOT_YET_DUE": 22,
     "UNCHECKABLE": 0
   },
-  "settled": 14,
-  "firedSharePct": 57.1,
+  "settled": 16,
+  "firedSharePct": 50,
   "byVerdict": {
     "DISPLACEMENT": {
       "FIRED": 6,
@@ -21,15 +21,15 @@
     },
     "AUGMENTATION": {
       "FIRED": 2,
-      "NOT_FIRED": 4,
-      "NOT_YET_DUE": 16,
+      "NOT_FIRED": 6,
+      "NOT_YET_DUE": 15,
       "UNCHECKABLE": 0,
-      "runs": 22
+      "runs": 23
     }
   },
   "streak": {
     "verdict": "AUGMENTATION",
-    "runs": 5,
+    "runs": 6,
     "dataMonths": 2,
     "since": "2026-11-04T21:42:52Z"
   },
@@ -175,13 +175,13 @@
       "dataMonth": "2026-07",
       "verdict": "AUGMENTATION",
       "confidence": "LOW",
-      "outcome": "NOT_YET_DUE",
-      "reason": "registered this run",
+      "outcome": "NOT_FIRED",
+      "reason": "the horizon passed without every condition being met",
       "by": "2026-11-13",
       "horizonDays": 90,
-      "distanceToThreshold": null,
-      "observed": null,
-      "threshold": null,
+      "distanceToThreshold": -0.6,
+      "observed": 0,
+      "threshold": -0.6,
       "falsifierPlain": "The prime-age employment-rate chart moves first: if its 12-month change drops to −0.6 points or worse while control-industry job growth is still at or above 0.8 percent, the outflow from exposed work is no longer being absorbed and this reading is wrong.",
       "flippedFromPriorRun": false
     },
@@ -190,13 +190,13 @@
       "dataMonth": "2026-07",
       "verdict": "AUGMENTATION",
       "confidence": "LOW",
-      "outcome": "NOT_YET_DUE",
-      "reason": "registered this run",
+      "outcome": "NOT_FIRED",
+      "reason": "the horizon passed without every condition being met",
       "by": "2026-11-18",
       "horizonDays": 90,
-      "distanceToThreshold": null,
-      "observed": null,
-      "threshold": null,
+      "distanceToThreshold": -0.62,
+      "observed": 0,
+      "threshold": -0.62,
       "falsifierPlain": "This reading is overturned if the prime-age employment ratio's 12-month change drops to -0.62 points or worse (its own 2-sigma deterioration line) while the exposed-minus-control jobs gap also reaches -2.48 or worse, showing exposed workers failing to land elsewhere rather than merely moving.",
       "flippedFromPriorRun": false
     },
@@ -588,6 +588,21 @@
       "observed": null,
       "threshold": null,
       "falsifierPlain": "This reading is overturned if the prime-age employment-population ratio's 12-month change drops to -0.1 points or worse while control-industry (construction, leisure/hospitality, education/health) job growth is still at or above 0.5% — showing absorption failing specifically, not a broad downturn dragging everyone down together.",
+      "flippedFromPriorRun": false
+    },
+    {
+      "runAt": "2026-11-18T22:50:37Z",
+      "dataMonth": "2026-10",
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "outcome": "NOT_YET_DUE",
+      "reason": "registered this run",
+      "by": "2027-02-16",
+      "horizonDays": 90,
+      "distanceToThreshold": null,
+      "observed": null,
+      "threshold": null,
+      "falsifierPlain": "If the prime-age employment-to-population ratio's 12-month change falls to -0.3 points or worse while control-industry job growth (construction, leisure/hospitality, education/health) stays at or above 0.5% year-over-year, that shows exposed-sector weakness has finally hit aggregate absorption rather than merely reallocating, and this reading would be wrong.",
       "flippedFromPriorRun": false
     }
   ]
