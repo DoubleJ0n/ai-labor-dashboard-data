@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "description": "Each analyst run pre-registers a condition that would overturn it within its horizon; later runs score it. FIRED means the data did what the analyst said would prove it wrong. NOT_FIRED means the horizon passed and it did not, which is weak evidence for the reading, since most falsifiers sit at levels rarely reached. Derived from runs.json; the dissent log is untouched.",
-  "lastRefreshed": "2026-11-18T22:50:37Z",
-  "runs": 38,
+  "lastRefreshed": "2026-11-19T22:55:39Z",
+  "runs": 39,
   "tally": {
     "FIRED": 8,
     "NOT_FIRED": 8,
-    "NOT_YET_DUE": 22,
+    "NOT_YET_DUE": 23,
     "UNCHECKABLE": 0
   },
   "settled": 16,
@@ -22,14 +22,14 @@
     "AUGMENTATION": {
       "FIRED": 2,
       "NOT_FIRED": 6,
-      "NOT_YET_DUE": 15,
+      "NOT_YET_DUE": 16,
       "UNCHECKABLE": 0,
-      "runs": 23
+      "runs": 24
     }
   },
   "streak": {
     "verdict": "AUGMENTATION",
-    "runs": 6,
+    "runs": 7,
     "dataMonths": 2,
     "since": "2026-11-04T21:42:52Z"
   },
@@ -603,6 +603,21 @@
       "observed": null,
       "threshold": null,
       "falsifierPlain": "If the prime-age employment-to-population ratio's 12-month change falls to -0.3 points or worse while control-industry job growth (construction, leisure/hospitality, education/health) stays at or above 0.5% year-over-year, that shows exposed-sector weakness has finally hit aggregate absorption rather than merely reallocating, and this reading would be wrong.",
+      "flippedFromPriorRun": false
+    },
+    {
+      "runAt": "2026-11-19T22:55:39Z",
+      "dataMonth": "2026-10",
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "outcome": "NOT_YET_DUE",
+      "reason": "registered this run",
+      "by": "2027-02-17",
+      "horizonDays": 90,
+      "distanceToThreshold": null,
+      "observed": null,
+      "threshold": null,
+      "falsifierPlain": "This reading is wrong if the prime-age employment-to-population ratio's 12-month change (reabsorption headline) drops to -0.1 points or worse while the exposed-minus-control jobs gap stays at or below -2.48, meaning people leaving AI-exposed work have stopped landing elsewhere even as the exposed/control split that singles out AI-exposed industries persists.",
       "flippedFromPriorRun": false
     }
   ]
