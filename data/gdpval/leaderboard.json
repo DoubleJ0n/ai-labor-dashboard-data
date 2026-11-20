@@ -951,6 +951,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "inkling-2-mini",
+        "model": "Inkling 2 Mini",
+        "lab": "Thinking Machines",
+        "releaseDate": "2026-11",
+        "elo": 1319,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "deepseek-v4-1-flash-1017-non-reasoning",
         "model": "DeepSeek V4.1 Flash 1017 (Non-reasoning)",
         "lab": "DeepSeek",
@@ -2559,7 +2567,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-17"
+    "lastRefreshed": "2026-11-20"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
