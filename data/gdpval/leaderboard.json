@@ -15,19 +15,19 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "kimi-k3-1-pro",
-        "model": "Kimi K3.1 Pro",
-        "lab": "Kimi",
-        "releaseDate": "2026-10-23",
-        "elo": 1861,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "muse-wonder-full",
         "model": "Muse Wonder Full (Max)",
         "lab": "Meta",
         "releaseDate": "2026-10-12",
         "elo": 1857,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "kimi-k3-1-pro",
+        "model": "Kimi K3.1 Pro",
+        "lab": "Kimi",
+        "releaseDate": "2026-10-23",
+        "elo": 1856,
         "poolVersion": "v2.1"
       },
       {
@@ -171,7 +171,7 @@
         "model": "MiMo-V2.6-Pro",
         "lab": "Xiaomi",
         "releaseDate": "2026-09-21",
-        "elo": 1692,
+        "elo": 1691,
         "poolVersion": "v2.1"
       },
       {
@@ -199,19 +199,19 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "glm-5-3",
-        "model": "GLM-5.3 (Max)",
-        "lab": "Z AI",
-        "releaseDate": "2026-08-18",
-        "elo": 1655,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "ling-3-1-flash",
         "model": "Ling 3.1 Flash 1019",
         "lab": "InclusionAI",
         "releaseDate": "2026-10-22",
         "elo": 1655,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "glm-5-3",
+        "model": "GLM-5.3 (Max)",
+        "lab": "Z AI",
+        "releaseDate": "2026-08-18",
+        "elo": 1654,
         "poolVersion": "v2.1"
       },
       {
@@ -543,18 +543,18 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "gpt-6-1-terra",
-        "model": "GPT-6.1 Terra (Max)",
-        "lab": "OpenAI",
-        "releaseDate": "2026-10-26",
-        "elo": 1476,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "claude-fable-5-1-low-default-fallback",
         "model": "Claude Fable 5.1 (Low, Default Fallback)",
         "lab": "Anthropic",
         "releaseDate": "2026-09",
+        "elo": 1475,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "gpt-6-1-terra",
+        "model": "GPT-6.1 Terra (Max)",
+        "lab": "OpenAI",
+        "releaseDate": "2026-10-26",
         "elo": 1475,
         "poolVersion": "v2.1"
       },
@@ -2567,7 +2567,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-21"
+    "lastRefreshed": "2026-11-24"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
