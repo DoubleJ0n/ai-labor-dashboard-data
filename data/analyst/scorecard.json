@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "description": "Each analyst run pre-registers a condition that would overturn it within its horizon; later runs score it. FIRED means the data did what the analyst said would prove it wrong. NOT_FIRED means the horizon passed and it did not, which is weak evidence for the reading, since most falsifiers sit at levels rarely reached. Derived from runs.json; the dissent log is untouched.",
-  "lastRefreshed": "2026-11-19T22:55:39Z",
-  "runs": 39,
+  "lastRefreshed": "2026-11-25T23:57:18Z",
+  "runs": 40,
   "tally": {
     "FIRED": 8,
-    "NOT_FIRED": 8,
+    "NOT_FIRED": 9,
     "NOT_YET_DUE": 23,
     "UNCHECKABLE": 0
   },
-  "settled": 16,
-  "firedSharePct": 50,
+  "settled": 17,
+  "firedSharePct": 47.1,
   "byVerdict": {
     "DISPLACEMENT": {
       "FIRED": 6,
@@ -21,15 +21,15 @@
     },
     "AUGMENTATION": {
       "FIRED": 2,
-      "NOT_FIRED": 6,
+      "NOT_FIRED": 7,
       "NOT_YET_DUE": 16,
       "UNCHECKABLE": 0,
-      "runs": 24
+      "runs": 25
     }
   },
   "streak": {
     "verdict": "AUGMENTATION",
-    "runs": 7,
+    "runs": 8,
     "dataMonths": 2,
     "since": "2026-11-04T21:42:52Z"
   },
@@ -205,13 +205,13 @@
       "dataMonth": "2026-07",
       "verdict": "AUGMENTATION",
       "confidence": "LOW",
-      "outcome": "NOT_YET_DUE",
-      "reason": "registered this run",
+      "outcome": "NOT_FIRED",
+      "reason": "the horizon passed without every condition being met",
       "by": "2026-11-24",
       "horizonDays": 90,
-      "distanceToThreshold": null,
-      "observed": null,
-      "threshold": null,
+      "distanceToThreshold": -0.5,
+      "observed": 0,
+      "threshold": -0.5,
       "falsifierPlain": "This reading is overturned if the prime-age employment-population ratio's 12-month change (reabsorption headline) falls to -0.5 points or below while the exposed-minus-control jobs differential simultaneously falls to -2.48 or below, both inside the next 90 days.",
       "flippedFromPriorRun": false
     },
@@ -618,6 +618,21 @@
       "observed": null,
       "threshold": null,
       "falsifierPlain": "This reading is wrong if the prime-age employment-to-population ratio's 12-month change (reabsorption headline) drops to -0.1 points or worse while the exposed-minus-control jobs gap stays at or below -2.48, meaning people leaving AI-exposed work have stopped landing elsewhere even as the exposed/control split that singles out AI-exposed industries persists.",
+      "flippedFromPriorRun": false
+    },
+    {
+      "runAt": "2026-11-25T23:57:18Z",
+      "dataMonth": "2026-10",
+      "verdict": "AUGMENTATION",
+      "confidence": "LOW",
+      "outcome": "NOT_YET_DUE",
+      "reason": "registered this run",
+      "by": "2027-02-23",
+      "horizonDays": 90,
+      "distanceToThreshold": null,
+      "observed": null,
+      "threshold": null,
+      "falsifierPlain": "This reading is wrong if the prime-age employment-population ratio's 12-month change (reabsorption headline) falls to -0.1 points or worse while control-industry job growth (exposed_vs_control_jobs control_value) is still at or above 0%, because that combination would show people failing to land rather than merely moving.",
       "flippedFromPriorRun": false
     }
   ]
