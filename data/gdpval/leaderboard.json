@@ -15,19 +15,19 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "kimi-k3-1-pro",
+        "model": "Kimi K3.1 Pro",
+        "lab": "Kimi",
+        "releaseDate": "2026-10-23",
+        "elo": 1858,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "muse-wonder-full",
         "model": "Muse Wonder Full (Max)",
         "lab": "Meta",
         "releaseDate": "2026-10-12",
         "elo": 1857,
-        "poolVersion": "v2.1"
-      },
-      {
-        "slug": "kimi-k3-1-pro",
-        "model": "Kimi K3.1 Pro",
-        "lab": "Kimi",
-        "releaseDate": "2026-10-23",
-        "elo": 1856,
         "poolVersion": "v2.1"
       },
       {
@@ -59,7 +59,7 @@
         "model": "Qwen4 Max",
         "lab": "Alibaba",
         "releaseDate": "2026-11-16",
-        "elo": 1809,
+        "elo": 1806,
         "poolVersion": "v2.1"
       },
       {
@@ -147,7 +147,7 @@
         "model": "Grok 4.7 (Xhigh)",
         "lab": "SpaceXAI",
         "releaseDate": "2026-09-21",
-        "elo": 1717,
+        "elo": 1716,
         "poolVersion": "v2.1"
       },
       {
@@ -171,7 +171,15 @@
         "model": "MiMo-V2.6-Pro",
         "lab": "Xiaomi",
         "releaseDate": "2026-09-21",
-        "elo": 1691,
+        "elo": 1690,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "ernie-5-5-flash",
+        "model": "ERNIE 5.5 Flash Preview",
+        "lab": "Baidu",
+        "releaseDate": "2026-11-23",
+        "elo": 1687,
         "poolVersion": "v2.1"
       },
       {
@@ -191,19 +199,19 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "ling-3-1-flash",
+        "model": "Ling 3.1 Flash 1019",
+        "lab": "InclusionAI",
+        "releaseDate": "2026-10-22",
+        "elo": 1660,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "grok-4-6-xhigh",
         "model": "Grok 4.6 (Xhigh)",
         "lab": "SpaceXAI",
         "releaseDate": "2026-08-12",
         "elo": 1659,
-        "poolVersion": "v2.1"
-      },
-      {
-        "slug": "ling-3-1-flash",
-        "model": "Ling 3.1 Flash 1019",
-        "lab": "InclusionAI",
-        "releaseDate": "2026-10-22",
-        "elo": 1658,
         "poolVersion": "v2.1"
       },
       {
@@ -215,10 +223,10 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "glm-5-3-flash",
+        "slug": "glm-5-3-flash-max",
         "model": "GLM-5.3-Flash (Max)",
         "lab": "Z AI",
-        "releaseDate": "2026-08-26",
+        "releaseDate": "2026-08",
         "elo": 1649,
         "poolVersion": "v2.1"
       },
@@ -235,7 +243,7 @@
         "model": "Qwen3.8-Flash-Next",
         "lab": "Alibaba",
         "releaseDate": "2026-08",
-        "elo": 1637,
+        "elo": 1638,
         "poolVersion": "v2.1"
       },
       {
@@ -603,7 +611,7 @@
         "model": "Claude Opus 4.8 (Max)",
         "lab": "Anthropic",
         "releaseDate": "2026-05",
-        "elo": 1461,
+        "elo": 1462,
         "poolVersion": "v2.1"
       },
       {
@@ -631,18 +639,18 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "gemini-3-8-flash-high",
-        "model": "Gemini 3.8 Flash (High)",
-        "lab": "Google",
-        "releaseDate": "2026-09",
-        "elo": 1443,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "gpt-6-luna",
         "model": "GPT-6 Luna (Max)",
         "lab": "OpenAI",
         "releaseDate": "2026-09-22",
+        "elo": 1444,
+        "poolVersion": "v2.1"
+      },
+      {
+        "slug": "gemini-3-8-flash-high",
+        "model": "Gemini 3.8 Flash (High)",
+        "lab": "Google",
+        "releaseDate": "2026-09",
         "elo": 1443,
         "poolVersion": "v2.1"
       },
@@ -1831,6 +1839,14 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "deepseek-v3-2-reasoning",
+        "model": "DeepSeek V3.2 (Reasoning)",
+        "lab": "DeepSeek",
+        "releaseDate": "2025-12",
+        "elo": 699,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "claude-4-sonnet-reasoning",
         "model": "Claude 4 Sonnet (Reasoning)",
         "lab": "Anthropic",
@@ -1839,19 +1855,11 @@
         "poolVersion": "v2.1"
       },
       {
-        "slug": "deepseek-v3-2-reasoning",
-        "model": "DeepSeek V3.2 (Reasoning)",
-        "lab": "DeepSeek",
-        "releaseDate": "2025-12",
-        "elo": 698,
-        "poolVersion": "v2.1"
-      },
-      {
         "slug": "nemotron-3-5-lightning",
         "model": "Nemotron 3.5 Lightning",
         "lab": "NVIDIA",
         "releaseDate": "2026-08",
-        "elo": 645,
+        "elo": 646,
         "poolVersion": "v2.1"
       },
       {
@@ -1871,19 +1879,19 @@
         "poolVersion": "v2.1"
       },
       {
+        "slug": "gpt-oss-120b-high",
+        "model": "gpt-oss-120b (High)",
+        "lab": "OpenAI",
+        "releaseDate": "2025-08",
+        "elo": 616,
+        "poolVersion": "v2.1"
+      },
+      {
         "slug": "qwen3-5-35b-a3b-non-reasoning",
         "model": "Qwen3.5 35B A3B (Non-reasoning)",
         "lab": "Alibaba",
         "releaseDate": "2026-02",
         "elo": 616,
-        "poolVersion": "v2.1"
-      },
-      {
-        "slug": "gpt-oss-120b-high",
-        "model": "gpt-oss-120b (High)",
-        "lab": "OpenAI",
-        "releaseDate": "2025-08",
-        "elo": 615,
         "poolVersion": "v2.1"
       },
       {
@@ -2395,7 +2403,7 @@
         "model": "Gemma 4 E4B (Reasoning)",
         "lab": "Google",
         "releaseDate": "2026-04",
-        "elo": -30,
+        "elo": -29,
         "poolVersion": "v2.1"
       },
       {
@@ -2419,7 +2427,7 @@
         "model": "NVIDIA Nemotron 3 Nano 4B",
         "lab": "NVIDIA",
         "releaseDate": "2026-03",
-        "elo": -52,
+        "elo": -51,
         "poolVersion": "v2.1"
       },
       {
@@ -2567,7 +2575,7 @@
         "poolVersion": "v2.1"
       }
     ],
-    "lastRefreshed": "2026-11-24"
+    "lastRefreshed": "2026-11-27"
   },
   "expertWinRate": {
     "source": "OpenAI - GDPval, wins + ties against industry experts on the 220-task gold subset",
